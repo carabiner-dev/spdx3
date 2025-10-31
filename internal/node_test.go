@@ -82,4 +82,105 @@ func TestNode(t *testing.T) {
 		"simplelicensing_LicenseExpression": 1,
 		"software_File":                     2,
 	}, textractNodeTypes(t, &env.Graph))
+
+	// Check the values of the CreationInfo node
+	for _, n := range env.Graph {
+		if n.GetType() != "CreationInfo" {
+			continue
+		}
+
+		ci, ok := n.(*CreationInfo)
+		require.True(t, ok)
+
+		require.Equal(t, "3.0.1", ci.SpecVersion)
+		require.Equal(t, "_:creationinfo", ci.ID)
+		crt, err := time.Parse(time.RFC3339, "2024-05-31T00:00:00Z")
+		require.NoError(t, err)
+		require.Equal(t, &crt, ci.Created)
+	}
+}
+
+func TestUnmarshalNodeWithAlias(t *testing.T) {
+	tests := []struct {
+		name     string
+		jsonData string
+		testFunc func(t *testing.T, data []byte)
+	}{
+		{
+			name:     "CreationInfo full object",
+			jsonData: `{"spdxID":"id1","@id":"_:ci1","type":"CreationInfo","name":"test","specVersion":"3.0.1"}`,
+			testFunc: func(t *testing.T, data []byte) {
+				var ci CreationInfo
+				err := ci.UnmarshalJSON(data)
+				require.NoError(t, err)
+				require.Equal(t, "_:ci1", ci.ID)
+				require.Equal(t, "CreationInfo", ci.Type)
+				require.Equal(t, "test", ci.Name)
+				require.Equal(t, "3.0.1", ci.SpecVersion)
+			},
+		},
+		{
+			name:     "CreationInfo string reference",
+			jsonData: `"_:ci2"`,
+			testFunc: func(t *testing.T, data []byte) {
+				var ci CreationInfo
+				err := ci.UnmarshalJSON(data)
+				require.NoError(t, err)
+				require.Equal(t, "ci2", ci.ID)
+			},
+		},
+		{
+			name:     "Person full object",
+			jsonData: `{"spdxID":"id1","@id":"_:p1","type":"Person","name":"John Doe","externalIdentifier":[{"type":"ExternalIdentifier","externalIdentifierType":"email","identifier":"john@example.com"}]}`,
+			testFunc: func(t *testing.T, data []byte) {
+				var p Person
+				err := p.UnmarshalJSON(data)
+				require.NoError(t, err)
+				require.Equal(t, "_:p1", p.ID)
+				require.Equal(t, "Person", p.Type)
+				require.Equal(t, "John Doe", p.Name)
+				require.Len(t, p.ExternalIdentifier, 1)
+				require.Equal(t, "john@example.com", p.ExternalIdentifier[0].Identifier)
+			},
+		},
+		{
+			name:     "Person string reference",
+			jsonData: `"_:p2"`,
+			testFunc: func(t *testing.T, data []byte) {
+				var p Person
+				err := p.UnmarshalJSON(data)
+				require.NoError(t, err)
+				require.Equal(t, "p2", p.ID)
+			},
+		},
+		{
+			name:     "File full object with embedded structs",
+			jsonData: `{"spdxID":"id1","@id":"_:f1","type":"software_File","name":"test.go","software_downloadLocation":"https://example.com/test.go"}`,
+			testFunc: func(t *testing.T, data []byte) {
+				var f File
+				err := f.UnmarshalJSON(data)
+				require.NoError(t, err)
+				require.Equal(t, "_:f1", f.ID)
+				require.Equal(t, "software_File", f.Type)
+				require.Equal(t, "test.go", f.Name)
+				require.Equal(t, "https://example.com/test.go", f.DownloadLocation)
+			},
+		},
+		{
+			name:     "File string reference",
+			jsonData: `"_:f2"`,
+			testFunc: func(t *testing.T, data []byte) {
+				var f File
+				err := f.UnmarshalJSON(data)
+				require.NoError(t, err)
+				require.Equal(t, "f2", f.ID)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.testFunc(t, []byte(tt.jsonData))
+		})
+	}
 }

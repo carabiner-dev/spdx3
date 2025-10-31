@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -39,6 +40,7 @@ type Envelope struct {
 
 type Graph []Node
 
+// UnmarshalJSON unmarshalls the JSONLD graph into nodes typed to their kinds.
 func (g *Graph) UnmarshalJSON(data []byte) error {
 	list := []json.RawMessage{}
 	if err := json.Unmarshal(data, &list); err != nil {
@@ -46,7 +48,7 @@ func (g *Graph) UnmarshalJSON(data []byte) error {
 	}
 
 	for i, prenodeData := range list {
-		// Parse the entry to a prenode
+		// Parse the entry to a prenode to determine its type
 		var prenode = &PreNode{}
 		if err := json.Unmarshal(prenodeData, prenode); err != nil {
 			return fmt.Errorf("parsing node #%d: %w", i, err)
@@ -156,12 +158,21 @@ type DatasetPackage struct {
 	DataSetNode
 }
 
+func (dp *DatasetPackage) UnmarshalJSON(data []byte) error {
+	return unmarshalNode(data, dp, &dp.PreNode)
+}
+
+// File
 type File struct {
 	BaseNode
 	SoftwareNode
 	BuiltTime    *time.Time `json:"builtTime"`
 	ReleaseTime  *time.Time `json:"releaseTime"`
 	OriginatedBy []string   `json:"originatedBy"`
+}
+
+func (f *File) UnmarshalJSON(data []byte) error {
+	return unmarshalNode(data, f, &f.PreNode)
 }
 
 type Relationship struct {
@@ -171,11 +182,19 @@ type Relationship struct {
 	RelationshipTypes string `json:"relationshipType"`
 }
 
+func (r *Relationship) UnmarshalJSON(data []byte) error {
+	return unmarshalNode(data, r, &r.PreNode)
+}
+
 // simplelicensing_LicenseExpression
 type LicenseExpression struct {
 	BaseNode
 	LicenseExpression  string `json:"simplelicensing_licenseExpression"`
 	LicenseListVersion string `json:"simplelicensing_licenseListVersion"`
+}
+
+func (le *LicenseExpression) UnmarshalJSON(data []byte) error {
+	return unmarshalNode(data, le, &le.PreNode)
 }
 
 type Bom struct {
@@ -184,10 +203,18 @@ type Bom struct {
 	ProfileConformance []string `json:"profileConformance"`
 }
 
+func (b *Bom) UnmarshalJSON(data []byte) error {
+	return unmarshalNode(data, b, &b.PreNode)
+}
+
 type SpdxDocument struct {
 	BaseNode
 	RootedNode
 	ProfileConformance []string `json:"profileConformance"`
+}
+
+func (sd *SpdxDocument) UnmarshalJSON(data []byte) error {
+	return unmarshalNode(data, sd, &sd.PreNode)
 }
 
 type Organization struct {
@@ -195,9 +222,17 @@ type Organization struct {
 	ExternalIdentifier []ExternalIdentifier `json:"externalIdentifier"`
 }
 
+func (o *Organization) UnmarshalJSON(data []byte) error {
+	return unmarshalNode(data, o, &o.PreNode)
+}
+
 type Person struct {
 	BaseNode
 	ExternalIdentifier []ExternalIdentifier `json:"externalIdentifier"`
+}
+
+func (p *Person) UnmarshalJSON(data []byte) error {
+	return unmarshalNode(data, p, &p.PreNode)
 }
 
 type ExternalIdentifier struct {
@@ -238,22 +273,70 @@ func (ci *CreationInfo) MarshalJSON() ([]byte, error) {
 	return fmt.Appendf(nil, "\"_:%s\"", ci.ID), nil
 }
 
-func (ci *CreationInfo) UnmarshalJSON(data []byte) error {
-	type Alias CreationInfo
-	aux := &struct {
-		*Alias
-	}{
-		Alias: (*Alias)(ci),
-	}
-	if err := json.Unmarshal(data, aux); err == nil {
+// unmarshalNode is a universal unmarshaling helper for any type that embeds PreNode.
+// It handles both full object serialization and string reference serialization (e.g., "_:id").
+func unmarshalNode(data []byte, target interface{}, preNodePtr *PreNode) error {
+	// First, check if it's a string reference
+	var s string
+	if err := json.Unmarshal(data, &s); err == nil {
+		preNodePtr.ID = strings.TrimPrefix(s, "_:")
 		return nil
 	}
 
-	var s string
-	if errs := json.Unmarshal(data, &s); errs == nil {
-		ci.ID = strings.TrimPrefix(s, "_:")
-		return nil
+	// Otherwise, it's an object. Unmarshal into a map first to get all fields
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	// Use reflection to set fields directly
+	return unmarshalFields(raw, target)
+}
+
+// unmarshalFields recursively unmarshals fields including embedded structs
+func unmarshalFields(raw map[string]json.RawMessage, target interface{}) error {
+	v := reflect.ValueOf(target).Elem()
+	t := v.Type()
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		fieldValue := v.Field(i)
+
+		if field.Anonymous {
+			// Handle embedded structs by recursively unmarshaling
+			if fieldValue.CanAddr() {
+				if err := unmarshalFields(raw, fieldValue.Addr().Interface()); err != nil {
+					return err
+				}
+			}
+			continue
+		}
+
+		// Get the JSON tag
+		jsonTag := field.Tag.Get("json")
+		if jsonTag == "" || jsonTag == "-" {
+			continue
+		}
+		// Handle json tag options like "name,omitempty"
+		tagName := strings.Split(jsonTag, ",")[0]
+		if tagName == "" {
+			continue
+		}
+
+		// Check if we have data for this field
+		if rawData, ok := raw[tagName]; ok {
+			// Create a new value of the field's type
+			newVal := reflect.New(fieldValue.Type())
+			if err := json.Unmarshal(rawData, newVal.Interface()); err != nil {
+				return err
+			}
+			fieldValue.Set(newVal.Elem())
+		}
 	}
 
 	return nil
+}
+
+func (ci *CreationInfo) UnmarshalJSON(data []byte) error {
+	return unmarshalNode(data, ci, &ci.PreNode)
 }
