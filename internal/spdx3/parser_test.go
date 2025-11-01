@@ -62,7 +62,7 @@ func TestRender(t *testing.T) {
 }
 
 func TestNode(t *testing.T) {
-	p := Parser{}
+	p := NewParser()
 	data, err := os.ReadFile("testdata/spdx.json")
 	require.NoError(t, err)
 	env, err := p.Parse(bytes.NewReader(data))
