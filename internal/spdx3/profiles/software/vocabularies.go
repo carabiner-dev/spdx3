@@ -1,7 +1,14 @@
 package software
 
+import "github.com/carabiner-dev/databom/internal/spdx3/types"
+
 // ContentIdentifierType vocabulary defines valid content identifier types
 type ContentIdentifierType string
+
+var ContentIdentifierTypes = types.Vocabulary[ContentIdentifierType]{
+	ContentIdentifierTypeGitoid,
+	ContentIdentifierTypeSwhid,
+}
 
 const (
 	// ContentIdentifierTypeGitoid represents a Git Object ID - a unique hash of a binary artifact

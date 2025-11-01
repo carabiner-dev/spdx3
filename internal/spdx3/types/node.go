@@ -6,6 +6,8 @@ var ErrUnsupportedNodeType = errors.New("unsupported node type")
 
 type ID string
 
+type Vocabulary[T ~string] []T
+
 func (id ID) GetID() string {
 	return string(id)
 }
