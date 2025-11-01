@@ -56,6 +56,12 @@ type ExternalIdentifier struct {
 	IdentifierLocator      []string `json:"identifierLocator"`
 }
 
+// DictionaryEntry represents a key-value pair mapping
+type DictionaryEntry struct {
+	Key   string `json:"key"`
+	Value string `json:"value,omitempty"`
+}
+
 type Bom struct {
 	Node
 	types.RootedNode
