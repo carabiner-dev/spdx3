@@ -1,11 +1,35 @@
 package core
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/carabiner-dev/databom/internal/spdx3/types"
 	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
 )
+
+const Prefix = "core"
+
+var Profile = types.Profile{
+	Prefix: Prefix,
+	Classes: map[string]reflect.Type{
+		"Relationship":                  reflect.TypeOf(&Relationship{}),
+		"Agent":                         reflect.TypeOf(&Agent{}),
+		"Artifact":                      reflect.TypeOf(&Artifact{}),
+		"Person":                        reflect.TypeOf(&Person{}),
+		"Organization":                  reflect.TypeOf(&Organization{}),
+		"Hash":                          reflect.TypeOf(&Hash{}),
+		"PackageVerificationCode":       reflect.TypeOf(&PackageVerificationCode{}),
+		"Annotation":                    reflect.TypeOf(&Annotation{}),
+		"SoftwareAgent":                 reflect.TypeOf(&SoftwareAgent{}),
+		"Tool":                          reflect.TypeOf(&Tool{}),
+		"LifecycleScopedRelationship":   reflect.TypeOf(&LifecycleScopedRelationship{}),
+		"ElementCollection":             reflect.TypeOf(&ElementCollection{}),
+		"Bundle":                        reflect.TypeOf(&Bundle{}),
+		"Bom":                           reflect.TypeOf(&Bom{}),
+		"SpdxDocument":                  reflect.TypeOf(&SpdxDocument{}),
+	},
+}
 
 type Relationship struct {
 	Node

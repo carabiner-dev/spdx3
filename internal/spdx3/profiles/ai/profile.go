@@ -1,12 +1,22 @@
 package ai
 
 import (
+	"reflect"
+
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/software"
+	"github.com/carabiner-dev/databom/internal/spdx3/types"
 	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
 )
 
 const Prefix = "ai"
+
+var Profile = types.Profile{
+	Prefix: Prefix,
+	Classes: map[string]reflect.Type{
+		"AIPackage": reflect.TypeOf(&AIPackage{}),
+	},
+}
 
 // EnergyConsumptionDescription provides detailed documentation of energy consumption metrics
 type EnergyConsumptionDescription struct {

@@ -1,11 +1,26 @@
 package software
 
 import (
+	"reflect"
+
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
+	"github.com/carabiner-dev/databom/internal/spdx3/types"
 	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
 )
 
 const Prefix = "software"
+
+var Profile = types.Profile{
+	Prefix: Prefix,
+	Classes: map[string]reflect.Type{
+		"SoftwareArtifact":  reflect.TypeOf(&SoftwareArtifact{}),
+		"File":              reflect.TypeOf(&File{}),
+		"Package":           reflect.TypeOf(&Package{}),
+		"ContentIdentifier": reflect.TypeOf(&ContentIdentifier{}),
+		"Snippet":           reflect.TypeOf(&Snippet{}),
+		"Sbom":              reflect.TypeOf(&Sbom{}),
+	},
+}
 
 type Node struct {
 	core.Node

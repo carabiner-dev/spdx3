@@ -1,12 +1,30 @@
 package expandedlicensing
 
 import (
+	"reflect"
+
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/simplelicensing"
+	"github.com/carabiner-dev/databom/internal/spdx3/types"
 	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
 )
 
 const Prefix = "expandedlicensing"
+
+var Profile = types.Profile{
+	Prefix: Prefix,
+	Classes: map[string]reflect.Type{
+		"ListedLicense":             reflect.TypeOf(&ListedLicense{}),
+		"CustomLicense":             reflect.TypeOf(&CustomLicense{}),
+		"OrLaterOperator":           reflect.TypeOf(&OrLaterOperator{}),
+		"WithAdditionOperator":      reflect.TypeOf(&WithAdditionOperator{}),
+		"ConjunctiveLicenseSet":     reflect.TypeOf(&ConjunctiveLicenseSet{}),
+		"DisjunctiveLicenseSet":     reflect.TypeOf(&DisjunctiveLicenseSet{}),
+		"IndividualLicensingInfo":   reflect.TypeOf(&IndividualLicensingInfo{}),
+		"ListedLicenseException":    reflect.TypeOf(&ListedLicenseException{}),
+		"CustomLicenseAddition":     reflect.TypeOf(&CustomLicenseAddition{}),
+	},
+}
 
 // ExtendableLicense is an abstract base for licenses that can be extended
 type ExtendableLicense struct {

@@ -1,11 +1,22 @@
 package extension
 
 import (
+	"reflect"
+
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
+	"github.com/carabiner-dev/databom/internal/spdx3/types"
 	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
 )
 
 const Prefix = "extension"
+
+var Profile = types.Profile{
+	Prefix: Prefix,
+	Classes: map[string]reflect.Type{
+		"Extension":              reflect.TypeOf(&Extension{}),
+		"CdxPropertiesExtension": reflect.TypeOf(&CdxPropertiesExtension{}),
+	},
+}
 
 // Extension is the abstract base class for all SPDX extensions
 type Extension struct {

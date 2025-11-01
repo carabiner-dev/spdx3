@@ -1,13 +1,32 @@
 package security
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
+	"github.com/carabiner-dev/databom/internal/spdx3/types"
 	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
 )
 
 const Prefix = "security"
+
+var Profile = types.Profile{
+	Prefix: Prefix,
+	Classes: map[string]reflect.Type{
+		"Vulnerability":                                  reflect.TypeOf(&Vulnerability{}),
+		"CvssV2VulnAssessmentRelationship":               reflect.TypeOf(&CvssV2VulnAssessmentRelationship{}),
+		"CvssV3VulnAssessmentRelationship":               reflect.TypeOf(&CvssV3VulnAssessmentRelationship{}),
+		"CvssV4VulnAssessmentRelationship":               reflect.TypeOf(&CvssV4VulnAssessmentRelationship{}),
+		"EpssVulnAssessmentRelationship":                 reflect.TypeOf(&EpssVulnAssessmentRelationship{}),
+		"SsvcVulnAssessmentRelationship":                 reflect.TypeOf(&SsvcVulnAssessmentRelationship{}),
+		"ExploitCatalogVulnAssessmentRelationship":       reflect.TypeOf(&ExploitCatalogVulnAssessmentRelationship{}),
+		"VexAffectedVulnAssessmentRelationship":          reflect.TypeOf(&VexAffectedVulnAssessmentRelationship{}),
+		"VexFixedVulnAssessmentRelationship":             reflect.TypeOf(&VexFixedVulnAssessmentRelationship{}),
+		"VexNotAffectedVulnAssessmentRelationship":       reflect.TypeOf(&VexNotAffectedVulnAssessmentRelationship{}),
+		"VexUnderInvestigationVulnAssessmentRelationship": reflect.TypeOf(&VexUnderInvestigationVulnAssessmentRelationship{}),
+	},
+}
 
 // Vulnerability represents a security vulnerability
 type Vulnerability struct {
