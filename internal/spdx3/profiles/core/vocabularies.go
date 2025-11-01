@@ -1,7 +1,14 @@
 package core
 
+import "github.com/carabiner-dev/databom/internal/spdx3/types"
+
 // AnnotationType vocabulary defines valid annotation types
 type AnnotationType string
+
+var AnnotationTypes = types.Vocabulary[AnnotationType]{
+	AnnotationTypeOther,
+	AnnotationTypeReview,
+}
 
 const (
 	// AnnotationTypeOther for supplementary information outside formal review
@@ -12,6 +19,20 @@ const (
 
 // ExternalIdentifierType vocabulary defines valid external identifier types
 type ExternalIdentifierType string
+
+var ExternalIdentifierTypes = types.Vocabulary[ExternalIdentifierType]{
+	ExternalIdentifierTypeCpe22,
+	ExternalIdentifierTypeCpe23,
+	ExternalIdentifierTypeCve,
+	ExternalIdentifierTypeEmail,
+	ExternalIdentifierTypeGitoid,
+	ExternalIdentifierTypeOther,
+	ExternalIdentifierTypePackageUrl,
+	ExternalIdentifierTypeSecurityOther,
+	ExternalIdentifierTypeSwhid,
+	ExternalIdentifierTypeSwid,
+	ExternalIdentifierTypeUrlScheme,
+}
 
 const (
 	ExternalIdentifierTypeCpe22        ExternalIdentifierType = "cpe22"
@@ -29,6 +50,55 @@ const (
 
 // ExternalRefType vocabulary defines valid external reference types
 type ExternalRefType string
+
+var ExternalRefTypes = types.Vocabulary[ExternalRefType]{
+	ExternalRefTypeAltDownloadLocation,
+	ExternalRefTypeAltWebPage,
+	ExternalRefTypeBinaryArtifact,
+	ExternalRefTypeBower,
+	ExternalRefTypeBuildMeta,
+	ExternalRefTypeBuildSystem,
+	ExternalRefTypeCertificationReport,
+	ExternalRefTypeChat,
+	ExternalRefTypeComponentAnalysisReport,
+	ExternalRefTypeCwe,
+	ExternalRefTypeDocumentation,
+	ExternalRefTypeDynamicAnalysisReport,
+	ExternalRefTypeEolNotice,
+	ExternalRefTypeExportControlAssessment,
+	ExternalRefTypeFunding,
+	ExternalRefTypeIssueTracker,
+	ExternalRefTypeLicense,
+	ExternalRefTypeMailingList,
+	ExternalRefTypeMavenCentral,
+	ExternalRefTypeMetrics,
+	ExternalRefTypeNpm,
+	ExternalRefTypeNuget,
+	ExternalRefTypeOther,
+	ExternalRefTypePrivacyAssessment,
+	ExternalRefTypeProductMetadata,
+	ExternalRefTypePurchaseOrder,
+	ExternalRefTypeQualityAssessmentReport,
+	ExternalRefTypeReleaseHistory,
+	ExternalRefTypeReleaseNotes,
+	ExternalRefTypeRiskAssessment,
+	ExternalRefTypeRuntimeAnalysisReport,
+	ExternalRefTypeSecurityAdversaryModel,
+	ExternalRefTypeSecurityAdvisory,
+	ExternalRefTypeSecurityFix,
+	ExternalRefTypeSecurityOther,
+	ExternalRefTypeSecurityPenTestReport,
+	ExternalRefTypeSecurityPolicy,
+	ExternalRefTypeSecurityThreatModel,
+	ExternalRefTypeSecureSoftwareAttestation,
+	ExternalRefTypeSocialMedia,
+	ExternalRefTypeSourceArtifact,
+	ExternalRefTypeStaticAnalysisReport,
+	ExternalRefTypeSupport,
+	ExternalRefTypeVcs,
+	ExternalRefTypeVulnerabilityDisclosureReport,
+	ExternalRefTypeVulnerabilityExploitabilityAssessment,
+}
 
 const (
 	ExternalRefTypeAltDownloadLocation              ExternalRefType = "altDownloadLocation"
@@ -82,6 +152,31 @@ const (
 // HashAlgorithm vocabulary defines valid hash algorithms
 type HashAlgorithm string
 
+var HashAlgorithms = types.Vocabulary[HashAlgorithm]{
+	HashAlgorithmAdler32,
+	HashAlgorithmBlake2b256,
+	HashAlgorithmBlake2b384,
+	HashAlgorithmBlake2b512,
+	HashAlgorithmBlake3,
+	HashAlgorithmCrystalsDilithium,
+	HashAlgorithmCrystalsKyber,
+	HashAlgorithmFalcon,
+	HashAlgorithmMd2,
+	HashAlgorithmMd4,
+	HashAlgorithmMd5,
+	HashAlgorithmMd6,
+	HashAlgorithmOther,
+	HashAlgorithmSha1,
+	HashAlgorithmSha224,
+	HashAlgorithmSha256,
+	HashAlgorithmSha384,
+	HashAlgorithmSha3_224,
+	HashAlgorithmSha3_256,
+	HashAlgorithmSha3_384,
+	HashAlgorithmSha3_512,
+	HashAlgorithmSha512,
+}
+
 const (
 	HashAlgorithmAdler32           HashAlgorithm = "adler32"
 	HashAlgorithmBlake2b256        HashAlgorithm = "blake2b256"
@@ -110,6 +205,15 @@ const (
 // LifecycleScopeType vocabulary defines valid lifecycle scope types
 type LifecycleScopeType string
 
+var LifecycleScopeTypes = types.Vocabulary[LifecycleScopeType]{
+	LifecycleScopeTypeBuild,
+	LifecycleScopeTypeDesign,
+	LifecycleScopeTypeDevelopment,
+	LifecycleScopeTypeOther,
+	LifecycleScopeTypeRuntime,
+	LifecycleScopeTypeTest,
+}
+
 const (
 	LifecycleScopeTypeBuild       LifecycleScopeType = "build"
 	LifecycleScopeTypeDesign      LifecycleScopeType = "design"
@@ -122,6 +226,12 @@ const (
 // PresenceType vocabulary defines valid presence types
 type PresenceType string
 
+var PresenceTypes = types.Vocabulary[PresenceType]{
+	PresenceTypeNo,
+	PresenceTypeNoAssertion,
+	PresenceTypeYes,
+}
+
 const (
 	// PresenceTypeNo indicates absence of the field
 	PresenceTypeNo PresenceType = "no"
@@ -133,6 +243,19 @@ const (
 
 // ProfileIdentifierType vocabulary defines valid profile identifiers
 type ProfileIdentifierType string
+
+var ProfileIdentifierTypes = types.Vocabulary[ProfileIdentifierType]{
+	ProfileIdentifierTypeAi,
+	ProfileIdentifierTypeBuild,
+	ProfileIdentifierTypeCore,
+	ProfileIdentifierTypeDataset,
+	ProfileIdentifierTypeExpandedLicensing,
+	ProfileIdentifierTypeExtension,
+	ProfileIdentifierTypeLite,
+	ProfileIdentifierTypeSecurity,
+	ProfileIdentifierTypeSimpleLicensing,
+	ProfileIdentifierTypeSoftware,
+}
 
 const (
 	ProfileIdentifierTypeAi                ProfileIdentifierType = "ai"
@@ -150,6 +273,12 @@ const (
 // RelationshipCompleteness vocabulary defines valid relationship completeness types
 type RelationshipCompleteness string
 
+var RelationshipCompletenesses = types.Vocabulary[RelationshipCompleteness]{
+	RelationshipCompletenessComplete,
+	RelationshipCompletenessIncomplete,
+	RelationshipCompletenessNoAssertion,
+}
+
 const (
 	// RelationshipCompletenessComplete indicates the relationship is exhaustive
 	RelationshipCompletenessComplete RelationshipCompleteness = "complete"
@@ -161,6 +290,68 @@ const (
 
 // RelationshipType vocabulary defines valid relationship types
 type RelationshipType string
+
+var RelationshipTypes = types.Vocabulary[RelationshipType]{
+	RelationshipTypeAffects,
+	RelationshipTypeAmendedBy,
+	RelationshipTypeAncestorOf,
+	RelationshipTypeAvailableFrom,
+	RelationshipTypeConfigures,
+	RelationshipTypeContains,
+	RelationshipTypeCoordinatedBy,
+	RelationshipTypeCopiedTo,
+	RelationshipTypeDelegatedTo,
+	RelationshipTypeDependsOn,
+	RelationshipTypeDescendantOf,
+	RelationshipTypeDescribes,
+	RelationshipTypeDoesNotAffect,
+	RelationshipTypeExpandsTo,
+	RelationshipTypeExploitCreatedBy,
+	RelationshipTypeFixedBy,
+	RelationshipTypeFixedIn,
+	RelationshipTypeFoundBy,
+	RelationshipTypeGenerates,
+	RelationshipTypeHasAddedFile,
+	RelationshipTypeHasAssessmentFor,
+	RelationshipTypeHasAssociatedVulnerability,
+	RelationshipTypeHasConcludedLicense,
+	RelationshipTypeHasDataFile,
+	RelationshipTypeHasDeclaredLicense,
+	RelationshipTypeHasDeletedFile,
+	RelationshipTypeHasDependencyManifest,
+	RelationshipTypeHasDistributionArtifact,
+	RelationshipTypeHasDocumentation,
+	RelationshipTypeHasDynamicLink,
+	RelationshipTypeHasEvidence,
+	RelationshipTypeHasExample,
+	RelationshipTypeHasHost,
+	RelationshipTypeHasInput,
+	RelationshipTypeHasMetadata,
+	RelationshipTypeHasOptionalComponent,
+	RelationshipTypeHasOptionalDependency,
+	RelationshipTypeHasOutput,
+	RelationshipTypeHasPrerequisite,
+	RelationshipTypeHasProvidedDependency,
+	RelationshipTypeHasRequirement,
+	RelationshipTypeHasSpecification,
+	RelationshipTypeHasStaticLink,
+	RelationshipTypeHasTest,
+	RelationshipTypeHasTestCase,
+	RelationshipTypeHasVariant,
+	RelationshipTypeInvokedBy,
+	RelationshipTypeModifiedBy,
+	RelationshipTypeOther,
+	RelationshipTypePackagedBy,
+	RelationshipTypePatchedBy,
+	RelationshipTypePublishedBy,
+	RelationshipTypeReportedBy,
+	RelationshipTypeRepublishedBy,
+	RelationshipTypeSerializedInArtifact,
+	RelationshipTypeTestedOn,
+	RelationshipTypeTrainedOn,
+	RelationshipTypeUnderInvestigationFor,
+	RelationshipTypeUsesTool,
+}
 
 const (
 	RelationshipTypeAffects                        RelationshipType = "affects"
@@ -226,6 +417,16 @@ const (
 
 // SupportType vocabulary defines valid support types
 type SupportType string
+
+var SupportTypes = types.Vocabulary[SupportType]{
+	SupportTypeDeployed,
+	SupportTypeDevelopment,
+	SupportTypeEndOfSupport,
+	SupportTypeLimitedSupport,
+	SupportTypeNoAssertion,
+	SupportTypeNoSupport,
+	SupportTypeSupport,
+}
 
 const (
 	// SupportTypeDeployed indicates software is deployed and actively used

@@ -20,6 +20,11 @@ const (
 // FileKindType vocabulary defines valid file kind types
 type FileKindType string
 
+var FileKindTypes = types.Vocabulary[FileKindType]{
+	FileKindTypeDirectory,
+	FileKindTypeFile,
+}
+
 const (
 	// FileKindTypeDirectory represents a directory and all content stored in that directory
 	FileKindTypeDirectory FileKindType = "directory"
@@ -29,6 +34,15 @@ const (
 
 // SbomType vocabulary defines valid SBOM document types
 type SbomType string
+
+var SbomTypes = types.Vocabulary[SbomType]{
+	SbomTypeAnalyzed,
+	SbomTypeBuild,
+	SbomTypeDeployed,
+	SbomTypeDesign,
+	SbomTypeRuntime,
+	SbomTypeSource,
+}
 
 const (
 	// SbomTypeAnalyzed represents an SBOM generated through analysis of artifacts after its build
@@ -47,6 +61,38 @@ const (
 
 // SoftwarePurpose vocabulary defines valid software purpose types
 type SoftwarePurpose string
+
+var SoftwarePurposes = types.Vocabulary[SoftwarePurpose]{
+	SoftwarePurposeApplication,
+	SoftwarePurposeArchive,
+	SoftwarePurposeBom,
+	SoftwarePurposeConfiguration,
+	SoftwarePurposeContainer,
+	SoftwarePurposeData,
+	SoftwarePurposeDevice,
+	SoftwarePurposeDeviceDriver,
+	SoftwarePurposeDiskImage,
+	SoftwarePurposeDocumentation,
+	SoftwarePurposeEvidence,
+	SoftwarePurposeExecutable,
+	SoftwarePurposeFile,
+	SoftwarePurposeFilesystemImage,
+	SoftwarePurposeFirmware,
+	SoftwarePurposeFramework,
+	SoftwarePurposeInstall,
+	SoftwarePurposeLibrary,
+	SoftwarePurposeManifest,
+	SoftwarePurposeModel,
+	SoftwarePurposeModule,
+	SoftwarePurposeOperatingSystem,
+	SoftwarePurposeOther,
+	SoftwarePurposePatch,
+	SoftwarePurposePlatform,
+	SoftwarePurposeRequirement,
+	SoftwarePurposeSource,
+	SoftwarePurposeSpecification,
+	SoftwarePurposeTest,
+}
 
 const (
 	// SoftwarePurposeApplication indicates the element is an application

@@ -1,7 +1,15 @@
 package ai
 
+import "github.com/carabiner-dev/databom/internal/spdx3/types"
+
 // EnergyUnitType vocabulary defines valid energy unit types
 type EnergyUnitType string
+
+var EnergyUnitTypes = types.Vocabulary[EnergyUnitType]{
+	EnergyUnitTypeKilowattHour,
+	EnergyUnitTypeMegajoule,
+	EnergyUnitTypeOther,
+}
 
 const (
 	// EnergyUnitTypeKilowattHour represents kilowatt-hour energy measurement
@@ -14,6 +22,13 @@ const (
 
 // SafetyRiskAssessmentType vocabulary defines valid safety risk assessment levels
 type SafetyRiskAssessmentType string
+
+var SafetyRiskAssessmentTypes = types.Vocabulary[SafetyRiskAssessmentType]{
+	SafetyRiskAssessmentTypeHigh,
+	SafetyRiskAssessmentTypeLow,
+	SafetyRiskAssessmentTypeMedium,
+	SafetyRiskAssessmentTypeSerious,
+}
 
 const (
 	// SafetyRiskAssessmentTypeHigh indicates high safety risk

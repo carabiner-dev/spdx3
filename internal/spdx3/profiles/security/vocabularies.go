@@ -1,7 +1,17 @@
 package security
 
+import "github.com/carabiner-dev/databom/internal/spdx3/types"
+
 // CvssSeverityType vocabulary defines valid CVSS severity levels
 type CvssSeverityType string
+
+var CvssSeverityTypes = types.Vocabulary[CvssSeverityType]{
+	CvssSeverityTypeCritical,
+	CvssSeverityTypeHigh,
+	CvssSeverityTypeMedium,
+	CvssSeverityTypeLow,
+	CvssSeverityTypeNone,
+}
 
 const (
 	// CvssSeverityTypeCritical indicates critical severity
@@ -19,6 +29,11 @@ const (
 // ExploitCatalogType vocabulary defines valid exploit catalog types
 type ExploitCatalogType string
 
+var ExploitCatalogTypes = types.Vocabulary[ExploitCatalogType]{
+	ExploitCatalogTypeKev,
+	ExploitCatalogTypeOther,
+}
+
 const (
 	// ExploitCatalogTypeKev represents CISA's Known Exploited Vulnerabilities catalog
 	ExploitCatalogTypeKev ExploitCatalogType = "kev"
@@ -28,6 +43,13 @@ const (
 
 // SsvcDecisionType vocabulary defines valid SSVC (Stakeholder-Specific Vulnerability Categorization) decision types
 type SsvcDecisionType string
+
+var SsvcDecisionTypes = types.Vocabulary[SsvcDecisionType]{
+	SsvcDecisionTypeAct,
+	SsvcDecisionTypeAttend,
+	SsvcDecisionTypeTrack,
+	SsvcDecisionTypeTrackStar,
+}
 
 const (
 	// SsvcDecisionTypeAct indicates immediate action required
@@ -42,6 +64,16 @@ const (
 
 // VexJustificationType vocabulary defines valid VEX justification types for not-affected status
 type VexJustificationType string
+
+var VexJustificationTypes = types.Vocabulary[VexJustificationType]{
+	VexJustificationTypeComponentNotPresent,
+	VexJustificationTypeInlineMitigationsAlreadyExist,
+	VexJustificationTypeRequiresConfiguration,
+	VexJustificationTypeRequiresDependency,
+	VexJustificationTypeVulnerableCodeCannotBeControlledByAdversary,
+	VexJustificationTypeVulnerableCodeNotInExecutePath,
+	VexJustificationTypeVulnerableCodeNotPresent,
+}
 
 const (
 	// VexJustificationTypeComponentNotPresent indicates the vulnerable component is not present

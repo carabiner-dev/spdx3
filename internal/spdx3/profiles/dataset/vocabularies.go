@@ -1,7 +1,16 @@
 package dataset
 
+import "github.com/carabiner-dev/databom/internal/spdx3/types"
+
 // ConfidentialityLevelType vocabulary defines valid confidentiality levels using Traffic Light Protocol
 type ConfidentialityLevelType string
+
+var ConfidentialityLevelTypes = types.Vocabulary[ConfidentialityLevelType]{
+	ConfidentialityLevelTypeAmber,
+	ConfidentialityLevelTypeClear,
+	ConfidentialityLevelTypeGreen,
+	ConfidentialityLevelTypeRed,
+}
 
 const (
 	// ConfidentialityLevelTypeAmber indicates limited disclosure to participants' organizations
@@ -16,6 +25,14 @@ const (
 
 // DatasetAvailabilityType vocabulary defines valid dataset availability types
 type DatasetAvailabilityType string
+
+var DatasetAvailabilityTypes = types.Vocabulary[DatasetAvailabilityType]{
+	DatasetAvailabilityTypeClickthrough,
+	DatasetAvailabilityTypeDirect,
+	DatasetAvailabilityTypeQuery,
+	DatasetAvailabilityTypeRegistration,
+	DatasetAvailabilityTypeScrapingScript,
+}
 
 const (
 	// DatasetAvailabilityTypeClickthrough indicates dataset requires accepting terms through web interface
@@ -32,6 +49,23 @@ const (
 
 // DatasetType vocabulary defines valid dataset types
 type DatasetType string
+
+var DatasetTypes = types.Vocabulary[DatasetType]{
+	DatasetTypeAudio,
+	DatasetTypeCodeSnippet,
+	DatasetTypeConfiguration,
+	DatasetTypeGraph,
+	DatasetTypeImage,
+	DatasetTypeIndex,
+	DatasetTypeNoAssertion,
+	DatasetTypeNumeric,
+	DatasetTypeOther,
+	DatasetTypeSensor,
+	DatasetTypeStructured,
+	DatasetTypeTable,
+	DatasetTypeText,
+	DatasetTypeVideo,
+}
 
 const (
 	// DatasetTypeAudio indicates dataset contains audio data
