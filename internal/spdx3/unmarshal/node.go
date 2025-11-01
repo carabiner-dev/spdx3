@@ -36,6 +36,7 @@ func unmarshalFields(raw map[string]json.RawMessage, target any) error {
 	t := v.Type()
 
 	typeOfNodeSlice := reflect.TypeOf([]types.Node{})
+	typeOfNode := reflect.TypeOf(((*types.Node)(nil)))
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
@@ -71,7 +72,13 @@ func unmarshalFields(raw map[string]json.RawMessage, target any) error {
 					return fmt.Errorf("unmarshaling node slice for field %s: %w", tagName, err)
 				}
 				continue
+			} else if fieldValue.Type() == typeOfNode {
+				if err := unmarshalNode(rawData, &fieldValue); err != nil {
+					return fmt.Errorf("unmarshaling node for field %s: %w", tagName, err)
+				}
+				continue
 			}
+
 			// fmt.Printf("Type: %+v\n", fieldValue.Type().)
 			// Create a new value of the field's type
 			newVal := reflect.New(fieldValue.Type())
@@ -82,6 +89,22 @@ func unmarshalFields(raw map[string]json.RawMessage, target any) error {
 		}
 	}
 
+	return nil
+}
+
+func unmarshalNode(rawData json.RawMessage, fieldValue *reflect.Value) error {
+	var s string
+	if err := json.Unmarshal(rawData, &s); err == nil {
+		// It's a string reference, create a NodeRef
+		fieldValue.Set(reflect.ValueOf(types.NodeRef{ID: strings.TrimPrefix(s, "_:")}))
+		return nil
+	}
+
+	node, err := unmarshalNodeDispatch(rawData)
+	if err != nil {
+		return fmt.Errorf("unmarshaling node: %w", err)
+	}
+	fieldValue.Set(reflect.ValueOf(node))
 	return nil
 }
 
