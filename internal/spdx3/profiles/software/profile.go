@@ -18,9 +18,24 @@ type Node struct {
 // File
 type File struct {
 	Node
-	BuiltTime    *time.Time `json:"builtTime"`
-	ReleaseTime  *time.Time `json:"releaseTime"`
-	OriginatedBy []string   `json:"originatedBy"`
+	AdditionalPurpose  []string     `json:"additionalPurpose,omitempty"`
+	AttributionText    []string     `json:"attributionText,omitempty"`
+	BuiltTime          *time.Time   `json:"builtTime,omitempty"`
+	ContentIdentifier  []string     `json:"contentIdentifier,omitempty"`
+	ContentType        string       `json:"contentType,omitempty"`
+	CopyrightText      string       `json:"copyrightText,omitempty"`
+	Extension          []string     `json:"extension,omitempty"`
+	ExternalIdentifier []string     `json:"externalIdentifier,omitempty"`
+	ExternalRef        []string     `json:"externalRef,omitempty"`
+	FileKind           string       `json:"fileKind,omitempty"`
+	OriginatedBy       []string     `json:"originatedBy,omitempty"`
+	ReleaseTime        *time.Time   `json:"releaseTime,omitempty"`
+	StandardName       []string     `json:"standardName,omitempty"`
+	Summary            string       `json:"summary,omitempty"`
+	SuppliedBy         string       `json:"suppliedBy,omitempty"`
+	SupportLevel       []string     `json:"supportLevel,omitempty"`
+	ValidUntilTime     *time.Time   `json:"validUntilTime,omitempty"`
+	VerifiedUsing      []string     `json:"verifiedUsing,omitempty"`
 }
 
 func (f *File) UnmarshalJSON(data []byte) error {
