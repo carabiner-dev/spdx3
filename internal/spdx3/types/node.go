@@ -26,7 +26,8 @@ type Node interface {
 
 // NodeRef implements Node but the only method that works is ID
 type NodeRef struct {
-	ID string
+	ID   string
+	Data []byte
 }
 
 func (NodeRef) GetSPDXID() string {

@@ -2,7 +2,7 @@ package unmarshal
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -65,29 +65,12 @@ func unmarshalFields(raw map[string]json.RawMessage, target any) error {
 		// Check if we have data for this field
 		if rawData, ok := raw[tagName]; ok {
 			// If the field is a list of nodes, it can be a list of strings
-			// of just the JSONLD ids
+			// of just the JSONLD ids, or full objects
 			if fieldValue.Type() == typeOfNodeSlice {
-				list := []any{}
-				if err := json.Unmarshal(rawData, &list); err == nil {
-					nodeRefs := []types.AddressableById{}
-					for _, val := range list {
-						if s, ok := val.(string); ok {
-							nodeRefs = append(nodeRefs, types.ID(s))
-						} else {
-							// This needs to be implemented
-							//
-							// TODO(puerco): Extract the graph dispatcher switch
-							return errors.New("unmarshaling embedded node not supported yet")
-						}
-					}
-					nodeSlice := []types.Node{}
-					for _, ref := range nodeRefs {
-						// Here we should lookup existing nodes
-						nodeSlice = append(nodeSlice, types.NodeRef{ID: ref.GetID()})
-					}
-					fieldValue.Set(reflect.ValueOf(nodeSlice))
-					continue
+				if err := unmarshalNodeSlice(rawData, &fieldValue); err != nil {
+					return fmt.Errorf("unmarshaling node slice for field %s: %w", tagName, err)
 				}
+				continue
 			}
 			// fmt.Printf("Type: %+v\n", fieldValue.Type().)
 			// Create a new value of the field's type
@@ -100,4 +83,58 @@ func unmarshalFields(raw map[string]json.RawMessage, target any) error {
 	}
 
 	return nil
+}
+
+// unmarshalNodeSlice handles unmarshaling a JSON array into a []types.Node slice.
+// Each item in the array can be either:
+// - A string representing a node reference (e.g., "_:id")
+// - A full object that needs to be dispatched to the appropriate concrete type
+func unmarshalNodeSlice(rawData json.RawMessage, fieldValue *reflect.Value) error {
+	// First, try to unmarshal as a list of raw messages to preserve structure
+	var list []json.RawMessage
+	if err := json.Unmarshal(rawData, &list); err != nil {
+		return fmt.Errorf("unmarshaling as list: %w", err)
+	}
+
+	nodeSlice := []types.Node{}
+	for i, item := range list {
+		// Try to unmarshal as a string first (node reference)
+		var s string
+		if err := json.Unmarshal(item, &s); err == nil {
+			// It's a string reference, create a NodeRef
+			nodeSlice = append(nodeSlice, types.NodeRef{ID: strings.TrimPrefix(s, "_:")})
+			continue
+		}
+
+		// It's not a string, so it must be a full object
+		// We need to dispatch it to the appropriate concrete type
+		node, err := unmarshalNodeDispatch(item)
+		if err != nil {
+			return fmt.Errorf("unmarshaling node at index %d: %w", i, err)
+		}
+		nodeSlice = append(nodeSlice, node)
+	}
+
+	fieldValue.Set(reflect.ValueOf(nodeSlice))
+	return nil
+}
+
+// unmarshalNodeDispatch is a dispatcher function that unmarshals a JSON object
+// into the appropriate concrete type. This function is set by the parent package
+// to avoid circular dependencies (since profiles import unmarshal, and the
+// dispatcher needs to know about profiles).
+var unmarshalNodeDispatch func(data []byte) (types.Node, error)
+
+// SetNodeDispatcher sets the function used to dispatch and unmarshal nodes
+// based on their type field. This must be called before unmarshaling any
+// documents that contain embedded node objects.
+func SetNodeDispatcher(dispatcher func(data []byte) (types.Node, error)) {
+	unmarshalNodeDispatch = dispatcher
+}
+
+func init() {
+	// Set a default dispatcher that returns an error if not configured
+	unmarshalNodeDispatch = func(data []byte) (types.Node, error) {
+		return nil, fmt.Errorf("node dispatching not configured - call unmarshal.SetNodeDispatcher() first")
+	}
 }

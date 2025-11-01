@@ -107,6 +107,14 @@ func TestNode(t *testing.T) {
 		crt, err := time.Parse(time.RFC3339, "2024-05-31T00:00:00Z")
 		require.NoError(t, err)
 		require.Equal(t, &crt, ci.Created)
+
+		// Created by. This checks that the length and the ID match. When
+		// finished, we should compare the pointer address of ci.CreatedBy[0]
+		// with the Person node in the SBOM, they should be the same.
+		// But this is not yet implemented as we need to dedupe the IDs of
+		// all referenced nodes.
+		require.Len(t, ci.CreatedBy, 1)
+		require.Equal(t, "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1", ci.CreatedBy[0].GetID())
 	}
 }
 
