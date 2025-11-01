@@ -80,6 +80,17 @@ type DictionaryEntry struct {
 	Value string `json:"value,omitempty"`
 }
 
+// IntegrityMethod provides an independently reproducible mechanism for verification
+type IntegrityMethod struct {
+	Comment string `json:"comment,omitempty"`
+}
+
+// PositiveIntegerRange represents a tuple of two positive integers defining a range
+type PositiveIntegerRange struct {
+	BeginIntegerRange int `json:"beginIntegerRange"`
+	EndIntegerRange   int `json:"endIntegerRange"`
+}
+
 type Bom struct {
 	Node
 	types.RootedNode

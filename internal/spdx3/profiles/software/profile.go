@@ -60,3 +60,32 @@ type Package struct {
 func (p *Package) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, p, &p.PreNode)
 }
+
+// ContentIdentifier provides a canonical, unique, immutable identifier
+type ContentIdentifier struct {
+	core.IntegrityMethod
+	ContentIdentifierType  string `json:"contentIdentifierType"`
+	ContentIdentifierValue string `json:"contentIdentifierValue"`
+}
+
+// Snippet represents a portion of a file
+type Snippet struct {
+	SoftwareArtifact
+	ByteRange        *core.PositiveIntegerRange `json:"byteRange,omitempty"`
+	LineRange        *core.PositiveIntegerRange `json:"lineRange,omitempty"`
+	SnippetFromFile  string                     `json:"snippetFromFile"`
+}
+
+func (s *Snippet) UnmarshalJSON(data []byte) error {
+	return unmarshal.Node(data, s, &s.PreNode)
+}
+
+// Sbom represents a Software Bill of Materials
+type Sbom struct {
+	core.Bom
+	SbomType []string `json:"sbomType,omitempty"`
+}
+
+func (s *Sbom) UnmarshalJSON(data []byte) error {
+	return unmarshal.Node(data, s, &s.PreNode)
+}
