@@ -16,6 +16,25 @@ type Node struct {
 	PrimaryPurpose   string `json:"software_primaryPurpose"`
 }
 
+// SoftwareArtifact represents a distinct article or unit related to software
+type SoftwareArtifact struct {
+	core.Artifact
+	AdditionalPurpose  []string `json:"additionalPurpose,omitempty"`
+	AttributionText    []string `json:"attributionText,omitempty"`
+	ContentIdentifier  []string `json:"contentIdentifier,omitempty"`
+	CopyrightText      string   `json:"copyrightText,omitempty"`
+	Extension          []string `json:"extension,omitempty"`
+	ExternalIdentifier []string `json:"externalIdentifier,omitempty"`
+	ExternalRef        []string `json:"externalRef,omitempty"`
+	PrimaryPurpose     string   `json:"primaryPurpose,omitempty"`
+	Summary            string   `json:"summary,omitempty"`
+	VerifiedUsing      []string `json:"verifiedUsing,omitempty"`
+}
+
+func (sa *SoftwareArtifact) UnmarshalJSON(data []byte) error {
+	return unmarshal.Node(data, sa, &sa.PreNode)
+}
+
 // File
 type File struct {
 	Node

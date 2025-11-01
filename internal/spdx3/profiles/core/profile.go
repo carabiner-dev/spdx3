@@ -1,6 +1,8 @@
 package core
 
 import (
+	"time"
+
 	"github.com/carabiner-dev/databom/internal/spdx3/types"
 	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
 )
@@ -27,6 +29,22 @@ type Agent struct {
 }
 
 func (a *Agent) UnmarshalJSON(data []byte) error {
+	return unmarshal.Node(data, a, &a.PreNode)
+}
+
+// Artifact represents a distinct article or unit within the digital domain
+type Artifact struct {
+	Node
+	BuiltTime      *time.Time `json:"builtTime,omitempty"`
+	OriginatedBy   []*Agent   `json:"originatedBy,omitempty"`
+	ReleaseTime    *time.Time `json:"releaseTime,omitempty"`
+	StandardName   []string   `json:"standardName,omitempty"`
+	SuppliedBy     *Agent     `json:"suppliedBy,omitempty"`
+	SupportLevel   []string   `json:"supportLevel,omitempty"`
+	ValidUntilTime *time.Time `json:"validUntilTime,omitempty"`
+}
+
+func (a *Artifact) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, a, &a.PreNode)
 }
 
