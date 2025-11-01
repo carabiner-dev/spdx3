@@ -13,10 +13,10 @@ import (
 	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
 )
 
-func init() {
-	// Register the UnmarshalNode function with the unmarshal package
-	// to handle polymorphic node types in embedded fields
-	unmarshal.SetNodeDispatcher(UnmarshalNode)
+func NewNodeUnarshaler() *unmarshal.Node {
+	return &unmarshal.Node{
+		DispatchFn: UnmarshalNode,
+	}
 }
 
 // Envelope
