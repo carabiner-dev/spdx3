@@ -9,9 +9,12 @@ import (
 
 type Relationship struct {
 	Node
-	From              string
-	To                []string
-	RelationshipTypes string `json:"relationshipType"`
+	From             string     `json:"from"`
+	To               []string   `json:"to"`
+	RelationshipType string     `json:"relationshipType"`
+	Completeness     string     `json:"completeness,omitempty"`
+	StartTime        *time.Time `json:"startTime,omitempty"`
+	EndTime          *time.Time `json:"endTime,omitempty"`
 }
 
 func (r *Relationship) UnmarshalJSON(data []byte) error {
@@ -21,11 +24,6 @@ func (r *Relationship) UnmarshalJSON(data []byte) error {
 // Agent represents anything with the potential to act on a system
 type Agent struct {
 	Node
-	Summary            string               `json:"summary,omitempty"`
-	Extension          []string             `json:"extension,omitempty"`
-	ExternalIdentifier []ExternalIdentifier `json:"externalIdentifier,omitempty"`
-	ExternalRef        []string             `json:"externalRef,omitempty"`
-	VerifiedUsing      []string             `json:"verifiedUsing,omitempty"`
 }
 
 func (a *Agent) UnmarshalJSON(data []byte) error {
@@ -69,9 +67,17 @@ func (o *Organization) UnmarshalJSON(data []byte) error {
 type ExternalIdentifier struct {
 	Type                   string   `json:"type"` //  "ExternalIdentifier",
 	ExternalIdentifierType string   `json:"externalIdentifierType"`
-	IssuingAuthority       string   `json:"issuingAuthority"`
+	IssuingAuthority       string   `json:"issuingAuthority,omitempty"`
 	Identifier             string   `json:"identifier"`
-	IdentifierLocator      []string `json:"identifierLocator"`
+	IdentifierLocator      []string `json:"identifierLocator,omitempty"`
+}
+
+// ExternalRef represents a reference to a resource outside SPDX-3.0 content
+type ExternalRef struct {
+	Comment         string   `json:"comment,omitempty"`
+	ContentType     string   `json:"contentType,omitempty"`
+	ExternalRefType string   `json:"externalRefType,omitempty"`
+	Locator         []string `json:"locator,omitempty"`
 }
 
 // DictionaryEntry represents a key-value pair mapping
@@ -91,10 +97,97 @@ type PositiveIntegerRange struct {
 	EndIntegerRange   int `json:"endIntegerRange"`
 }
 
-type Bom struct {
+// Hash represents a cryptographic hash value
+type Hash struct {
+	IntegrityMethod
+	Algorithm string `json:"algorithm"`
+	HashValue string `json:"hashValue"`
+}
+
+// PackageVerificationCode provides package integrity verification
+type PackageVerificationCode struct {
+	IntegrityMethod
+	Algorithm                            string   `json:"algorithm"`
+	HashValue                            string   `json:"hashValue"`
+	PackageVerificationCodeExcludedFile []string `json:"packageVerificationCodeExcludedFile,omitempty"`
+}
+
+// ExternalMap maps Element identifiers defined external to the SpdxDocument
+type ExternalMap struct {
+	DefiningArtifact string             `json:"definingArtifact,omitempty"`
+	ExternalSpdxId   string             `json:"externalSpdxId"`
+	LocationHint     string             `json:"locationHint,omitempty"`
+	VerifiedUsing    []IntegrityMethod  `json:"verifiedUsing,omitempty"`
+}
+
+// NamespaceMap allows shorter identifiers for namespace portions
+type NamespaceMap struct {
+	Namespace string `json:"namespace"`
+	Prefix    string `json:"prefix"`
+}
+
+// Annotation provides additional information about elements
+type Annotation struct {
 	Node
+	AnnotationType string `json:"annotationType"`
+	ContentType    string `json:"contentType,omitempty"`
+	Statement      string `json:"statement,omitempty"`
+	Subject        string `json:"subject"`
+}
+
+func (a *Annotation) UnmarshalJSON(data []byte) error {
+	return unmarshal.Node(data, a, &a.PreNode)
+}
+
+// SoftwareAgent represents a software program acting on a system
+type SoftwareAgent struct {
+	Agent
+}
+
+func (sa *SoftwareAgent) UnmarshalJSON(data []byte) error {
+	return unmarshal.Node(data, sa, &sa.PreNode)
+}
+
+// Tool represents hardware/software used to carry out a function
+type Tool struct {
+	Node
+}
+
+func (t *Tool) UnmarshalJSON(data []byte) error {
+	return unmarshal.Node(data, t, &t.PreNode)
+}
+
+// LifecycleScopedRelationship parameterizes context for relationships
+type LifecycleScopedRelationship struct {
+	Relationship
+	Scope string `json:"scope,omitempty"`
+}
+
+func (lsr *LifecycleScopedRelationship) UnmarshalJSON(data []byte) error {
+	return unmarshal.Node(data, lsr, &lsr.PreNode)
+}
+
+// ElementCollection is an abstract collection of Elements
+type ElementCollection struct {
+	Node
+	Element            []string `json:"element,omitempty"`
+	RootElement        []string `json:"rootElement,omitempty"`
+	ProfileConformance []string `json:"profileConformance,omitempty"`
+}
+
+// Bundle is a collection of Elements with shared context
+type Bundle struct {
+	ElementCollection
+	Context string `json:"context,omitempty"`
+}
+
+func (b *Bundle) UnmarshalJSON(data []byte) error {
+	return unmarshal.Node(data, b, &b.PreNode)
+}
+
+type Bom struct {
+	Bundle
 	types.RootedNode
-	ProfileConformance []string `json:"profileConformance"`
 }
 
 func (b *Bom) UnmarshalJSON(data []byte) error {
@@ -102,9 +195,11 @@ func (b *Bom) UnmarshalJSON(data []byte) error {
 }
 
 type SpdxDocument struct {
-	Node
+	Bundle
 	types.RootedNode
-	ProfileConformance []string `json:"profileConformance"`
+	DataLicense   string         `json:"dataLicense,omitempty"`
+	ExternalMap   []ExternalMap  `json:"externalMap,omitempty"`
+	NamespaceMap  []NamespaceMap `json:"namespaceMap,omitempty"`
 }
 
 func (sd *SpdxDocument) UnmarshalJSON(data []byte) error {

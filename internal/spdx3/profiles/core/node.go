@@ -7,10 +7,15 @@ import (
 
 type Node struct {
 	base.PreNode
-	Name         string        `json:"name"`
-	CreationInfo *CreationInfo `json:"creationInfo"`
-	Comment      string        `json:"comment"`
-	Description  string        `json:"description"`
+	Name               string               `json:"name,omitempty"`
+	CreationInfo       *CreationInfo        `json:"creationInfo"`
+	Comment            string               `json:"comment,omitempty"`
+	Description        string               `json:"description,omitempty"`
+	Summary            string               `json:"summary,omitempty"`
+	Extension          []string             `json:"extension,omitempty"`
+	ExternalIdentifier []ExternalIdentifier `json:"externalIdentifier,omitempty"`
+	ExternalRef        []ExternalRef        `json:"externalRef,omitempty"`
+	VerifiedUsing      []IntegrityMethod    `json:"verifiedUsing,omitempty"`
 }
 
 func (bn *Node) GetCreationInfo() types.Node {
