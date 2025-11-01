@@ -1,10 +1,18 @@
 package types
 
-import "errors"
+import (
+	"errors"
+	"reflect"
+)
 
 var ErrUnsupportedNodeType = errors.New("unsupported node type")
 
 type ID string
+
+type Profile struct {
+	Prefix  string
+	Classes map[string]reflect.Type
+}
 
 type Vocabulary[T ~string] []T
 
