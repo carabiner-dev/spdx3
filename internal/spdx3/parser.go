@@ -2,11 +2,16 @@ package spdx3
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
+
+	"github.com/carabiner-dev/databom/internal/spdx3/dispatch"
+	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
 )
 
-var ErrUnsupportedNodeType = errors.New("unsupported node type")
+func NewParser() *Parser {
+	unmarshal.SetDefaultDispatcher(dispatch.New())
+	return &Parser{}
+}
 
 type Profile interface {
 	Prefix() string

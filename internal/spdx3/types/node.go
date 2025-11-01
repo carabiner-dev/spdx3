@@ -1,9 +1,21 @@
 package types
 
+import "errors"
+
+var ErrUnsupportedNodeType = errors.New("unsupported node type")
+
 type ID string
 
 func (id ID) GetID() string {
 	return string(id)
+}
+
+// Dispatcher is an object that takes a node JSON data, and returns a
+// node with a concrete type. The job of the dispatcher is to detect the
+// node type from the JSON and inform the unmarshaller of the type to
+// expect.
+type Dispatcher interface {
+	UnmarshalNode([]byte) (Node, error)
 }
 
 type AddressableById interface {

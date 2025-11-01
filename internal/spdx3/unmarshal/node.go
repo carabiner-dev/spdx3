@@ -10,13 +10,37 @@ import (
 	"github.com/carabiner-dev/databom/internal/spdx3/types"
 )
 
-type Node struct {
-	DispatchFn func(data []byte) (types.Node, error)
+var defaultDispatcher types.Dispatcher
+
+// SetDefaultDispatcher sets the package-level dispatcher used by the Node helper function.
+// This should be called once during initialization to avoid import cycles.
+func SetDefaultDispatcher(d types.Dispatcher) {
+	defaultDispatcher = d
 }
 
-// unmarshal.Node is a universal unmarshaling helper for any type that embeds PreNode.
+// Node is a package-level helper function that unmarshals JSON data into a target node.
+// It uses the default dispatcher set via SetDefaultDispatcher.
+func Node(data []byte, target any, preNodePtr *base.PreNode) error {
+	if defaultDispatcher == nil {
+		return fmt.Errorf("default dispatcher not set; call unmarshal.SetDefaultDispatcher first")
+	}
+	nu := NewNodeUnmarshaler(defaultDispatcher)
+	return nu.Unmarshal(data, target, preNodePtr)
+}
+
+func NewNodeUnmarshaler(dispatcher types.Dispatcher) *NodeUnmarshaler {
+	return &NodeUnmarshaler{
+		Dispatcher: dispatcher,
+	}
+}
+
+type NodeUnmarshaler struct {
+	Dispatcher types.Dispatcher
+}
+
+// unmarshal.NodeUnmarshaler is a universal unmarshaling helper for any type that embeds PreNode.
 // It handles both full object serialization and string reference serialization (e.g., "_:id").
-func (nu *Node) Unmarshal(data []byte, target any, preNodePtr *base.PreNode) error {
+func (nu *NodeUnmarshaler) Unmarshal(data []byte, target any, preNodePtr *base.PreNode) error {
 	// First, check if it's a string reference
 	var s string
 	if err := json.Unmarshal(data, &s); err == nil {
@@ -35,7 +59,7 @@ func (nu *Node) Unmarshal(data []byte, target any, preNodePtr *base.PreNode) err
 }
 
 // unmarshalFields recursively unmarshals fields including embedded structs
-func (nu *Node) unmarshalFields(raw map[string]json.RawMessage, target any) error {
+func (nu *NodeUnmarshaler) unmarshalFields(raw map[string]json.RawMessage, target any) error {
 	v := reflect.ValueOf(target).Elem()
 	t := v.Type()
 
@@ -96,7 +120,7 @@ func (nu *Node) unmarshalFields(raw map[string]json.RawMessage, target any) erro
 	return nil
 }
 
-func (nu *Node) unmarshalNode(rawData json.RawMessage, fieldValue *reflect.Value) error {
+func (nu *NodeUnmarshaler) unmarshalNode(rawData json.RawMessage, fieldValue *reflect.Value) error {
 	var s string
 	if err := json.Unmarshal(rawData, &s); err == nil {
 		// It's a string reference, create a NodeRef
@@ -104,7 +128,7 @@ func (nu *Node) unmarshalNode(rawData json.RawMessage, fieldValue *reflect.Value
 		return nil
 	}
 
-	node, err := nu.DispatchFn(rawData)
+	node, err := nu.Dispatcher.UnmarshalNode(rawData)
 	if err != nil {
 		return fmt.Errorf("unmarshaling node: %w", err)
 	}
@@ -116,7 +140,7 @@ func (nu *Node) unmarshalNode(rawData json.RawMessage, fieldValue *reflect.Value
 // Each item in the array can be either:
 // - A string representing a node reference (e.g., "_:id")
 // - A full object that needs to be dispatched to the appropriate concrete type
-func (nu *Node) unmarshalNodeSlice(rawData json.RawMessage, fieldValue *reflect.Value) error {
+func (nu *NodeUnmarshaler) unmarshalNodeSlice(rawData json.RawMessage, fieldValue *reflect.Value) error {
 	// First, try to unmarshal as a list of raw messages to preserve structure
 	var list []json.RawMessage
 	if err := json.Unmarshal(rawData, &list); err != nil {
@@ -135,7 +159,7 @@ func (nu *Node) unmarshalNodeSlice(rawData json.RawMessage, fieldValue *reflect.
 
 		// It's not a string, so it must be a full object
 		// We need to dispatch it to the appropriate concrete type
-		node, err := nu.DispatchFn(item)
+		node, err := nu.Dispatcher.UnmarshalNode(item)
 		if err != nil {
 			return fmt.Errorf("unmarshaling node at index %d: %w", i, err)
 		}
