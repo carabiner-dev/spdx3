@@ -10,8 +10,8 @@ const Prefix = "ai"
 
 // EnergyConsumptionDescription provides detailed documentation of energy consumption metrics
 type EnergyConsumptionDescription struct {
-	EnergyQuantity float64 `json:"energyQuantity"`
-	EnergyUnit     string  `json:"energyUnit"`
+	EnergyQuantity float64        `json:"energyQuantity"`
+	EnergyUnit     EnergyUnitType `json:"energyUnit"`
 }
 
 // EnergyConsumption captures information about energy usage associated with AI model operations
@@ -24,21 +24,21 @@ type EnergyConsumption struct {
 // AIPackage represents an AI software package or system
 type AIPackage struct {
 	software.Package
-	AutonomyType                    string                 `json:"autonomyType,omitempty"`
-	Domain                          []string               `json:"domain,omitempty"`
-	EnergyConsumption               *EnergyConsumption     `json:"energyConsumption,omitempty"`
-	Hyperparameter                  []core.DictionaryEntry `json:"hyperparameter,omitempty"`
-	InformationAboutApplication     string                 `json:"informationAboutApplication,omitempty"`
-	InformationAboutTraining        string                 `json:"informationAboutTraining,omitempty"`
-	Limitation                      string                 `json:"limitation,omitempty"`
-	Metric                          []core.DictionaryEntry `json:"metric,omitempty"`
-	MetricDecisionThreshold         []core.DictionaryEntry `json:"metricDecisionThreshold,omitempty"`
-	ModelDataPreprocessing          []string               `json:"modelDataPreprocessing,omitempty"`
-	ModelExplainability             []string               `json:"modelExplainability,omitempty"`
-	SafetyRiskAssessment            string                 `json:"safetyRiskAssessment,omitempty"`
-	StandardCompliance              []string               `json:"standardCompliance,omitempty"`
-	TypeOfModel                     []string               `json:"typeOfModel,omitempty"`
-	UseSensitivePersonalInformation string                 `json:"useSensitivePersonalInformation,omitempty"`
+	AutonomyType                    string                   `json:"autonomyType,omitempty"`
+	Domain                          []string                 `json:"domain,omitempty"`
+	EnergyConsumption               *EnergyConsumption       `json:"energyConsumption,omitempty"`
+	Hyperparameter                  []core.DictionaryEntry   `json:"hyperparameter,omitempty"`
+	InformationAboutApplication     string                   `json:"informationAboutApplication,omitempty"`
+	InformationAboutTraining        string                   `json:"informationAboutTraining,omitempty"`
+	Limitation                      string                   `json:"limitation,omitempty"`
+	Metric                          []core.DictionaryEntry   `json:"metric,omitempty"`
+	MetricDecisionThreshold         []core.DictionaryEntry   `json:"metricDecisionThreshold,omitempty"`
+	ModelDataPreprocessing          []string                 `json:"modelDataPreprocessing,omitempty"`
+	ModelExplainability             []string                 `json:"modelExplainability,omitempty"`
+	SafetyRiskAssessment            SafetyRiskAssessmentType `json:"safetyRiskAssessment,omitempty"`
+	StandardCompliance              []string                 `json:"standardCompliance,omitempty"`
+	TypeOfModel                     []string                 `json:"typeOfModel,omitempty"`
+	UseSensitivePersonalInformation string                   `json:"useSensitivePersonalInformation,omitempty"`
 }
 
 func (a *AIPackage) UnmarshalJSON(data []byte) error {

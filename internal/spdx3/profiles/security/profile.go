@@ -45,9 +45,9 @@ func (c *CvssV2VulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 // CvssV3VulnAssessmentRelationship represents a CVSS v3 assessment
 type CvssV3VulnAssessmentRelationship struct {
 	VulnAssessmentRelationship
-	Score        float64 `json:"score"`
-	Severity     string  `json:"severity"`
-	VectorString string  `json:"vectorString"`
+	Score        float64          `json:"score"`
+	Severity     CvssSeverityType `json:"severity"`
+	VectorString string           `json:"vectorString"`
 }
 
 func (c *CvssV3VulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
@@ -57,9 +57,9 @@ func (c *CvssV3VulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 // CvssV4VulnAssessmentRelationship represents a CVSS v4 assessment
 type CvssV4VulnAssessmentRelationship struct {
 	VulnAssessmentRelationship
-	Score        float64 `json:"score"`
-	Severity     string  `json:"severity"`
-	VectorString string  `json:"vectorString"`
+	Score        float64          `json:"score"`
+	Severity     CvssSeverityType `json:"severity"`
+	VectorString string           `json:"vectorString"`
 }
 
 func (c *CvssV4VulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
@@ -80,7 +80,7 @@ func (e *EpssVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 // SsvcVulnAssessmentRelationship represents an SSVC assessment
 type SsvcVulnAssessmentRelationship struct {
 	VulnAssessmentRelationship
-	DecisionType string `json:"decisionType"`
+	DecisionType SsvcDecisionType `json:"decisionType"`
 }
 
 func (s *SsvcVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
@@ -90,9 +90,9 @@ func (s *SsvcVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 // ExploitCatalogVulnAssessmentRelationship references known exploit catalogs
 type ExploitCatalogVulnAssessmentRelationship struct {
 	VulnAssessmentRelationship
-	CatalogType string `json:"catalogType"`
-	Exploited   bool   `json:"exploited"`
-	Locator     string `json:"locator"`
+	CatalogType ExploitCatalogType `json:"catalogType"`
+	Exploited   bool               `json:"exploited"`
+	Locator     string             `json:"locator"`
 }
 
 func (e *ExploitCatalogVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
@@ -129,9 +129,9 @@ func (v *VexFixedVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 // VexNotAffectedVulnAssessmentRelationship represents a VEX not_affected statement
 type VexNotAffectedVulnAssessmentRelationship struct {
 	VexVulnAssessmentRelationship
-	ImpactStatement     string     `json:"impactStatement,omitempty"`
-	ImpactStatementTime *time.Time `json:"impactStatementTime,omitempty"`
-	JustificationType   string     `json:"justificationType,omitempty"`
+	ImpactStatement     string                `json:"impactStatement,omitempty"`
+	ImpactStatementTime *time.Time            `json:"impactStatementTime,omitempty"`
+	JustificationType   VexJustificationType  `json:"justificationType,omitempty"`
 }
 
 func (v *VexNotAffectedVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {

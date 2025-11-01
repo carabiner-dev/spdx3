@@ -9,12 +9,12 @@ import (
 
 type Relationship struct {
 	Node
-	From             string     `json:"from"`
-	To               []string   `json:"to"`
-	RelationshipType string     `json:"relationshipType"`
-	Completeness     string     `json:"completeness,omitempty"`
-	StartTime        *time.Time `json:"startTime,omitempty"`
-	EndTime          *time.Time `json:"endTime,omitempty"`
+	From             string                   `json:"from"`
+	To               []string                 `json:"to"`
+	RelationshipType RelationshipType         `json:"relationshipType"`
+	Completeness     RelationshipCompleteness `json:"completeness,omitempty"`
+	StartTime        *time.Time               `json:"startTime,omitempty"`
+	EndTime          *time.Time               `json:"endTime,omitempty"`
 }
 
 func (r *Relationship) UnmarshalJSON(data []byte) error {
@@ -33,13 +33,13 @@ func (a *Agent) UnmarshalJSON(data []byte) error {
 // Artifact represents a distinct article or unit within the digital domain
 type Artifact struct {
 	Node
-	BuiltTime      *time.Time `json:"builtTime,omitempty"`
-	OriginatedBy   []*Agent   `json:"originatedBy,omitempty"`
-	ReleaseTime    *time.Time `json:"releaseTime,omitempty"`
-	StandardName   []string   `json:"standardName,omitempty"`
-	SuppliedBy     *Agent     `json:"suppliedBy,omitempty"`
-	SupportLevel   []string   `json:"supportLevel,omitempty"`
-	ValidUntilTime *time.Time `json:"validUntilTime,omitempty"`
+	BuiltTime      *time.Time    `json:"builtTime,omitempty"`
+	OriginatedBy   []*Agent      `json:"originatedBy,omitempty"`
+	ReleaseTime    *time.Time    `json:"releaseTime,omitempty"`
+	StandardName   []string      `json:"standardName,omitempty"`
+	SuppliedBy     *Agent        `json:"suppliedBy,omitempty"`
+	SupportLevel   []SupportType `json:"supportLevel,omitempty"`
+	ValidUntilTime *time.Time    `json:"validUntilTime,omitempty"`
 }
 
 func (a *Artifact) UnmarshalJSON(data []byte) error {
@@ -65,19 +65,19 @@ func (o *Organization) UnmarshalJSON(data []byte) error {
 }
 
 type ExternalIdentifier struct {
-	Type                   string   `json:"type"` //  "ExternalIdentifier",
-	ExternalIdentifierType string   `json:"externalIdentifierType"`
-	IssuingAuthority       string   `json:"issuingAuthority,omitempty"`
-	Identifier             string   `json:"identifier"`
-	IdentifierLocator      []string `json:"identifierLocator,omitempty"`
+	Type                   string                 `json:"type"` //  "ExternalIdentifier",
+	ExternalIdentifierType ExternalIdentifierType `json:"externalIdentifierType"`
+	IssuingAuthority       string                 `json:"issuingAuthority,omitempty"`
+	Identifier             string                 `json:"identifier"`
+	IdentifierLocator      []string               `json:"identifierLocator,omitempty"`
 }
 
 // ExternalRef represents a reference to a resource outside SPDX-3.0 content
 type ExternalRef struct {
-	Comment         string   `json:"comment,omitempty"`
-	ContentType     string   `json:"contentType,omitempty"`
-	ExternalRefType string   `json:"externalRefType,omitempty"`
-	Locator         []string `json:"locator,omitempty"`
+	Comment         string          `json:"comment,omitempty"`
+	ContentType     string          `json:"contentType,omitempty"`
+	ExternalRefType ExternalRefType `json:"externalRefType,omitempty"`
+	Locator         []string        `json:"locator,omitempty"`
 }
 
 // DictionaryEntry represents a key-value pair mapping
@@ -100,24 +100,24 @@ type PositiveIntegerRange struct {
 // Hash represents a cryptographic hash value
 type Hash struct {
 	IntegrityMethod
-	Algorithm string `json:"algorithm"`
-	HashValue string `json:"hashValue"`
+	Algorithm HashAlgorithm `json:"algorithm"`
+	HashValue string        `json:"hashValue"`
 }
 
 // PackageVerificationCode provides package integrity verification
 type PackageVerificationCode struct {
 	IntegrityMethod
-	Algorithm                            string   `json:"algorithm"`
-	HashValue                            string   `json:"hashValue"`
-	PackageVerificationCodeExcludedFile []string `json:"packageVerificationCodeExcludedFile,omitempty"`
+	Algorithm                           HashAlgorithm `json:"algorithm"`
+	HashValue                           string        `json:"hashValue"`
+	PackageVerificationCodeExcludedFile []string      `json:"packageVerificationCodeExcludedFile,omitempty"`
 }
 
 // ExternalMap maps Element identifiers defined external to the SpdxDocument
 type ExternalMap struct {
-	DefiningArtifact string             `json:"definingArtifact,omitempty"`
-	ExternalSpdxId   string             `json:"externalSpdxId"`
-	LocationHint     string             `json:"locationHint,omitempty"`
-	VerifiedUsing    []IntegrityMethod  `json:"verifiedUsing,omitempty"`
+	DefiningArtifact string            `json:"definingArtifact,omitempty"`
+	ExternalSpdxId   string            `json:"externalSpdxId"`
+	LocationHint     string            `json:"locationHint,omitempty"`
+	VerifiedUsing    []IntegrityMethod `json:"verifiedUsing,omitempty"`
 }
 
 // NamespaceMap allows shorter identifiers for namespace portions
@@ -129,10 +129,10 @@ type NamespaceMap struct {
 // Annotation provides additional information about elements
 type Annotation struct {
 	Node
-	AnnotationType string `json:"annotationType"`
-	ContentType    string `json:"contentType,omitempty"`
-	Statement      string `json:"statement,omitempty"`
-	Subject        string `json:"subject"`
+	AnnotationType AnnotationType `json:"annotationType"`
+	ContentType    string         `json:"contentType,omitempty"`
+	Statement      string         `json:"statement,omitempty"`
+	Subject        string         `json:"subject"`
 }
 
 func (a *Annotation) UnmarshalJSON(data []byte) error {
@@ -160,7 +160,7 @@ func (t *Tool) UnmarshalJSON(data []byte) error {
 // LifecycleScopedRelationship parameterizes context for relationships
 type LifecycleScopedRelationship struct {
 	Relationship
-	Scope string `json:"scope,omitempty"`
+	Scope LifecycleScopeType `json:"scope,omitempty"`
 }
 
 func (lsr *LifecycleScopedRelationship) UnmarshalJSON(data []byte) error {
@@ -170,9 +170,9 @@ func (lsr *LifecycleScopedRelationship) UnmarshalJSON(data []byte) error {
 // ElementCollection is an abstract collection of Elements
 type ElementCollection struct {
 	Node
-	Element            []string `json:"element,omitempty"`
-	RootElement        []string `json:"rootElement,omitempty"`
-	ProfileConformance []string `json:"profileConformance,omitempty"`
+	Element            []string                `json:"element,omitempty"`
+	RootElement        []string                `json:"rootElement,omitempty"`
+	ProfileConformance []ProfileIdentifierType `json:"profileConformance,omitempty"`
 }
 
 // Bundle is a collection of Elements with shared context
@@ -197,9 +197,9 @@ func (b *Bom) UnmarshalJSON(data []byte) error {
 type SpdxDocument struct {
 	Bundle
 	types.RootedNode
-	DataLicense   string         `json:"dataLicense,omitempty"`
-	ExternalMap   []ExternalMap  `json:"externalMap,omitempty"`
-	NamespaceMap  []NamespaceMap `json:"namespaceMap,omitempty"`
+	DataLicense  string         `json:"dataLicense,omitempty"`
+	ExternalMap  []ExternalMap  `json:"externalMap,omitempty"`
+	NamespaceMap []NamespaceMap `json:"namespaceMap,omitempty"`
 }
 
 func (sd *SpdxDocument) UnmarshalJSON(data []byte) error {

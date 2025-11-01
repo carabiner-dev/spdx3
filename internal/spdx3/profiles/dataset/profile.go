@@ -26,16 +26,16 @@ func (dp *Package) UnmarshalJSON(data []byte) error {
 
 type Node struct {
 	core.Node
-	BuiltTime                       *time.Time `json:"builtTime"`
-	ReleaseTime                     *time.Time `json:"releaseTime"`
-	ConfidentialityLevel            string     `json:"confidentialityLevel"`
-	DataPreprocessing               []string   `json:"dataset_dataPreprocessing"`
-	DatasetAvailability             string     `json:"dataset_datasetAvailability"`
-	DataCollectionProcess           string     `json:"dataset_dataCollectionProcess"`
-	DatasetSize                     int64      `json:"dataset_datasetSize"`
-	DatasetType                     []string   `json:"dataset_datasetType"`
-	DatasetUpdateMechanism          string     `json:"dataset_datasetUpdateMechanism"`
-	HasSensitivePersonalInformation string     `json:"dataset_hasSensitivePersonalInformation"`
-	IntendedUse                     string     `json:"dataset_intendedUse"`
-	KnownBias                       []string   `json:"dataset_knownBias"`
+	BuiltTime                       *time.Time               `json:"builtTime"`
+	ReleaseTime                     *time.Time               `json:"releaseTime"`
+	ConfidentialityLevel            ConfidentialityLevelType `json:"confidentialityLevel"`
+	DataPreprocessing               []string                 `json:"dataset_dataPreprocessing"`
+	DatasetAvailability             DatasetAvailabilityType  `json:"dataset_datasetAvailability"`
+	DataCollectionProcess           string                   `json:"dataset_dataCollectionProcess"`
+	DatasetSize                     int64                    `json:"dataset_datasetSize"`
+	DatasetType                     []DatasetType            `json:"dataset_datasetType"`
+	DatasetUpdateMechanism          string                   `json:"dataset_datasetUpdateMechanism"`
+	HasSensitivePersonalInformation string                   `json:"dataset_hasSensitivePersonalInformation"`
+	IntendedUse                     string                   `json:"dataset_intendedUse"`
+	KnownBias                       []string                 `json:"dataset_knownBias"`
 }
