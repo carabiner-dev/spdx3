@@ -16,6 +16,20 @@ func (r *Relationship) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, r, &r.PreNode)
 }
 
+// Agent represents anything with the potential to act on a system
+type Agent struct {
+	Node
+	Summary            string               `json:"summary,omitempty"`
+	Extension          []string             `json:"extension,omitempty"`
+	ExternalIdentifier []ExternalIdentifier `json:"externalIdentifier,omitempty"`
+	ExternalRef        []string             `json:"externalRef,omitempty"`
+	VerifiedUsing      []string             `json:"verifiedUsing,omitempty"`
+}
+
+func (a *Agent) UnmarshalJSON(data []byte) error {
+	return unmarshal.Node(data, a, &a.PreNode)
+}
+
 type Person struct {
 	Node
 	ExternalIdentifier []ExternalIdentifier `json:"externalIdentifier"`
