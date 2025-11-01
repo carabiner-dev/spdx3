@@ -1,0 +1,41 @@
+package core
+
+import (
+	"encoding/json"
+	"fmt"
+	"time"
+
+	"github.com/carabiner-dev/databom/internal/spdx3/base"
+	"github.com/carabiner-dev/databom/internal/spdx3/types"
+	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
+)
+
+type CreationInfo struct {
+	base.PreNode
+	types.RootedNode
+	root        bool         `json:""`
+	Name        string       `json:"name"`
+	SpecVersion string       `json:"specVersion"`
+	CreatedBy   []types.Node `json:"createdBy"`
+	Created     *time.Time   `json:"created"`
+}
+
+func (ci *CreationInfo) GetName() string {
+	return ci.Name
+}
+
+func (ci *CreationInfo) GetCreationInfo() types.Node {
+	return ci
+}
+
+func (ci *CreationInfo) MarshalJSON() ([]byte, error) {
+	if ci.root {
+		return json.Marshal(ci)
+	}
+
+	return fmt.Appendf(nil, "\"_:%s\"", ci.ID), nil
+}
+
+func (ci *CreationInfo) UnmarshalJSON(data []byte) error {
+	return unmarshal.Node(data, ci, &ci.PreNode)
+}

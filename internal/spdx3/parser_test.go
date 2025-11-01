@@ -1,4 +1,4 @@
-package internal
+package spdx3
 
 import (
 	"bytes"
@@ -6,6 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/carabiner-dev/databom/internal/spdx3/base"
+	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
+	"github.com/carabiner-dev/databom/internal/spdx3/profiles/software"
+	"github.com/carabiner-dev/databom/internal/spdx3/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,18 +29,24 @@ func textractNodeTypes(t *testing.T, graph *Graph) map[string]int {
 func TestRender(t *testing.T) {
 	r := Renderer{}
 	n := time.Now()
-	c := &CreationInfo{
+	c := &core.CreationInfo{
 		SpecVersion: "3.0.1",
-		CreatedBy: []string{
-			"https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1",
+		CreatedBy: []types.Node{
+			&core.Person{
+				Node: core.Node{
+					PreNode: base.PreNode{
+						ID: "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1",
+					},
+				},
+			},
 		},
 		Created: &n,
-		PreNode: PreNode{
+		PreNode: base.PreNode{
 			ID:   "_:creationinfo",
 			Type: "CreationInfo",
 		},
-		RootedNode: RootedNode{
-			RootElement: []string{},
+		RootedNode: types.RootedNode{
+			RootElement: []types.Node{},
 		},
 	}
 
@@ -48,7 +58,7 @@ func TestRender(t *testing.T) {
 	}
 
 	r.Render(e, os.Stdout)
-	t.Fail()
+	// t.Fail()
 }
 
 func TestNode(t *testing.T) {
@@ -60,12 +70,12 @@ func TestNode(t *testing.T) {
 	require.NotNil(t, env)
 	require.NotNil(t, env.Graph)
 	require.Equal(t, "CreationInfo", env.Graph[0].GetType())
-	require.IsType(t, &CreationInfo{}, env.Graph[0])
-	require.IsType(t, &Person{}, env.Graph[1])
+	require.IsType(t, &core.CreationInfo{}, env.Graph[0])
+	require.IsType(t, &core.Person{}, env.Graph[1])
 	require.Len(t, env.Graph, 13)
-	person := env.Graph[1].(*Person)
+	person := env.Graph[1].(*core.Person)
 	require.Len(t, person.ExternalIdentifier, 1)
-	require.EqualValues(t, ExternalIdentifier{
+	require.EqualValues(t, core.ExternalIdentifier{
 		Type:                   "ExternalIdentifier",
 		ExternalIdentifierType: "email",
 		Identifier:             "suriyawa@tcd.ie",
@@ -89,7 +99,7 @@ func TestNode(t *testing.T) {
 			continue
 		}
 
-		ci, ok := n.(*CreationInfo)
+		ci, ok := n.(*core.CreationInfo)
 		require.True(t, ok)
 
 		require.Equal(t, "3.0.1", ci.SpecVersion)
@@ -110,7 +120,7 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 			name:     "CreationInfo full object",
 			jsonData: `{"spdxID":"id1","@id":"_:ci1","type":"CreationInfo","name":"test","specVersion":"3.0.1"}`,
 			testFunc: func(t *testing.T, data []byte) {
-				var ci CreationInfo
+				var ci core.CreationInfo
 				err := ci.UnmarshalJSON(data)
 				require.NoError(t, err)
 				require.Equal(t, "_:ci1", ci.ID)
@@ -123,7 +133,7 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 			name:     "CreationInfo string reference",
 			jsonData: `"_:ci2"`,
 			testFunc: func(t *testing.T, data []byte) {
-				var ci CreationInfo
+				var ci core.CreationInfo
 				err := ci.UnmarshalJSON(data)
 				require.NoError(t, err)
 				require.Equal(t, "ci2", ci.ID)
@@ -133,7 +143,7 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 			name:     "Person full object",
 			jsonData: `{"spdxID":"id1","@id":"_:p1","type":"Person","name":"John Doe","externalIdentifier":[{"type":"ExternalIdentifier","externalIdentifierType":"email","identifier":"john@example.com"}]}`,
 			testFunc: func(t *testing.T, data []byte) {
-				var p Person
+				var p core.Person
 				err := p.UnmarshalJSON(data)
 				require.NoError(t, err)
 				require.Equal(t, "_:p1", p.ID)
@@ -147,7 +157,7 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 			name:     "Person string reference",
 			jsonData: `"_:p2"`,
 			testFunc: func(t *testing.T, data []byte) {
-				var p Person
+				var p core.Person
 				err := p.UnmarshalJSON(data)
 				require.NoError(t, err)
 				require.Equal(t, "p2", p.ID)
@@ -157,7 +167,7 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 			name:     "File full object with embedded structs",
 			jsonData: `{"spdxID":"id1","@id":"_:f1","type":"software_File","name":"test.go","software_downloadLocation":"https://example.com/test.go"}`,
 			testFunc: func(t *testing.T, data []byte) {
-				var f File
+				var f software.File
 				err := f.UnmarshalJSON(data)
 				require.NoError(t, err)
 				require.Equal(t, "_:f1", f.ID)
@@ -170,7 +180,7 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 			name:     "File string reference",
 			jsonData: `"_:f2"`,
 			testFunc: func(t *testing.T, data []byte) {
-				var f File
+				var f software.File
 				err := f.UnmarshalJSON(data)
 				require.NoError(t, err)
 				require.Equal(t, "f2", f.ID)
