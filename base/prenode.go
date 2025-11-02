@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright 2025 Carabiner Systems, Inc
+// SPDX-License-Identifier: Apache-2.0
+
 package base
 
 // PreNode is a superslim field set that is common to all node types. This is
