@@ -4,8 +4,6 @@
 package core
 
 import (
-	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/carabiner-dev/spdx3/base"
@@ -33,13 +31,15 @@ func (ci *CreationInfo) GetCreationInfo() types.Node {
 	return ci
 }
 
-func (ci *CreationInfo) MarshalJSON() ([]byte, error) {
-	if ci.root {
-		return json.Marshal(ci)
-	}
+// func (ci *CreationInfo) MarshalJSON() ([]byte, error) {
+// 	return json.Marshal(ci)
 
-	return fmt.Appendf(nil, "\"_:%s\"", ci.ID), nil
-}
+// 	// if ci.root {
+// 	// 	return json.Marshal(ci)
+// 	// }
+
+// 	// return fmt.Appendf(nil, "\"_:%s\"", ci.ID), nil
+// }
 
 func (ci *CreationInfo) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, ci, &ci.PreNode)

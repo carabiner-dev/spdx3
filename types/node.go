@@ -35,7 +35,6 @@ type AddressableById interface {
 }
 
 type RootedNode struct {
-	// RootElement []string `json:"rotElement"`
 	RootElement []Node `json:"rootElement"`
 }
 
@@ -73,6 +72,8 @@ func (NodeRef) GetCreationInfo() Node {
 }
 
 // Marker methods to implement descendant interfaces
+// This is hack and we need to resolve how to plug in
+// a universal reference.
 func (NodeRef) FromElement()      {}
 func (NodeRef) FromAgent()        {}
 func (NodeRef) FromArtifact()     {}

@@ -33,7 +33,7 @@ func (g *Graph) UnmarshalJSON(data []byte) error {
 			return fmt.Errorf("unmarshaling node #%d: %w", i, err)
 		}
 		// TODO(puerco): Dedupe IDs of the resulting node
-		//  TODO(puerco): Dedupe IDs of any fields that are nodes by looking up
+		// TODO(puerco): Dedupe IDs of any fields that are nodes by looking up
 		// exising nodes with the same ID
 		*g = append(*g, n)
 	}
