@@ -2,7 +2,6 @@ package types
 
 import (
 	"errors"
-	"reflect"
 )
 
 var ErrUnsupportedNodeType = errors.New("unsupported node type")
@@ -11,7 +10,7 @@ type ID string
 
 type Profile struct {
 	Prefix  string
-	Classes map[string]reflect.Type
+	Classes map[string]Node
 }
 
 type Vocabulary[T ~string] []T
@@ -47,6 +46,8 @@ type Node interface {
 }
 
 // NodeRef implements Node but the only method that works is ID
+// It also implements all descendant marker interfaces to allow it to be
+// used in specialized slices like []AgentDescendant
 type NodeRef struct {
 	ID   string
 	Data []byte
@@ -67,3 +68,9 @@ func (NodeRef) GetName() string {
 func (NodeRef) GetCreationInfo() Node {
 	return nil
 }
+
+// Marker methods to implement descendant interfaces
+func (NodeRef) FromElement()      {}
+func (NodeRef) FromAgent()        {}
+func (NodeRef) FromArtifact()     {}
+func (NodeRef) FromRelationship() {}

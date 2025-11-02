@@ -1,8 +1,6 @@
 package simplelicensing
 
 import (
-	"reflect"
-
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
 	"github.com/carabiner-dev/databom/internal/spdx3/types"
 	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
@@ -12,16 +10,19 @@ const Prefix = "simplelicensing "
 
 var Profile = types.Profile{
 	Prefix: Prefix,
-	Classes: map[string]reflect.Type{
-		"AnyLicenseInfo":      reflect.TypeOf(&AnyLicenseInfo{}),
-		"LicenseExpression":   reflect.TypeOf(&LicenseExpression{}),
-		"SimpleLicensingText": reflect.TypeOf(&SimpleLicensingText{}),
+	Classes: map[string]types.Node{
+		"AnyLicenseInfo":                      &AnyLicenseInfo{},
+		"LicenseExpression":                   &LicenseExpression{},
+		"SimpleLicensingText":                 &SimpleLicensingText{},
+		"simplelicensing_AnyLicenseInfo":      &AnyLicenseInfo{},
+		"simplelicensing_LicenseExpression":   &LicenseExpression{},
+		"simplelicensing_SimpleLicensingText": &SimpleLicensingText{},
 	},
 }
 
 // AnyLicenseInfo is the abstract base class for license information
 type AnyLicenseInfo struct {
-	core.Node
+	core.Element
 }
 
 func (ali *AnyLicenseInfo) UnmarshalJSON(data []byte) error {
@@ -42,7 +43,7 @@ func (le *LicenseExpression) UnmarshalJSON(data []byte) error {
 
 // SimpleLicensingText represents license text not on the SPDX License List
 type SimpleLicensingText struct {
-	core.Node
+	core.Element
 	LicenseText string `json:"licenseText"`
 }
 

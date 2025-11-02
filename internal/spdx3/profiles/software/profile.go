@@ -1,8 +1,6 @@
 package software
 
 import (
-	"reflect"
-
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
 	"github.com/carabiner-dev/databom/internal/spdx3/types"
 	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
@@ -12,20 +10,18 @@ const Prefix = "software"
 
 var Profile = types.Profile{
 	Prefix: Prefix,
-	Classes: map[string]reflect.Type{
-		"SoftwareArtifact":  reflect.TypeOf(&SoftwareArtifact{}),
-		"File":              reflect.TypeOf(&File{}),
-		"Package":           reflect.TypeOf(&Package{}),
-		"ContentIdentifier": reflect.TypeOf(&ContentIdentifier{}),
-		"Snippet":           reflect.TypeOf(&Snippet{}),
-		"Sbom":              reflect.TypeOf(&Sbom{}),
+	Classes: map[string]types.Node{
+		"SoftwareArtifact":          &SoftwareArtifact{},
+		"File":                      &File{},
+		"Package":                   &Package{},
+		"Snippet":                   &Snippet{},
+		"Sbom":                      &Sbom{},
+		"software_SoftwareArtifact": &SoftwareArtifact{},
+		"software_File":             &File{},
+		"software_Package":          &Package{},
+		"software_Snippet":          &Snippet{},
+		"software_Sbom":             &Sbom{},
 	},
-}
-
-type Node struct {
-	core.Node
-	DownloadLocation string `json:"software_downloadLocation"`
-	PrimaryPurpose   string `json:"software_primaryPurpose"`
 }
 
 // SoftwareArtifact represents a distinct article or unit related to software
@@ -86,9 +82,9 @@ type ContentIdentifier struct {
 // Snippet represents a portion of a file
 type Snippet struct {
 	SoftwareArtifact
-	ByteRange        *core.PositiveIntegerRange `json:"byteRange,omitempty"`
-	LineRange        *core.PositiveIntegerRange `json:"lineRange,omitempty"`
-	SnippetFromFile  string                     `json:"snippetFromFile"`
+	ByteRange       *core.PositiveIntegerRange `json:"byteRange,omitempty"`
+	LineRange       *core.PositiveIntegerRange `json:"lineRange,omitempty"`
+	SnippetFromFile string                     `json:"snippetFromFile"`
 }
 
 func (s *Snippet) UnmarshalJSON(data []byte) error {

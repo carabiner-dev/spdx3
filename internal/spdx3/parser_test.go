@@ -31,11 +31,13 @@ func TestRender(t *testing.T) {
 	n := time.Now()
 	c := &core.CreationInfo{
 		SpecVersion: "3.0.1",
-		CreatedBy: []types.Node{
+		CreatedBy: []core.AgentDescendant{
 			&core.Person{
-				Node: core.Node{
-					PreNode: base.PreNode{
-						ID: "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1",
+				Agent: core.Agent{
+					Node: core.Node{
+						PreNode: base.PreNode{
+							ID: "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1",
+						},
 					},
 				},
 			},

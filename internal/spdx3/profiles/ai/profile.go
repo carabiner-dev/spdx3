@@ -1,8 +1,6 @@
 package ai
 
 import (
-	"reflect"
-
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/software"
 	"github.com/carabiner-dev/databom/internal/spdx3/types"
@@ -13,8 +11,8 @@ const Prefix = "ai"
 
 var Profile = types.Profile{
 	Prefix: Prefix,
-	Classes: map[string]reflect.Type{
-		"AIPackage": reflect.TypeOf(&AIPackage{}),
+	Classes: map[string]types.Node{
+		"AIPackage": &AIPackage{},
 	},
 }
 
@@ -34,7 +32,7 @@ type EnergyConsumption struct {
 // AIPackage represents an AI software package or system
 type AIPackage struct {
 	software.Package
-	AutonomyType                    string                   `json:"autonomyType,omitempty"`
+	AutonomyType                    core.PresenceType        `json:"autonomyType,omitempty"`
 	Domain                          []string                 `json:"domain,omitempty"`
 	EnergyConsumption               *EnergyConsumption       `json:"energyConsumption,omitempty"`
 	Hyperparameter                  []core.DictionaryEntry   `json:"hyperparameter,omitempty"`
@@ -48,7 +46,7 @@ type AIPackage struct {
 	SafetyRiskAssessment            SafetyRiskAssessmentType `json:"safetyRiskAssessment,omitempty"`
 	StandardCompliance              []string                 `json:"standardCompliance,omitempty"`
 	TypeOfModel                     []string                 `json:"typeOfModel,omitempty"`
-	UseSensitivePersonalInformation string                   `json:"useSensitivePersonalInformation,omitempty"`
+	UseSensitivePersonalInformation core.PresenceType        `json:"useSensitivePersonalInformation,omitempty"`
 }
 
 func (a *AIPackage) UnmarshalJSON(data []byte) error {

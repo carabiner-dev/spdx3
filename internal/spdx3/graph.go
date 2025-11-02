@@ -8,11 +8,6 @@ import (
 	"github.com/carabiner-dev/databom/internal/spdx3/types"
 )
 
-func init() {
-	// Initialize the default dispatcher for unmarshal package to avoid import cycles
-
-}
-
 // Envelope
 type Envelope struct {
 	Context string `json:"@context"`

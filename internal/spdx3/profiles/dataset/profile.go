@@ -1,7 +1,6 @@
 package dataset
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
@@ -13,14 +12,15 @@ const Prefix = "dataset"
 
 var Profile = types.Profile{
 	Prefix: Prefix,
-	Classes: map[string]reflect.Type{
-		"DatasetPackage": reflect.TypeOf(&Package{}),
+	Classes: map[string]types.Node{
+		"DatasetPackage":         &Package{},
+		"dataset_DatasetPackage": &Package{},
 	},
 }
 
 // Package dataset package extends software package with dataset fields
 type Package struct {
-	core.Node
+	core.Element
 	BuiltTime                       *time.Time               `json:"builtTime"`
 	ReleaseTime                     *time.Time               `json:"releaseTime"`
 	ConfidentialityLevel            ConfidentialityLevelType `json:"dataset_confidentialityLevel"`

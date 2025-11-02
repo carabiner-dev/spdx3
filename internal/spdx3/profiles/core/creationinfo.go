@@ -13,11 +13,13 @@ import (
 type CreationInfo struct {
 	base.PreNode
 	types.RootedNode
-	root        bool         `json:""`
-	Name        string       `json:"name"`
-	SpecVersion string       `json:"specVersion"`
-	CreatedBy   []types.Node `json:"createdBy"`
-	Created     *time.Time   `json:"created"`
+	root         bool              `json:""`
+	Name         string            `json:"name"`
+	SpecVersion  string            `json:"specVersion"`
+	CreatedBy    []AgentDescendant `json:"createdBy"`
+	CreatedUsing []Tool            `json:"createdUsing,omitempty"`
+	Created      *time.Time        `json:"created"`
+	Comment      string            `json:"comment,omitempty"`
 }
 
 func (ci *CreationInfo) GetName() string {

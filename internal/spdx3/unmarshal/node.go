@@ -63,8 +63,7 @@ func (nu *NodeUnmarshaler) unmarshalFields(raw map[string]json.RawMessage, targe
 	v := reflect.ValueOf(target).Elem()
 	t := v.Type()
 
-	typeOfNodeSlice := reflect.TypeOf([]types.Node{})
-	typeOfNode := reflect.TypeOf(((*types.Node)(nil)))
+	typeOfNode := reflect.TypeOf((*types.Node)(nil)).Elem()
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
@@ -93,14 +92,15 @@ func (nu *NodeUnmarshaler) unmarshalFields(raw map[string]json.RawMessage, targe
 
 		// Check if we have data for this field
 		if rawData, ok := raw[tagName]; ok {
-			// If the field is a list of nodes, it can be a list of strings
-			// of just the JSONLD ids, or full objects
-			if fieldValue.Type() == typeOfNodeSlice {
+			// If the field is a slice of nodes (interfaces)
+			if fieldValue.Kind() == reflect.Slice && fieldValue.Type().Elem().Kind() == reflect.Interface && fieldValue.Type().Elem().Implements(typeOfNode) {
 				if err := nu.unmarshalNodeSlice(rawData, &fieldValue); err != nil {
 					return fmt.Errorf("unmarshaling node slice for field %s: %w", tagName, err)
 				}
 				continue
-			} else if fieldValue.Type() == typeOfNode {
+			}
+			// If the field is a single node (interface)
+			if fieldValue.Kind() == reflect.Interface && fieldValue.Type().Implements(typeOfNode) {
 				if err := nu.unmarshalNode(rawData, &fieldValue); err != nil {
 					return fmt.Errorf("unmarshaling node for field %s: %w", tagName, err)
 				}
@@ -111,7 +111,7 @@ func (nu *NodeUnmarshaler) unmarshalFields(raw map[string]json.RawMessage, targe
 			// Create a new value of the field's type
 			newVal := reflect.New(fieldValue.Type())
 			if err := json.Unmarshal(rawData, newVal.Interface()); err != nil {
-				return err
+				return fmt.Errorf("fallo: %w", err)
 			}
 			fieldValue.Set(newVal.Elem())
 		}
@@ -136,7 +136,7 @@ func (nu *NodeUnmarshaler) unmarshalNode(rawData json.RawMessage, fieldValue *re
 	return nil
 }
 
-// unmarshalNodeSlice handles unmarshaling a JSON array into a []types.Node slice.
+// unmarshalNodeSlice handles unmarshaling a JSON array into a slice of types that implement types.Node.
 // Each item in the array can be either:
 // - A string representing a node reference (e.g., "_:id")
 // - A full object that needs to be dispatched to the appropriate concrete type
@@ -147,13 +147,17 @@ func (nu *NodeUnmarshaler) unmarshalNodeSlice(rawData json.RawMessage, fieldValu
 		return fmt.Errorf("unmarshaling as list: %w", err)
 	}
 
-	nodeSlice := []types.Node{}
+	// Create a new slice of the correct type
+	sliceType := fieldValue.Type()
+	nodeSlice := reflect.MakeSlice(sliceType, 0, len(list))
+
 	for i, item := range list {
 		// Try to unmarshal as a string first (node reference)
 		var s string
 		if err := json.Unmarshal(item, &s); err == nil {
 			// It's a string reference, create a NodeRef
-			nodeSlice = append(nodeSlice, types.NodeRef{ID: strings.TrimPrefix(s, "_:")})
+			nodeRef := types.NodeRef{ID: strings.TrimPrefix(s, "_:")}
+			nodeSlice = reflect.Append(nodeSlice, reflect.ValueOf(nodeRef))
 			continue
 		}
 
@@ -163,9 +167,9 @@ func (nu *NodeUnmarshaler) unmarshalNodeSlice(rawData json.RawMessage, fieldValu
 		if err != nil {
 			return fmt.Errorf("unmarshaling node at index %d: %w", i, err)
 		}
-		nodeSlice = append(nodeSlice, node)
+		nodeSlice = reflect.Append(nodeSlice, reflect.ValueOf(node))
 	}
 
-	fieldValue.Set(reflect.ValueOf(nodeSlice))
+	fieldValue.Set(nodeSlice)
 	return nil
 }

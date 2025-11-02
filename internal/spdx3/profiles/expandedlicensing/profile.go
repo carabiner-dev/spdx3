@@ -1,8 +1,6 @@
 package expandedlicensing
 
 import (
-	"reflect"
-
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/simplelicensing"
 	"github.com/carabiner-dev/databom/internal/spdx3/types"
@@ -13,16 +11,16 @@ const Prefix = "expandedlicensing"
 
 var Profile = types.Profile{
 	Prefix: Prefix,
-	Classes: map[string]reflect.Type{
-		"ListedLicense":             reflect.TypeOf(&ListedLicense{}),
-		"CustomLicense":             reflect.TypeOf(&CustomLicense{}),
-		"OrLaterOperator":           reflect.TypeOf(&OrLaterOperator{}),
-		"WithAdditionOperator":      reflect.TypeOf(&WithAdditionOperator{}),
-		"ConjunctiveLicenseSet":     reflect.TypeOf(&ConjunctiveLicenseSet{}),
-		"DisjunctiveLicenseSet":     reflect.TypeOf(&DisjunctiveLicenseSet{}),
-		"IndividualLicensingInfo":   reflect.TypeOf(&IndividualLicensingInfo{}),
-		"ListedLicenseException":    reflect.TypeOf(&ListedLicenseException{}),
-		"CustomLicenseAddition":     reflect.TypeOf(&CustomLicenseAddition{}),
+	Classes: map[string]types.Node{
+		"ListedLicense":           &ListedLicense{},
+		"CustomLicense":           &CustomLicense{},
+		"OrLaterOperator":         &OrLaterOperator{},
+		"WithAdditionOperator":    &WithAdditionOperator{},
+		"ConjunctiveLicenseSet":   &ConjunctiveLicenseSet{},
+		"DisjunctiveLicenseSet":   &DisjunctiveLicenseSet{},
+		"IndividualLicensingInfo": &IndividualLicensingInfo{},
+		"ListedLicenseException":  &ListedLicenseException{},
+		"CustomLicenseAddition":   &CustomLicenseAddition{},
 	},
 }
 
@@ -34,15 +32,15 @@ type ExtendableLicense struct {
 // License is an abstract class representing a license text
 type License struct {
 	ExtendableLicense
-	LicenseText               string   `json:"licenseText"`
-	IsDeprecatedLicenseId     bool     `json:"isDeprecatedLicenseId,omitempty"`
-	IsFsfLibre                bool     `json:"isFsfLibre,omitempty"`
-	IsOsiApproved             bool     `json:"isOsiApproved,omitempty"`
-	LicenseXml                string   `json:"licenseXml,omitempty"`
-	ObsoletedBy               string   `json:"obsoletedBy,omitempty"`
-	SeeAlso                   []string `json:"seeAlso,omitempty"`
-	StandardLicenseHeader     string   `json:"standardLicenseHeader,omitempty"`
-	StandardLicenseTemplate   string   `json:"standardLicenseTemplate,omitempty"`
+	LicenseText             string   `json:"licenseText"`
+	IsDeprecatedLicenseId   bool     `json:"isDeprecatedLicenseId,omitempty"`
+	IsFsfLibre              bool     `json:"isFsfLibre,omitempty"`
+	IsOsiApproved           bool     `json:"isOsiApproved,omitempty"`
+	LicenseXml              string   `json:"licenseXml,omitempty"`
+	ObsoletedBy             string   `json:"obsoletedBy,omitempty"`
+	SeeAlso                 []string `json:"seeAlso,omitempty"`
+	StandardLicenseHeader   string   `json:"standardLicenseHeader,omitempty"`
+	StandardLicenseTemplate string   `json:"standardLicenseTemplate,omitempty"`
 }
 
 // ListedLicense references a license from the official SPDX list
@@ -78,7 +76,7 @@ func (olo *OrLaterOperator) UnmarshalJSON(data []byte) error {
 // WithAdditionOperator represents the "with addition" operator
 type WithAdditionOperator struct {
 	simplelicensing.AnyLicenseInfo
-	SubjectAddition         string `json:"subjectAddition"`
+	SubjectAddition          string `json:"subjectAddition"`
 	SubjectExtendableLicense string `json:"subjectExtendableLicense"`
 }
 
@@ -118,12 +116,12 @@ func (ili *IndividualLicensingInfo) UnmarshalJSON(data []byte) error {
 // LicenseAddition is an abstract class for additions/exceptions to licenses
 type LicenseAddition struct {
 	core.Node
-	AdditionText              string   `json:"additionText"`
-	IsDeprecatedAdditionId    bool     `json:"isDeprecatedAdditionId,omitempty"`
-	LicenseXml                string   `json:"licenseXml,omitempty"`
-	ObsoletedBy               string   `json:"obsoletedBy,omitempty"`
-	SeeAlso                   []string `json:"seeAlso,omitempty"`
-	StandardAdditionTemplate  string   `json:"standardAdditionTemplate,omitempty"`
+	AdditionText             string   `json:"additionText"`
+	IsDeprecatedAdditionId   bool     `json:"isDeprecatedAdditionId,omitempty"`
+	LicenseXml               string   `json:"licenseXml,omitempty"`
+	ObsoletedBy              string   `json:"obsoletedBy,omitempty"`
+	SeeAlso                  []string `json:"seeAlso,omitempty"`
+	StandardAdditionTemplate string   `json:"standardAdditionTemplate,omitempty"`
 }
 
 // ListedLicenseException references an exception from the SPDX list

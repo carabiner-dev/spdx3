@@ -1,7 +1,6 @@
 package security
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
@@ -13,18 +12,18 @@ const Prefix = "security"
 
 var Profile = types.Profile{
 	Prefix: Prefix,
-	Classes: map[string]reflect.Type{
-		"Vulnerability":                                  reflect.TypeOf(&Vulnerability{}),
-		"CvssV2VulnAssessmentRelationship":               reflect.TypeOf(&CvssV2VulnAssessmentRelationship{}),
-		"CvssV3VulnAssessmentRelationship":               reflect.TypeOf(&CvssV3VulnAssessmentRelationship{}),
-		"CvssV4VulnAssessmentRelationship":               reflect.TypeOf(&CvssV4VulnAssessmentRelationship{}),
-		"EpssVulnAssessmentRelationship":                 reflect.TypeOf(&EpssVulnAssessmentRelationship{}),
-		"SsvcVulnAssessmentRelationship":                 reflect.TypeOf(&SsvcVulnAssessmentRelationship{}),
-		"ExploitCatalogVulnAssessmentRelationship":       reflect.TypeOf(&ExploitCatalogVulnAssessmentRelationship{}),
-		"VexAffectedVulnAssessmentRelationship":          reflect.TypeOf(&VexAffectedVulnAssessmentRelationship{}),
-		"VexFixedVulnAssessmentRelationship":             reflect.TypeOf(&VexFixedVulnAssessmentRelationship{}),
-		"VexNotAffectedVulnAssessmentRelationship":       reflect.TypeOf(&VexNotAffectedVulnAssessmentRelationship{}),
-		"VexUnderInvestigationVulnAssessmentRelationship": reflect.TypeOf(&VexUnderInvestigationVulnAssessmentRelationship{}),
+	Classes: map[string]types.Node{
+		"Vulnerability":                                   &Vulnerability{},
+		"CvssV2VulnAssessmentRelationship":                &CvssV2VulnAssessmentRelationship{},
+		"CvssV3VulnAssessmentRelationship":                &CvssV3VulnAssessmentRelationship{},
+		"CvssV4VulnAssessmentRelationship":                &CvssV4VulnAssessmentRelationship{},
+		"EpssVulnAssessmentRelationship":                  &EpssVulnAssessmentRelationship{},
+		"SsvcVulnAssessmentRelationship":                  &SsvcVulnAssessmentRelationship{},
+		"ExploitCatalogVulnAssessmentRelationship":        &ExploitCatalogVulnAssessmentRelationship{},
+		"VexAffectedVulnAssessmentRelationship":           &VexAffectedVulnAssessmentRelationship{},
+		"VexFixedVulnAssessmentRelationship":              &VexFixedVulnAssessmentRelationship{},
+		"VexNotAffectedVulnAssessmentRelationship":        &VexNotAffectedVulnAssessmentRelationship{},
+		"VexUnderInvestigationVulnAssessmentRelationship": &VexUnderInvestigationVulnAssessmentRelationship{},
 	},
 }
 
@@ -148,9 +147,9 @@ func (v *VexFixedVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 // VexNotAffectedVulnAssessmentRelationship represents a VEX not_affected statement
 type VexNotAffectedVulnAssessmentRelationship struct {
 	VexVulnAssessmentRelationship
-	ImpactStatement     string                `json:"impactStatement,omitempty"`
-	ImpactStatementTime *time.Time            `json:"impactStatementTime,omitempty"`
-	JustificationType   VexJustificationType  `json:"justificationType,omitempty"`
+	ImpactStatement     string               `json:"impactStatement,omitempty"`
+	ImpactStatementTime *time.Time           `json:"impactStatementTime,omitempty"`
+	JustificationType   VexJustificationType `json:"justificationType,omitempty"`
 }
 
 func (v *VexNotAffectedVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {

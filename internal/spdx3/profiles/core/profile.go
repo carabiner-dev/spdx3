@@ -1,7 +1,6 @@
 package core
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/carabiner-dev/databom/internal/spdx3/types"
@@ -12,29 +11,33 @@ const Prefix = "core"
 
 var Profile = types.Profile{
 	Prefix: Prefix,
-	Classes: map[string]reflect.Type{
-		"Relationship":                  reflect.TypeOf(&Relationship{}),
-		"Agent":                         reflect.TypeOf(&Agent{}),
-		"Artifact":                      reflect.TypeOf(&Artifact{}),
-		"Person":                        reflect.TypeOf(&Person{}),
-		"Organization":                  reflect.TypeOf(&Organization{}),
-		"Hash":                          reflect.TypeOf(&Hash{}),
-		"PackageVerificationCode":       reflect.TypeOf(&PackageVerificationCode{}),
-		"Annotation":                    reflect.TypeOf(&Annotation{}),
-		"SoftwareAgent":                 reflect.TypeOf(&SoftwareAgent{}),
-		"Tool":                          reflect.TypeOf(&Tool{}),
-		"LifecycleScopedRelationship":   reflect.TypeOf(&LifecycleScopedRelationship{}),
-		"ElementCollection":             reflect.TypeOf(&ElementCollection{}),
-		"Bundle":                        reflect.TypeOf(&Bundle{}),
-		"Bom":                           reflect.TypeOf(&Bom{}),
-		"SpdxDocument":                  reflect.TypeOf(&SpdxDocument{}),
+	Classes: map[string]types.Node{
+		"Element":                     &Node{},
+		"CreationInfo":                &CreationInfo{},
+		"Relationship":                &Relationship{},
+		"Agent":                       &Agent{},
+		"Artifact":                    &Artifact{},
+		"Person":                      &Person{},
+		"Organization":                &Organization{},
+		"Annotation":                  &Annotation{},
+		"SoftwareAgent":               &SoftwareAgent{},
+		"Tool":                        &Tool{},
+		"LifecycleScopedRelationship": &LifecycleScopedRelationship{},
+		"ElementCollection":           &ElementCollection{},
+		"Bundle":                      &Bundle{},
+		"Bom":                         &Bom{},
+		"SpdxDocument":                &SpdxDocument{},
 	},
+}
+
+type RelationshipDescendant interface {
+	FromRelationship()
 }
 
 type Relationship struct {
 	Node
-	From             string                   `json:"from"`
-	To               []string                 `json:"to"`
+	From             types.Node               `json:"from"`
+	To               []types.Node             `json:"to"`
 	RelationshipType RelationshipType         `json:"relationshipType"`
 	Completeness     RelationshipCompleteness `json:"completeness,omitempty"`
 	StartTime        *time.Time               `json:"startTime,omitempty"`
@@ -45,10 +48,33 @@ func (r *Relationship) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, r, &r.PreNode)
 }
 
+func (r *Relationship) FromRelationship() {}
+
+// Element is the base element, the node of the SPDX graph
+type Element struct {
+	Node
+}
+
+func (e *Element) FromElement() {}
+
+type ElementDescendant interface {
+	types.Node
+	FromElement()
+}
+
+var _ types.Node = (AgentDescendant)(nil)
+
+type AgentDescendant interface {
+	types.Node
+	FromAgent()
+}
+
 // Agent represents anything with the potential to act on a system
 type Agent struct {
 	Node
 }
+
+func (a *Agent) FromAgent() {}
 
 func (a *Agent) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, a, &a.PreNode)
@@ -71,7 +97,7 @@ func (a *Artifact) UnmarshalJSON(data []byte) error {
 }
 
 type Person struct {
-	Node
+	Agent
 	ExternalIdentifier []ExternalIdentifier `json:"externalIdentifier"`
 }
 
@@ -194,8 +220,8 @@ func (lsr *LifecycleScopedRelationship) UnmarshalJSON(data []byte) error {
 // ElementCollection is an abstract collection of Elements
 type ElementCollection struct {
 	Node
-	Element            []string                `json:"element,omitempty"`
-	RootElement        []string                `json:"rootElement,omitempty"`
+	Element            []ElementDescendant     `json:"element,omitempty"`
+	RootElement        []ElementDescendant     `json:"rootElement,omitempty"`
 	ProfileConformance []ProfileIdentifierType `json:"profileConformance,omitempty"`
 }
 
@@ -221,7 +247,7 @@ func (b *Bom) UnmarshalJSON(data []byte) error {
 type SpdxDocument struct {
 	Bundle
 	types.RootedNode
-	DataLicense  string         `json:"dataLicense,omitempty"`
+	DataLicense  Element        `json:"dataLicense,omitempty"` // This is simple licenseinfo but we can't loop
 	ExternalMap  []ExternalMap  `json:"externalMap,omitempty"`
 	NamespaceMap []NamespaceMap `json:"namespaceMap,omitempty"`
 }
