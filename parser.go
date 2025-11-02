@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/carabiner-dev/databom/internal/spdx3/dispatch"
-	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
+	"github.com/carabiner-dev/spdx3/dispatch"
+	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
 func NewParser() *Parser {

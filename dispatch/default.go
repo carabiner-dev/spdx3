@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"maps"
 
-	"github.com/carabiner-dev/databom/internal/spdx3/base"
-	"github.com/carabiner-dev/databom/internal/spdx3/profiles/ai"
-	"github.com/carabiner-dev/databom/internal/spdx3/profiles/build"
-	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
-	"github.com/carabiner-dev/databom/internal/spdx3/profiles/dataset"
-	"github.com/carabiner-dev/databom/internal/spdx3/profiles/expandedlicensing"
-	"github.com/carabiner-dev/databom/internal/spdx3/profiles/extension"
-	"github.com/carabiner-dev/databom/internal/spdx3/profiles/security"
-	"github.com/carabiner-dev/databom/internal/spdx3/profiles/simplelicensing"
-	"github.com/carabiner-dev/databom/internal/spdx3/profiles/software"
-	"github.com/carabiner-dev/databom/internal/spdx3/types"
+	"github.com/carabiner-dev/spdx3/base"
+	"github.com/carabiner-dev/spdx3/profiles/ai"
+	"github.com/carabiner-dev/spdx3/profiles/build"
+	"github.com/carabiner-dev/spdx3/profiles/core"
+	"github.com/carabiner-dev/spdx3/profiles/dataset"
+	"github.com/carabiner-dev/spdx3/profiles/expandedlicensing"
+	"github.com/carabiner-dev/spdx3/profiles/extension"
+	"github.com/carabiner-dev/spdx3/profiles/security"
+	"github.com/carabiner-dev/spdx3/profiles/simplelicensing"
+	"github.com/carabiner-dev/spdx3/profiles/software"
+	"github.com/carabiner-dev/spdx3/types"
 )
 
 func New() types.Dispatcher {

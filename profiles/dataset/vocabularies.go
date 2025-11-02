@@ -1,6 +1,6 @@
 package dataset
 
-import "github.com/carabiner-dev/databom/internal/spdx3/types"
+import "github.com/carabiner-dev/spdx3/types"
 
 // ConfidentialityLevelType vocabulary defines valid confidentiality levels using Traffic Light Protocol
 type ConfidentialityLevelType string

@@ -1,4 +1,4 @@
-module github.com/carabiner-dev/databom
+module github.com/carabiner-dev/spdx3
 
 go 1.24.1
 

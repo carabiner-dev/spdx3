@@ -1,6 +1,6 @@
 package security
 
-import "github.com/carabiner-dev/databom/internal/spdx3/types"
+import "github.com/carabiner-dev/spdx3/types"
 
 // CvssSeverityType vocabulary defines valid CVSS severity levels
 type CvssSeverityType string

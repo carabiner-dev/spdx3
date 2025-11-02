@@ -1,6 +1,6 @@
 package ai
 
-import "github.com/carabiner-dev/databom/internal/spdx3/types"
+import "github.com/carabiner-dev/spdx3/types"
 
 // EnergyUnitType vocabulary defines valid energy unit types
 type EnergyUnitType string

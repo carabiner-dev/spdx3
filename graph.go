@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/carabiner-dev/databom/internal/spdx3/dispatch"
-	"github.com/carabiner-dev/databom/internal/spdx3/types"
+	"github.com/carabiner-dev/spdx3/dispatch"
+	"github.com/carabiner-dev/spdx3/types"
 )
 
 // Envelope

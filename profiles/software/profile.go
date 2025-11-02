@@ -1,9 +1,9 @@
 package software
 
 import (
-	"github.com/carabiner-dev/databom/internal/spdx3/profiles/core"
-	"github.com/carabiner-dev/databom/internal/spdx3/types"
-	"github.com/carabiner-dev/databom/internal/spdx3/unmarshal"
+	"github.com/carabiner-dev/spdx3/profiles/core"
+	"github.com/carabiner-dev/spdx3/types"
+	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
 const Prefix = "software"

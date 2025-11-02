@@ -1,6 +1,6 @@
 package software
 
-import "github.com/carabiner-dev/databom/internal/spdx3/types"
+import "github.com/carabiner-dev/spdx3/types"
 
 // ContentIdentifierType vocabulary defines valid content identifier types
 type ContentIdentifierType string
