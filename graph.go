@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"github.com/carabiner-dev/spdx3/dispatch"
+	"github.com/carabiner-dev/spdx3/marshal"
 	"github.com/carabiner-dev/spdx3/types"
 )
 
@@ -39,4 +40,27 @@ func (g *Graph) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+// MarshalJSON marshals the graph to JSON.
+// Each top-level node in the graph is serialized fully, with any nested nodes
+// within them serialized as SPDXID reference strings.
+func (g Graph) MarshalJSON() ([]byte, error) {
+	if len(g) == 0 {
+		return json.Marshal([]interface{}{})
+	}
+
+	marshaler := &marshal.NodeMarshaler{}
+	nodeArray := make([]json.RawMessage, 0, len(g))
+
+	for i, node := range g {
+		marshaled, err := marshaler.MarshalNode(node)
+		if err != nil {
+			return nil, fmt.Errorf("marshaling node #%d (type: %s, id: %s): %w",
+				i, node.GetType(), node.GetID(), err)
+		}
+		nodeArray = append(nodeArray, marshaled)
+	}
+
+	return json.Marshal(nodeArray)
 }

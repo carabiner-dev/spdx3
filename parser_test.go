@@ -5,6 +5,7 @@ package spdx3
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"testing"
 	"time"
@@ -64,6 +65,126 @@ func TestRender(t *testing.T) {
 
 	r.Render(e, os.Stdout)
 	// t.Fail()
+}
+
+func TestGraphMarshalJSON(t *testing.T) {
+	t.Run("Marshal Graph with nested node references", func(t *testing.T) {
+		now := time.Now()
+
+		person := &core.Person{
+			Agent: core.Agent{
+				Node: core.Node{
+					PreNode: base.PreNode{
+						ID:     "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1",
+						Type:   "Person",
+						SPDXID: "SPDXRef-Person1",
+					},
+					Name: "John Doe",
+				},
+			},
+		}
+
+		creationInfo := &core.CreationInfo{
+			PreNode: base.PreNode{
+				ID:     "_:creationinfo",
+				Type:   "CreationInfo",
+				SPDXID: "SPDXRef-CreationInfo",
+			},
+			Name:        "Test Creation",
+			SpecVersion: "3.0.1",
+			CreatedBy:   []core.AgentDescendant{person},
+			Created:     &now,
+		}
+
+		graph := Graph{creationInfo, person}
+
+		data, err := graph.MarshalJSON()
+		require.NoError(t, err)
+
+		// Unmarshal to verify structure
+		var result []map[string]interface{}
+		err = json.Unmarshal(data, &result)
+		require.NoError(t, err)
+
+		require.Len(t, result, 2)
+
+		// Verify CreationInfo node
+		ciNode := result[0]
+		require.Equal(t, "_:creationinfo", ciNode["@id"])
+		require.Equal(t, "CreationInfo", ciNode["type"])
+		require.Equal(t, "3.0.1", ciNode["specVersion"])
+
+		// Verify that CreatedBy is serialized as an array of string references
+		createdBy, ok := ciNode["createdBy"].([]interface{})
+		require.True(t, ok, "createdBy should be an array")
+		require.Len(t, createdBy, 1)
+		require.Equal(t, "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1", createdBy[0])
+
+		// Verify Person node
+		personNode := result[1]
+		require.Equal(t, "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1", personNode["@id"])
+		require.Equal(t, "Person", personNode["type"])
+		require.Equal(t, "John Doe", personNode["name"])
+	})
+
+	t.Run("Marshal empty Graph", func(t *testing.T) {
+		graph := Graph{}
+		data, err := graph.MarshalJSON()
+		require.NoError(t, err)
+
+		var result []interface{}
+		err = json.Unmarshal(data, &result)
+		require.NoError(t, err)
+		require.Empty(t, result)
+	})
+}
+
+func TestRoundtrip(t *testing.T) {
+	t.Run("Roundtrip with testdata", func(t *testing.T) {
+		// 1. Parse original JSON
+		p := NewParser()
+		originalData, err := os.ReadFile("testdata/spdx.json")
+		require.NoError(t, err)
+
+		env1, err := p.Parse(bytes.NewReader(originalData))
+		require.NoError(t, err)
+		require.NotNil(t, env1)
+
+		// 2. Marshal back to JSON
+		marshaledData, err := json.MarshalIndent(env1, "", "  ")
+		require.NoError(t, err)
+
+		// 3. Parse the marshaled JSON
+		env2, err := p.Parse(bytes.NewReader(marshaledData))
+		require.NoError(t, err)
+		require.NotNil(t, env2)
+
+		// 4. Compare structures
+		require.Equal(t, len(env1.Graph), len(env2.Graph))
+		require.Equal(t, env1.Context, env2.Context)
+
+		for i, node := range env1.Graph {
+			require.Equal(t, node.GetType(), env2.Graph[i].GetType(),
+				"Node #%d type mismatch", i)
+			require.Equal(t, node.GetID(), env2.Graph[i].GetID(),
+				"Node #%d ID mismatch", i)
+			require.Equal(t, node.GetSPDXID(), env2.Graph[i].GetSPDXID(),
+				"Node #%d SPDXID mismatch", i)
+		}
+
+		// 5. Verify CreationInfo nested references
+		for _, n := range env2.Graph {
+			if n.GetType() != "CreationInfo" {
+				continue
+			}
+
+			ci, ok := n.(*core.CreationInfo)
+			require.True(t, ok)
+			require.Len(t, ci.CreatedBy, 1)
+			require.Equal(t, "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1",
+				ci.CreatedBy[0].GetID())
+		}
+	})
 }
 
 func TestNode(t *testing.T) {

@@ -101,7 +101,7 @@ func (a *Artifact) UnmarshalJSON(data []byte) error {
 
 type Person struct {
 	Agent
-	ExternalIdentifier []ExternalIdentifier `json:"externalIdentifier"`
+	ExternalIdentifier []ExternalIdentifier `json:"externalIdentifier,omitempty"`
 }
 
 func (p *Person) UnmarshalJSON(data []byte) error {
@@ -250,7 +250,7 @@ func (b *Bom) UnmarshalJSON(data []byte) error {
 type SpdxDocument struct {
 	Bundle
 	types.RootedNode
-	DataLicense  Element        `json:"dataLicense,omitempty"` // This is simple licenseinfo but we can't loop
+	DataLicense  types.Node     `json:"dataLicense,omitempty"` // This is simple licenseinfo but we can't loop
 	ExternalMap  []ExternalMap  `json:"externalMap,omitempty"`
 	NamespaceMap []NamespaceMap `json:"namespaceMap,omitempty"`
 }

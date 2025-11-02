@@ -13,9 +13,8 @@ import (
 
 type CreationInfo struct {
 	base.PreNode
-	types.RootedNode
 	root         bool              `json:""`
-	Name         string            `json:"name"`
+	Name         string            `json:"name,omitempty"`
 	SpecVersion  string            `json:"specVersion"`
 	CreatedBy    []AgentDescendant `json:"createdBy"`
 	CreatedUsing []Tool            `json:"createdUsing,omitempty"`
