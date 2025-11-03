@@ -8,7 +8,7 @@ package base
 // unmarshaling when detecting node Types
 type PreNode struct {
 	SPDXID string `json:"spdxID"`
-	ID     string `json:"@id"`
+	ID     string `json:"@id,omitempty"`
 	Type   string `json:"type"`
 }
 
