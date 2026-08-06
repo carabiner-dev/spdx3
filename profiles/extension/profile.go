@@ -4,17 +4,23 @@
 package extension
 
 import (
+	"fmt"
+
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/types"
 	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
-const Prefix = "extension"
+const (
+	Prefix                     = "extension"
+	CdxPropertiesExtensionType = "CdxPropertiesExtension"
+)
 
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		"CdxPropertiesExtension": &CdxPropertiesExtension{},
+		CdxPropertiesExtensionType:                              &CdxPropertiesExtension{},
+		fmt.Sprintf("%s_%s", Prefix, CdxPropertiesExtensionType): &CdxPropertiesExtension{},
 	},
 }
 
@@ -28,6 +34,10 @@ type CdxPropertyEntry struct {
 type CdxPropertiesExtension struct {
 	core.Extension
 	CdxProperty []CdxPropertyEntry `json:"cdxProperty"`
+}
+
+func (cpe *CdxPropertiesExtension) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, CdxPropertiesExtensionType)
 }
 
 func (cpe *CdxPropertiesExtension) UnmarshalJSON(data []byte) error {

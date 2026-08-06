@@ -4,28 +4,39 @@
 package simplelicensing
 
 import (
+	"fmt"
+
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/types"
 	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
-const Prefix = "simplelicensing "
+const (
+	Prefix                   = "simplelicensing"
+	AnyLicenseInfoType       = "AnyLicenseInfo"
+	LicenseExpressionType    = "LicenseExpression"
+	SimpleLicensingTextType  = "SimpleLicensingText"
+)
 
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		"AnyLicenseInfo":                      &AnyLicenseInfo{},
-		"LicenseExpression":                   &LicenseExpression{},
-		"SimpleLicensingText":                 &SimpleLicensingText{},
-		"simplelicensing_AnyLicenseInfo":      &AnyLicenseInfo{},
-		"simplelicensing_LicenseExpression":   &LicenseExpression{},
-		"simplelicensing_SimpleLicensingText": &SimpleLicensingText{},
+		AnyLicenseInfoType:                                 &AnyLicenseInfo{},
+		LicenseExpressionType:                              &LicenseExpression{},
+		SimpleLicensingTextType:                            &SimpleLicensingText{},
+		fmt.Sprintf("%s_%s", Prefix, AnyLicenseInfoType):  &AnyLicenseInfo{},
+		fmt.Sprintf("%s_%s", Prefix, LicenseExpressionType): &LicenseExpression{},
+		fmt.Sprintf("%s_%s", Prefix, SimpleLicensingTextType): &SimpleLicensingText{},
 	},
 }
 
 // AnyLicenseInfo is the abstract base class for license information
 type AnyLicenseInfo struct {
 	core.Element
+}
+
+func (ali *AnyLicenseInfo) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, AnyLicenseInfoType)
 }
 
 func (ali *AnyLicenseInfo) UnmarshalJSON(data []byte) error {
@@ -40,6 +51,10 @@ type LicenseExpression struct {
 	LicenseListVersion string                 `json:"simplelicensing_licenseListVersion,omitempty"`
 }
 
+func (le *LicenseExpression) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, LicenseExpressionType)
+}
+
 func (le *LicenseExpression) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, le, &le.PreNode)
 }
@@ -48,6 +63,10 @@ func (le *LicenseExpression) UnmarshalJSON(data []byte) error {
 type SimpleLicensingText struct {
 	core.Element
 	LicenseText string `json:"licenseText"`
+}
+
+func (slt *SimpleLicensingText) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, SimpleLicensingTextType)
 }
 
 func (slt *SimpleLicensingText) UnmarshalJSON(data []byte) error {

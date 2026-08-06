@@ -4,6 +4,7 @@
 package security
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/carabiner-dev/spdx3/profiles/core"
@@ -11,22 +12,46 @@ import (
 	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
-const Prefix = "security"
+const (
+	Prefix                                              = "security"
+	VulnerabilityType                                   = "Vulnerability"
+	CvssV2VulnAssessmentRelationshipType                = "CvssV2VulnAssessmentRelationship"
+	CvssV3VulnAssessmentRelationshipType                = "CvssV3VulnAssessmentRelationship"
+	CvssV4VulnAssessmentRelationshipType                = "CvssV4VulnAssessmentRelationship"
+	EpssVulnAssessmentRelationshipType                  = "EpssVulnAssessmentRelationship"
+	SsvcVulnAssessmentRelationshipType                  = "SsvcVulnAssessmentRelationship"
+	ExploitCatalogVulnAssessmentRelationshipType        = "ExploitCatalogVulnAssessmentRelationship"
+	VexAffectedVulnAssessmentRelationshipType           = "VexAffectedVulnAssessmentRelationship"
+	VexFixedVulnAssessmentRelationshipType              = "VexFixedVulnAssessmentRelationship"
+	VexNotAffectedVulnAssessmentRelationshipType        = "VexNotAffectedVulnAssessmentRelationship"
+	VexUnderInvestigationVulnAssessmentRelationshipType = "VexUnderInvestigationVulnAssessmentRelationship"
+)
 
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		"Vulnerability":                                   &Vulnerability{},
-		"CvssV2VulnAssessmentRelationship":                &CvssV2VulnAssessmentRelationship{},
-		"CvssV3VulnAssessmentRelationship":                &CvssV3VulnAssessmentRelationship{},
-		"CvssV4VulnAssessmentRelationship":                &CvssV4VulnAssessmentRelationship{},
-		"EpssVulnAssessmentRelationship":                  &EpssVulnAssessmentRelationship{},
-		"SsvcVulnAssessmentRelationship":                  &SsvcVulnAssessmentRelationship{},
-		"ExploitCatalogVulnAssessmentRelationship":        &ExploitCatalogVulnAssessmentRelationship{},
-		"VexAffectedVulnAssessmentRelationship":           &VexAffectedVulnAssessmentRelationship{},
-		"VexFixedVulnAssessmentRelationship":              &VexFixedVulnAssessmentRelationship{},
-		"VexNotAffectedVulnAssessmentRelationship":        &VexNotAffectedVulnAssessmentRelationship{},
-		"VexUnderInvestigationVulnAssessmentRelationship": &VexUnderInvestigationVulnAssessmentRelationship{},
+		VulnerabilityType:                                   &Vulnerability{},
+		CvssV2VulnAssessmentRelationshipType:                &CvssV2VulnAssessmentRelationship{},
+		CvssV3VulnAssessmentRelationshipType:                &CvssV3VulnAssessmentRelationship{},
+		CvssV4VulnAssessmentRelationshipType:                &CvssV4VulnAssessmentRelationship{},
+		EpssVulnAssessmentRelationshipType:                  &EpssVulnAssessmentRelationship{},
+		SsvcVulnAssessmentRelationshipType:                  &SsvcVulnAssessmentRelationship{},
+		ExploitCatalogVulnAssessmentRelationshipType:        &ExploitCatalogVulnAssessmentRelationship{},
+		VexAffectedVulnAssessmentRelationshipType:           &VexAffectedVulnAssessmentRelationship{},
+		VexFixedVulnAssessmentRelationshipType:              &VexFixedVulnAssessmentRelationship{},
+		VexNotAffectedVulnAssessmentRelationshipType:        &VexNotAffectedVulnAssessmentRelationship{},
+		VexUnderInvestigationVulnAssessmentRelationshipType: &VexUnderInvestigationVulnAssessmentRelationship{},
+		fmt.Sprintf("%s_%s", Prefix, VulnerabilityType):                                   &Vulnerability{},
+		fmt.Sprintf("%s_%s", Prefix, CvssV2VulnAssessmentRelationshipType):                &CvssV2VulnAssessmentRelationship{},
+		fmt.Sprintf("%s_%s", Prefix, CvssV3VulnAssessmentRelationshipType):                &CvssV3VulnAssessmentRelationship{},
+		fmt.Sprintf("%s_%s", Prefix, CvssV4VulnAssessmentRelationshipType):                &CvssV4VulnAssessmentRelationship{},
+		fmt.Sprintf("%s_%s", Prefix, EpssVulnAssessmentRelationshipType):                  &EpssVulnAssessmentRelationship{},
+		fmt.Sprintf("%s_%s", Prefix, SsvcVulnAssessmentRelationshipType):                  &SsvcVulnAssessmentRelationship{},
+		fmt.Sprintf("%s_%s", Prefix, ExploitCatalogVulnAssessmentRelationshipType):        &ExploitCatalogVulnAssessmentRelationship{},
+		fmt.Sprintf("%s_%s", Prefix, VexAffectedVulnAssessmentRelationshipType):           &VexAffectedVulnAssessmentRelationship{},
+		fmt.Sprintf("%s_%s", Prefix, VexFixedVulnAssessmentRelationshipType):              &VexFixedVulnAssessmentRelationship{},
+		fmt.Sprintf("%s_%s", Prefix, VexNotAffectedVulnAssessmentRelationshipType):        &VexNotAffectedVulnAssessmentRelationship{},
+		fmt.Sprintf("%s_%s", Prefix, VexUnderInvestigationVulnAssessmentRelationshipType): &VexUnderInvestigationVulnAssessmentRelationship{},
 	},
 }
 
@@ -36,6 +61,10 @@ type Vulnerability struct {
 	ModifiedTime  *time.Time `json:"modifiedTime,omitempty"`
 	PublishedTime *time.Time `json:"publishedTime,omitempty"`
 	WithdrawnTime *time.Time `json:"withdrawnTime,omitempty"`
+}
+
+func (v *Vulnerability) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, VulnerabilityType)
 }
 
 func (v *Vulnerability) UnmarshalJSON(data []byte) error {
@@ -59,6 +88,10 @@ type CvssV2VulnAssessmentRelationship struct {
 	VectorString string  `json:"vectorString"`
 }
 
+func (c *CvssV2VulnAssessmentRelationship) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, CvssV2VulnAssessmentRelationshipType)
+}
+
 func (c *CvssV2VulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, c, &c.PreNode)
 }
@@ -69,6 +102,10 @@ type CvssV3VulnAssessmentRelationship struct {
 	Score        float64          `json:"score"`
 	Severity     CvssSeverityType `json:"severity"`
 	VectorString string           `json:"vectorString"`
+}
+
+func (c *CvssV3VulnAssessmentRelationship) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, CvssV3VulnAssessmentRelationshipType)
 }
 
 func (c *CvssV3VulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
@@ -83,6 +120,10 @@ type CvssV4VulnAssessmentRelationship struct {
 	VectorString string           `json:"vectorString"`
 }
 
+func (c *CvssV4VulnAssessmentRelationship) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, CvssV4VulnAssessmentRelationshipType)
+}
+
 func (c *CvssV4VulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, c, &c.PreNode)
 }
@@ -92,6 +133,10 @@ type EpssVulnAssessmentRelationship struct {
 	VulnAssessmentRelationship
 	Percentile  float64 `json:"percentile"`
 	Probability float64 `json:"probability"`
+}
+
+func (e *EpssVulnAssessmentRelationship) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, EpssVulnAssessmentRelationshipType)
 }
 
 func (e *EpssVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
@@ -104,6 +149,10 @@ type SsvcVulnAssessmentRelationship struct {
 	DecisionType SsvcDecisionType `json:"decisionType"`
 }
 
+func (s *SsvcVulnAssessmentRelationship) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, SsvcVulnAssessmentRelationshipType)
+}
+
 func (s *SsvcVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, s, &s.PreNode)
 }
@@ -114,6 +163,10 @@ type ExploitCatalogVulnAssessmentRelationship struct {
 	CatalogType ExploitCatalogType `json:"catalogType"`
 	Exploited   bool               `json:"exploited"`
 	Locator     string             `json:"locator"`
+}
+
+func (e *ExploitCatalogVulnAssessmentRelationship) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, ExploitCatalogVulnAssessmentRelationshipType)
 }
 
 func (e *ExploitCatalogVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
@@ -134,6 +187,10 @@ type VexAffectedVulnAssessmentRelationship struct {
 	ActionStatementTime *time.Time `json:"actionStatementTime,omitempty"`
 }
 
+func (v *VexAffectedVulnAssessmentRelationship) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, VexAffectedVulnAssessmentRelationshipType)
+}
+
 func (v *VexAffectedVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, v, &v.PreNode)
 }
@@ -141,6 +198,10 @@ func (v *VexAffectedVulnAssessmentRelationship) UnmarshalJSON(data []byte) error
 // VexFixedVulnAssessmentRelationship represents a VEX fixed statement
 type VexFixedVulnAssessmentRelationship struct {
 	VexVulnAssessmentRelationship
+}
+
+func (v *VexFixedVulnAssessmentRelationship) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, VexFixedVulnAssessmentRelationshipType)
 }
 
 func (v *VexFixedVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
@@ -155,6 +216,10 @@ type VexNotAffectedVulnAssessmentRelationship struct {
 	JustificationType   VexJustificationType `json:"justificationType,omitempty"`
 }
 
+func (v *VexNotAffectedVulnAssessmentRelationship) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, VexNotAffectedVulnAssessmentRelationshipType)
+}
+
 func (v *VexNotAffectedVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, v, &v.PreNode)
 }
@@ -162,6 +227,10 @@ func (v *VexNotAffectedVulnAssessmentRelationship) UnmarshalJSON(data []byte) er
 // VexUnderInvestigationVulnAssessmentRelationship represents a VEX under_investigation statement
 type VexUnderInvestigationVulnAssessmentRelationship struct {
 	VexVulnAssessmentRelationship
+}
+
+func (v *VexUnderInvestigationVulnAssessmentRelationship) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, VexUnderInvestigationVulnAssessmentRelationshipType)
 }
 
 func (v *VexUnderInvestigationVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {

@@ -4,26 +4,48 @@
 package expandedlicensing
 
 import (
+	"fmt"
+
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/profiles/simplelicensing"
 	"github.com/carabiner-dev/spdx3/types"
 	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
-const Prefix = "expandedlicensing"
+const (
+	Prefix                        = "expandedlicensing"
+	ListedLicenseType             = "ListedLicense"
+	CustomLicenseType             = "CustomLicense"
+	OrLaterOperatorType           = "OrLaterOperator"
+	WithAdditionOperatorType      = "WithAdditionOperator"
+	ConjunctiveLicenseSetType     = "ConjunctiveLicenseSet"
+	DisjunctiveLicenseSetType     = "DisjunctiveLicenseSet"
+	IndividualLicensingInfoType   = "IndividualLicensingInfo"
+	ListedLicenseExceptionType    = "ListedLicenseException"
+	CustomLicenseAdditionType     = "CustomLicenseAddition"
+)
 
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		"ListedLicense":           &ListedLicense{},
-		"CustomLicense":           &CustomLicense{},
-		"OrLaterOperator":         &OrLaterOperator{},
-		"WithAdditionOperator":    &WithAdditionOperator{},
-		"ConjunctiveLicenseSet":   &ConjunctiveLicenseSet{},
-		"DisjunctiveLicenseSet":   &DisjunctiveLicenseSet{},
-		"IndividualLicensingInfo": &IndividualLicensingInfo{},
-		"ListedLicenseException":  &ListedLicenseException{},
-		"CustomLicenseAddition":   &CustomLicenseAddition{},
+		ListedLicenseType:                                 &ListedLicense{},
+		CustomLicenseType:                                 &CustomLicense{},
+		OrLaterOperatorType:                               &OrLaterOperator{},
+		WithAdditionOperatorType:                          &WithAdditionOperator{},
+		ConjunctiveLicenseSetType:                         &ConjunctiveLicenseSet{},
+		DisjunctiveLicenseSetType:                         &DisjunctiveLicenseSet{},
+		IndividualLicensingInfoType:                       &IndividualLicensingInfo{},
+		ListedLicenseExceptionType:                        &ListedLicenseException{},
+		CustomLicenseAdditionType:                         &CustomLicenseAddition{},
+		fmt.Sprintf("%s_%s", Prefix, ListedLicenseType):           &ListedLicense{},
+		fmt.Sprintf("%s_%s", Prefix, CustomLicenseType):           &CustomLicense{},
+		fmt.Sprintf("%s_%s", Prefix, OrLaterOperatorType):         &OrLaterOperator{},
+		fmt.Sprintf("%s_%s", Prefix, WithAdditionOperatorType):    &WithAdditionOperator{},
+		fmt.Sprintf("%s_%s", Prefix, ConjunctiveLicenseSetType):   &ConjunctiveLicenseSet{},
+		fmt.Sprintf("%s_%s", Prefix, DisjunctiveLicenseSetType):   &DisjunctiveLicenseSet{},
+		fmt.Sprintf("%s_%s", Prefix, IndividualLicensingInfoType): &IndividualLicensingInfo{},
+		fmt.Sprintf("%s_%s", Prefix, ListedLicenseExceptionType):  &ListedLicenseException{},
+		fmt.Sprintf("%s_%s", Prefix, CustomLicenseAdditionType):   &CustomLicenseAddition{},
 	},
 }
 
@@ -53,6 +75,10 @@ type ListedLicense struct {
 	ListVersionAdded  string `json:"listVersionAdded,omitempty"`
 }
 
+func (ll *ListedLicense) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, ListedLicenseType)
+}
+
 func (ll *ListedLicense) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, ll, &ll.PreNode)
 }
@@ -60,6 +86,10 @@ func (ll *ListedLicense) UnmarshalJSON(data []byte) error {
 // CustomLicense defines a custom license not on the standard list
 type CustomLicense struct {
 	License
+}
+
+func (cl *CustomLicense) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, CustomLicenseType)
 }
 
 func (cl *CustomLicense) UnmarshalJSON(data []byte) error {
@@ -70,6 +100,10 @@ func (cl *CustomLicense) UnmarshalJSON(data []byte) error {
 type OrLaterOperator struct {
 	simplelicensing.AnyLicenseInfo
 	SubjectLicense string `json:"subjectLicense"`
+}
+
+func (olo *OrLaterOperator) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, OrLaterOperatorType)
 }
 
 func (olo *OrLaterOperator) UnmarshalJSON(data []byte) error {
@@ -83,6 +117,10 @@ type WithAdditionOperator struct {
 	SubjectExtendableLicense string `json:"subjectExtendableLicense"`
 }
 
+func (wao *WithAdditionOperator) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, WithAdditionOperatorType)
+}
+
 func (wao *WithAdditionOperator) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, wao, &wao.PreNode)
 }
@@ -91,6 +129,10 @@ func (wao *WithAdditionOperator) UnmarshalJSON(data []byte) error {
 type ConjunctiveLicenseSet struct {
 	simplelicensing.AnyLicenseInfo
 	Member []string `json:"member"`
+}
+
+func (cls *ConjunctiveLicenseSet) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, ConjunctiveLicenseSetType)
 }
 
 func (cls *ConjunctiveLicenseSet) UnmarshalJSON(data []byte) error {
@@ -103,6 +145,10 @@ type DisjunctiveLicenseSet struct {
 	Member []string `json:"member"`
 }
 
+func (dls *DisjunctiveLicenseSet) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, DisjunctiveLicenseSetType)
+}
+
 func (dls *DisjunctiveLicenseSet) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, dls, &dls.PreNode)
 }
@@ -110,6 +156,10 @@ func (dls *DisjunctiveLicenseSet) UnmarshalJSON(data []byte) error {
 // IndividualLicensingInfo captures specific licensing information
 type IndividualLicensingInfo struct {
 	simplelicensing.AnyLicenseInfo
+}
+
+func (ili *IndividualLicensingInfo) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, IndividualLicensingInfoType)
 }
 
 func (ili *IndividualLicensingInfo) UnmarshalJSON(data []byte) error {
@@ -134,6 +184,10 @@ type ListedLicenseException struct {
 	ListVersionAdded  string `json:"listVersionAdded,omitempty"`
 }
 
+func (lle *ListedLicenseException) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, ListedLicenseExceptionType)
+}
+
 func (lle *ListedLicenseException) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, lle, &lle.PreNode)
 }
@@ -141,6 +195,10 @@ func (lle *ListedLicenseException) UnmarshalJSON(data []byte) error {
 // CustomLicenseAddition represents a custom addition to a license
 type CustomLicenseAddition struct {
 	LicenseAddition
+}
+
+func (cla *CustomLicenseAddition) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, CustomLicenseAdditionType)
 }
 
 func (cla *CustomLicenseAddition) UnmarshalJSON(data []byte) error {

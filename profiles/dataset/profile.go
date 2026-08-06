@@ -4,6 +4,7 @@
 package dataset
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/carabiner-dev/spdx3/profiles/core"
@@ -11,13 +12,16 @@ import (
 	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
-const Prefix = "dataset"
+const (
+	Prefix             = "dataset"
+	DatasetPackageType = "DatasetPackage"
+)
 
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		"DatasetPackage":         &Package{},
-		"dataset_DatasetPackage": &Package{},
+		DatasetPackageType: &Package{},
+		fmt.Sprintf("%s_%s", Prefix, DatasetPackageType): &Package{},
 	},
 }
 
@@ -36,6 +40,10 @@ type Package struct {
 	HasSensitivePersonalInformation string                   `json:"dataset_hasSensitivePersonalInformation"`
 	IntendedUse                     string                   `json:"dataset_intendedUse"`
 	KnownBias                       []string                 `json:"dataset_knownBias"`
+}
+
+func (dp *Package) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, DatasetPackageType)
 }
 
 func (dp *Package) UnmarshalJSON(data []byte) error {

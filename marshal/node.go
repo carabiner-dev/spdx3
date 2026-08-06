@@ -153,17 +153,25 @@ func (nm *NodeMarshaler) marshalSingleNode(fieldValue reflect.Value) (any, error
 
 	node := fieldValue.Interface()
 
-	// Check if it's already a NodeRef - just return the ID
+	// Check if it's already a NodeRef - use GetID() since NodeRef.GetSPDXID() returns empty
 	if nodeRef, ok := node.(types.NodeRef); ok {
-		return nodeRef.GetSPDXID(), nil
+		id := nodeRef.GetID()
+		if id == "" {
+			return nil, fmt.Errorf("NodeRef has empty ID")
+		}
+		return id, nil
 	}
 
 	// For full nodes, return just the SPDXID as a reference
 	if n, ok := node.(types.Node); ok {
-		// Use @id format with "_:" prefix for internal references
+		// Try SPDXID first
 		id := n.GetSPDXID()
 		if id == "" {
-			return nil, fmt.Errorf("node has empty ID")
+			// Fall back to ID if SPDXID is empty (reference-only nodes)
+			id = n.GetID()
+			if id == "" {
+				return nil, fmt.Errorf("node has empty SPDXID and ID")
+			}
 		}
 		// Return the ID in the same format it was stored
 		return id, nil
@@ -183,17 +191,27 @@ func (nm *NodeMarshaler) marshalNodeSlice(fieldValue reflect.Value) (any, error)
 	for i := 0; i < fieldValue.Len(); i++ {
 		item := fieldValue.Index(i)
 
-		// Check if it's a NodeRef
+		// Check if it's a NodeRef - use GetID() since NodeRef.GetSPDXID() returns empty
+		// This is probably a hack
 		if nodeRef, ok := item.Interface().(types.NodeRef); ok {
-			result = append(result, nodeRef.GetSPDXID())
+			id := nodeRef.GetID()
+			if id == "" {
+				return nil, fmt.Errorf("NodeRef at index %d has empty ID", i)
+			}
+			result = append(result, id)
 			continue
 		}
 
 		// For full nodes, extract just the SPDXID
 		if node, ok := item.Interface().(types.Node); ok {
+			// Try SPDXID first
 			id := node.GetSPDXID()
 			if id == "" {
-				return nil, fmt.Errorf("node at index %d has empty ID", i)
+				// Fall back to ID if SPDXID is empty (reference-only nodes)
+				id = node.GetID()
+				if id == "" {
+					return nil, fmt.Errorf("node at index %d has empty SPDXID and ID", i)
+				}
 			}
 			result = append(result, id)
 			continue

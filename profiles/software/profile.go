@@ -4,26 +4,35 @@
 package software
 
 import (
+	"fmt"
+
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/types"
 	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
-const Prefix = "software"
+const (
+	Prefix               = "software"
+	SoftwareArtifactType = "SoftwareArtifact"
+	FileType             = "File"
+	PackageType          = "Package"
+	SnippetType          = "Snippet"
+	SbomClass            = "Sbom"
+)
 
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		"SoftwareArtifact":          &SoftwareArtifact{},
-		"File":                      &File{},
-		"Package":                   &Package{},
-		"Snippet":                   &Snippet{},
-		"Sbom":                      &Sbom{},
-		"software_SoftwareArtifact": &SoftwareArtifact{},
-		"software_File":             &File{},
-		"software_Package":          &Package{},
-		"software_Snippet":          &Snippet{},
-		"software_Sbom":             &Sbom{},
+		SoftwareArtifactType:                                &SoftwareArtifact{},
+		FileType:                                            &File{},
+		PackageType:                                         &Package{},
+		SnippetType:                                         &Snippet{},
+		SbomClass:                                           &Sbom{},
+		fmt.Sprintf("%s_%s", Prefix, SoftwareArtifactType): &SoftwareArtifact{},
+		fmt.Sprintf("%s_%s", Prefix, FileType):             &File{},
+		fmt.Sprintf("%s_%s", Prefix, PackageType):          &Package{},
+		fmt.Sprintf("%s_%s", Prefix, SnippetType):          &Snippet{},
+		fmt.Sprintf("%s_%s", Prefix, SbomClass):            &Sbom{},
 	},
 }
 
@@ -42,6 +51,10 @@ type SoftwareArtifact struct {
 	VerifiedUsing      []string          `json:"verifiedUsing,omitempty"`
 }
 
+func (sa *SoftwareArtifact) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, SoftwareArtifactType)
+}
+
 func (sa *SoftwareArtifact) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, sa, &sa.PreNode)
 }
@@ -51,6 +64,10 @@ type File struct {
 	SoftwareArtifact
 	ContentType string       `json:"contentType,omitempty"`
 	FileKind    FileKindType `json:"fileKind,omitempty"`
+}
+
+func (f *File) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, FileType)
 }
 
 func (f *File) UnmarshalJSON(data []byte) error {
@@ -69,6 +86,10 @@ type Package struct {
 	PackageUrl       string `json:"packageUrl,omitempty"`
 	PackageVersion   string `json:"packageVersion,omitempty"`
 	SourceInfo       string `json:"sourceInfo,omitempty"`
+}
+
+func (p *Package) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, PackageType)
 }
 
 func (p *Package) UnmarshalJSON(data []byte) error {
@@ -90,6 +111,10 @@ type Snippet struct {
 	SnippetFromFile string                     `json:"snippetFromFile"`
 }
 
+func (s *Snippet) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, SnippetType)
+}
+
 func (s *Snippet) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, s, &s.PreNode)
 }
@@ -98,6 +123,10 @@ func (s *Snippet) UnmarshalJSON(data []byte) error {
 type Sbom struct {
 	core.Bom
 	SbomType []SbomType `json:"sbomType,omitempty"`
+}
+
+func (s *Sbom) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, SbomClass)
 }
 
 func (s *Sbom) UnmarshalJSON(data []byte) error {

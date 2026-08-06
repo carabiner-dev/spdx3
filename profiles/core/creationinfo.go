@@ -22,6 +22,10 @@ type CreationInfo struct {
 	Comment      string            `json:"comment,omitempty"`
 }
 
+func (ci *CreationInfo) GetType() string {
+	return CreationInfoClass
+}
+
 func (ci *CreationInfo) GetName() string {
 	return ci.Name
 }

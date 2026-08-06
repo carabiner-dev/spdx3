@@ -4,6 +4,7 @@
 package build
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/carabiner-dev/spdx3/profiles/core"
@@ -11,12 +12,16 @@ import (
 	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
-const Prefix = "build"
+const (
+	Prefix    = "build"
+	BuildType = "Build"
+)
 
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		"Build": &Build{},
+		BuildType:                          &Build{},
+		fmt.Sprintf("%s_%s", Prefix, BuildType): &Build{},
 	},
 }
 
@@ -32,6 +37,10 @@ type Build struct {
 	ConfigSourceUri        []string               `json:"configSourceUri,omitempty"`
 	Environment            []core.DictionaryEntry `json:"environment,omitempty"`
 	Parameter              []core.DictionaryEntry `json:"parameter,omitempty"`
+}
+
+func (b *Build) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, BuildType)
 }
 
 func (b *Build) UnmarshalJSON(data []byte) error {

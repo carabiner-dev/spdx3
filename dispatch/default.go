@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"maps"
+	"reflect"
 
 	"github.com/carabiner-dev/spdx3/base"
 	"github.com/carabiner-dev/spdx3/profiles/ai"
@@ -57,34 +58,22 @@ func (d *Default) UnmarshalNode(prenodeData []byte) (types.Node, error) {
 		return nil, fmt.Errorf("parsing node: %w", err)
 	}
 
-	var n types.Node
-	n, ok := d.Classes[prenode.Type]
+	proto, ok := d.Classes[prenode.Type]
 	if !ok {
 		return nil, fmt.Errorf("parsing type %q: %w", prenode.Type, types.ErrUnsupportedNodeType)
 	}
-	// var n types.Node
-	// switch prenode.Type {
-	// case "CreationInfo":
-	// 	n = &core.CreationInfo{}
-	// case "Person":
-	// 	n = &core.Person{}
-	// case "Organization":
-	// 	n = &core.Organization{}
-	// case "SpdxDocument":
-	// 	n = &core.SpdxDocument{}
-	// case "Bom":
-	// 	n = &core.Bom{}
-	// case "dataset_DatasetPackage":
-	// 	n = &dataset.Package{}
-	// case "software_File":
-	// 	n = &software.File{}
-	// case "Relationship":
-	// 	n = &core.Relationship{}
-	// case "simplelicensing_LicenseExpression":
-	// 	n = &simplelicensing.LicenseExpression{}
-	// default:
-	// 	return nil, fmt.Errorf("parsing type %q: %w", prenode.Type, types.ErrUnsupportedNodeType)
-	// }
+
+	// The registry values are shared prototypes: unmarshal into a fresh
+	// instance so that nodes of the same type never alias each other.
+	protoType := reflect.TypeOf(proto)
+	if protoType.Kind() == reflect.Pointer {
+		protoType = protoType.Elem()
+	}
+	n, ok := reflect.New(protoType).Interface().(types.Node)
+	if !ok {
+		return nil, fmt.Errorf("parsing type %q: registered class does not implement types.Node", prenode.Type)
+	}
+
 	if err := json.Unmarshal(prenodeData, n); err != nil {
 		return nil, fmt.Errorf("unmarshaling node of type %q: %w", prenode.Type, err)
 	}

@@ -13,7 +13,6 @@ import (
 	"github.com/carabiner-dev/spdx3/base"
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/profiles/software"
-	"github.com/carabiner-dev/spdx3/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -50,9 +49,6 @@ func TestRender(t *testing.T) {
 		PreNode: base.PreNode{
 			ID:   "_:creationinfo",
 			Type: "CreationInfo",
-		},
-		RootedNode: types.RootedNode{
-			RootElement: []types.Node{},
 		},
 	}
 
@@ -114,15 +110,16 @@ func TestGraphMarshalJSON(t *testing.T) {
 		require.Equal(t, "CreationInfo", ciNode["type"])
 		require.Equal(t, "3.0.1", ciNode["specVersion"])
 
-		// Verify that CreatedBy is serialized as an array of string references
+		// Verify that CreatedBy is serialized as an array of SPDXID references
 		createdBy, ok := ciNode["createdBy"].([]interface{})
 		require.True(t, ok, "createdBy should be an array")
 		require.Len(t, createdBy, 1)
-		require.Equal(t, "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1", createdBy[0])
+		require.Equal(t, "SPDXRef-Person1", createdBy[0])
 
 		// Verify Person node
 		personNode := result[1]
 		require.Equal(t, "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1", personNode["@id"])
+		require.Equal(t, "SPDXRef-Person1", personNode["spdxID"])
 		require.Equal(t, "Person", personNode["type"])
 		require.Equal(t, "John Doe", personNode["name"])
 	})
@@ -172,7 +169,7 @@ func TestRoundtrip(t *testing.T) {
 				"Node #%d SPDXID mismatch", i)
 		}
 
-		// 5. Verify CreationInfo nested references
+		// 5. Verify CreationInfo nested references are preserved
 		for _, n := range env2.Graph {
 			if n.GetType() != "CreationInfo" {
 				continue
@@ -181,6 +178,7 @@ func TestRoundtrip(t *testing.T) {
 			ci, ok := n.(*core.CreationInfo)
 			require.True(t, ok)
 			require.Len(t, ci.CreatedBy, 1)
+			// After roundtrip, CreatedBy should be a NodeRef with the ID preserved
 			require.Equal(t, "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1",
 				ci.CreatedBy[0].GetID())
 		}

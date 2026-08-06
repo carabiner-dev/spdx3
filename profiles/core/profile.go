@@ -10,26 +10,43 @@ import (
 	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
-const Prefix = "core"
+const (
+	Prefix                                = "core"
+	ElementClass                          = "Element"
+	CreationInfoClass                     = "CreationInfo"
+	RelationshipClass                     = "Relationship"
+	AgentClass                            = "Agent"
+	ArtifactClass                         = "Artifact"
+	PersonClass                           = "Person"
+	OrganizationClass                     = "Organization"
+	AnnotationClass                       = "Annotation"
+	SoftwareAgentClass                    = "SoftwareAgent"
+	ToolClass                             = "Tool"
+	LifecycleScopedRelationshipClass      = "LifecycleScopedRelationship"
+	ElementCollectionClass                = "ElementCollection"
+	BundleClass                           = "Bundle"
+	BomClass                              = "Bom"
+	SpdxDocumentClass                     = "SpdxDocument"
+)
 
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		"Element":                     &Node{},
-		"CreationInfo":                &CreationInfo{},
-		"Relationship":                &Relationship{},
-		"Agent":                       &Agent{},
-		"Artifact":                    &Artifact{},
-		"Person":                      &Person{},
-		"Organization":                &Organization{},
-		"Annotation":                  &Annotation{},
-		"SoftwareAgent":               &SoftwareAgent{},
-		"Tool":                        &Tool{},
-		"LifecycleScopedRelationship": &LifecycleScopedRelationship{},
-		"ElementCollection":           &ElementCollection{},
-		"Bundle":                      &Bundle{},
-		"Bom":                         &Bom{},
-		"SpdxDocument":                &SpdxDocument{},
+		ElementClass:                      &Node{},
+		CreationInfoClass:                 &CreationInfo{},
+		RelationshipClass:                 &Relationship{},
+		AgentClass:                        &Agent{},
+		ArtifactClass:                     &Artifact{},
+		PersonClass:                       &Person{},
+		OrganizationClass:                 &Organization{},
+		AnnotationClass:                   &Annotation{},
+		SoftwareAgentClass:                &SoftwareAgent{},
+		ToolClass:                         &Tool{},
+		LifecycleScopedRelationshipClass:  &LifecycleScopedRelationship{},
+		ElementCollectionClass:            &ElementCollection{},
+		BundleClass:                       &Bundle{},
+		BomClass:                          &Bom{},
+		SpdxDocumentClass:                 &SpdxDocument{},
 	},
 }
 
@@ -47,6 +64,10 @@ type Relationship struct {
 	EndTime          *time.Time               `json:"endTime,omitempty"`
 }
 
+func (r *Relationship) GetType() string {
+	return RelationshipClass
+}
+
 func (r *Relationship) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, r, &r.PreNode)
 }
@@ -56,6 +77,10 @@ func (r *Relationship) FromRelationship() {}
 // Element is the base element, the node of the SPDX graph
 type Element struct {
 	Node
+}
+
+func (e *Element) GetType() string {
+	return ElementClass
 }
 
 func (e *Element) FromElement() {}
@@ -77,6 +102,10 @@ type Agent struct {
 	Node
 }
 
+func (a *Agent) GetType() string {
+	return AgentClass
+}
+
 func (a *Agent) FromAgent() {}
 
 func (a *Agent) UnmarshalJSON(data []byte) error {
@@ -95,6 +124,10 @@ type Artifact struct {
 	ValidUntilTime *time.Time    `json:"validUntilTime,omitempty"`
 }
 
+func (a *Artifact) GetType() string {
+	return ArtifactClass
+}
+
 func (a *Artifact) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, a, &a.PreNode)
 }
@@ -104,6 +137,10 @@ type Person struct {
 	ExternalIdentifier []ExternalIdentifier `json:"externalIdentifier,omitempty"`
 }
 
+func (p *Person) GetType() string {
+	return PersonClass
+}
+
 func (p *Person) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, p, &p.PreNode)
 }
@@ -111,6 +148,10 @@ func (p *Person) UnmarshalJSON(data []byte) error {
 type Organization struct {
 	Node
 	ExternalIdentifier []ExternalIdentifier `json:"externalIdentifier"`
+}
+
+func (o *Organization) GetType() string {
+	return OrganizationClass
 }
 
 func (o *Organization) UnmarshalJSON(data []byte) error {
@@ -188,6 +229,10 @@ type Annotation struct {
 	Subject        string         `json:"subject"`
 }
 
+func (a *Annotation) GetType() string {
+	return AnnotationClass
+}
+
 func (a *Annotation) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, a, &a.PreNode)
 }
@@ -195,6 +240,10 @@ func (a *Annotation) UnmarshalJSON(data []byte) error {
 // SoftwareAgent represents a software program acting on a system
 type SoftwareAgent struct {
 	Agent
+}
+
+func (sa *SoftwareAgent) GetType() string {
+	return SoftwareAgentClass
 }
 
 func (sa *SoftwareAgent) UnmarshalJSON(data []byte) error {
@@ -206,6 +255,10 @@ type Tool struct {
 	Node
 }
 
+func (t *Tool) GetType() string {
+	return ToolClass
+}
+
 func (t *Tool) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, t, &t.PreNode)
 }
@@ -214,6 +267,10 @@ func (t *Tool) UnmarshalJSON(data []byte) error {
 type LifecycleScopedRelationship struct {
 	Relationship
 	Scope LifecycleScopeType `json:"scope,omitempty"`
+}
+
+func (lsr *LifecycleScopedRelationship) GetType() string {
+	return LifecycleScopedRelationshipClass
 }
 
 func (lsr *LifecycleScopedRelationship) UnmarshalJSON(data []byte) error {
@@ -228,10 +285,18 @@ type ElementCollection struct {
 	ProfileConformance []ProfileIdentifierType `json:"profileConformance,omitempty"`
 }
 
+func (ec *ElementCollection) GetType() string {
+	return ElementCollectionClass
+}
+
 // Bundle is a collection of Elements with shared context
 type Bundle struct {
 	ElementCollection
 	Context string `json:"context,omitempty"`
+}
+
+func (b *Bundle) GetType() string {
+	return BundleClass
 }
 
 func (b *Bundle) UnmarshalJSON(data []byte) error {
@@ -241,6 +306,10 @@ func (b *Bundle) UnmarshalJSON(data []byte) error {
 type Bom struct {
 	Bundle
 	types.RootedNode
+}
+
+func (b *Bom) GetType() string {
+	return BomClass
 }
 
 func (b *Bom) UnmarshalJSON(data []byte) error {
@@ -253,6 +322,10 @@ type SpdxDocument struct {
 	DataLicense  types.Node     `json:"dataLicense,omitempty"` // This is simple licenseinfo but we can't loop
 	ExternalMap  []ExternalMap  `json:"externalMap,omitempty"`
 	NamespaceMap []NamespaceMap `json:"namespaceMap,omitempty"`
+}
+
+func (sd *SpdxDocument) GetType() string {
+	return SpdxDocumentClass
 }
 
 func (sd *SpdxDocument) UnmarshalJSON(data []byte) error {

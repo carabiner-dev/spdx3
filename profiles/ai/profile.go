@@ -4,18 +4,24 @@
 package ai
 
 import (
+	"fmt"
+
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/profiles/software"
 	"github.com/carabiner-dev/spdx3/types"
 	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
-const Prefix = "ai"
+const (
+	Prefix        = "ai"
+	AIPackageType = "AIPackage"
+)
 
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		"AIPackage": &AIPackage{},
+		AIPackageType:                          &AIPackage{},
+		fmt.Sprintf("%s_%s", Prefix, AIPackageType): &AIPackage{},
 	},
 }
 
@@ -50,6 +56,10 @@ type AIPackage struct {
 	StandardCompliance              []string                 `json:"standardCompliance,omitempty"`
 	TypeOfModel                     []string                 `json:"typeOfModel,omitempty"`
 	UseSensitivePersonalInformation core.PresenceType        `json:"useSensitivePersonalInformation,omitempty"`
+}
+
+func (a *AIPackage) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, AIPackageType)
 }
 
 func (a *AIPackage) UnmarshalJSON(data []byte) error {

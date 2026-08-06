@@ -85,11 +85,11 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 		require.Equal(t, "CreationInfo", result["type"])
 		require.Equal(t, "3.0.1", result["specVersion"])
 
-		// Check that CreatedBy is serialized as an array of strings
+		// Check that CreatedBy is serialized as an array of SPDXID strings
 		createdBy, ok := result["createdBy"].([]interface{})
 		require.True(t, ok, "createdBy should be an array")
 		require.Len(t, createdBy, 1)
-		require.Equal(t, "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1", createdBy[0])
+		require.Equal(t, "SPDXRef-Person1", createdBy[0])
 	})
 
 	t.Run("Node with NodeRef in CreatedBy", func(t *testing.T) {
@@ -103,7 +103,7 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 			Name:        "Test Creation",
 			SpecVersion: "3.0.1",
 			CreatedBy: []core.AgentDescendant{
-				types.NodeRef{ID: "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1"},
+				types.NodeRef{ID: "https://spdx.org/spdxdocs/Person1-abc123"},
 			},
 			Created: &now,
 		}
@@ -117,17 +117,19 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 		require.NoError(t, err)
 
 		// Check that CreatedBy is serialized as an array of strings
+		// NodeRef uses GetID() which returns the ID field value
 		createdBy, ok := result["createdBy"].([]interface{})
 		require.True(t, ok, "createdBy should be an array")
 		require.Len(t, createdBy, 1)
-		require.Equal(t, "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1", createdBy[0])
+		require.Equal(t, "https://spdx.org/spdxdocs/Person1-abc123", createdBy[0])
 	})
 
 	t.Run("Person with nested CreationInfo reference", func(t *testing.T) {
 		creationInfo := &core.CreationInfo{
 			PreNode: base.PreNode{
-				ID:   "_:creationinfo",
-				Type: "CreationInfo",
+				ID:     "_:creationinfo",
+				Type:   "CreationInfo",
+				SPDXID: "SPDXRef-CreationInfo",
 			},
 		}
 
@@ -157,10 +159,10 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 		require.Equal(t, "Person", result["type"])
 		require.Equal(t, "John Doe", result["name"])
 
-		// Check that creationInfo is serialized as a string reference
+		// Check that creationInfo is serialized as a SPDXID reference string
 		creationInfoID, ok := result["creationInfo"].(string)
 		require.True(t, ok, "creationInfo should be a string")
-		require.Equal(t, "_:creationinfo", creationInfoID)
+		require.Equal(t, "SPDXRef-CreationInfo", creationInfoID)
 	})
 
 	t.Run("Omitempty fields", func(t *testing.T) {
