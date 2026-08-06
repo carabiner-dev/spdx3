@@ -20,6 +20,33 @@ type Envelope struct {
 	Graph   Graph   `json:"@graph"`
 }
 
+// UnmarshalJSON reads a document in either of the two shapes the
+// serialization allows: a @graph holding the elements, or a lone element as
+// the document root. A single root element is read into a one-node graph,
+// so it is rendered back inside a @graph.
+func (e *Envelope) UnmarshalJSON(data []byte) error {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return fmt.Errorf("unmarshaling document: %w", err)
+	}
+
+	if context, ok := raw["@context"]; ok {
+		if err := e.Context.UnmarshalJSON(context); err != nil {
+			return fmt.Errorf("unmarshaling @context: %w", err)
+		}
+	}
+
+	if graph, ok := raw["@graph"]; ok {
+		return e.Graph.UnmarshalJSON(graph)
+	}
+
+	single, err := json.Marshal([]json.RawMessage{data})
+	if err != nil {
+		return fmt.Errorf("reading the root element: %w", err)
+	}
+	return e.Graph.UnmarshalJSON(single)
+}
+
 type Graph []types.Node
 
 // UnmarshalJSON unmarshalls the JSONLD graph into nodes typed to their kinds.

@@ -86,7 +86,6 @@ func TestGraphMarshalJSON(t *testing.T) {
 				Type:   "CreationInfo",
 				SPDXID: "SPDXRef-CreationInfo",
 			},
-			Name:        "Test Creation",
 			SpecVersion: "3.0.1",
 			CreatedBy:   []core.AgentDescendant{person},
 			Created:     &now,
@@ -250,14 +249,13 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 	}{
 		{
 			name:     "CreationInfo full object",
-			jsonData: `{"spdxId":"id1","@id":"_:ci1","type":"CreationInfo","name":"test","specVersion":"3.0.1"}`,
+			jsonData: `{"spdxId":"id1","@id":"_:ci1","type":"CreationInfo","specVersion":"3.0.1"}`,
 			testFunc: func(t *testing.T, data []byte) {
 				var ci core.CreationInfo
 				err := ci.UnmarshalJSON(data)
 				require.NoError(t, err)
 				require.Equal(t, "_:ci1", ci.ID)
 				require.Equal(t, "CreationInfo", ci.Type)
-				require.Equal(t, "test", ci.Name)
 				require.Equal(t, "3.0.1", ci.SpecVersion)
 			},
 		},
