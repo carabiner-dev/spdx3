@@ -1,0 +1,36 @@
+SPDX 3 example documents checked by the round-trip tests.
+
+Source:  https://github.com/spdx/spdx-examples
+Ref:     master
+Commit:  2181917ef6ff74de89252ee785583c27a38d6199
+License: CC0-1.0, per the source repository's README. Only the SPDX
+         documents are vendored, not the repository's build scripts.
+
+Refresh with ./hack/update-spdx-examples.sh. Documents (26):
+
+  ai/example01/spdx3.0/simplehtr-example.spdx3.json
+  ai/example02/spdx3.0/sbom.spdx3.json
+  dataset/example01/spdx3.0/example01.spdx3.json
+  software/example10/spdx3.0/hello-source.spdx3.json
+  software/example11/spdx3.0/sbom.spdx3.json
+  software/example12/spdx3.0/hello-dist.spdx3.json
+  software/example12/spdx3.0/hello-src.spdx3.json
+  software/example13/spdx3.0/example13.spdx3.json
+  software/example14/content/examplemaven-0.0.1.spdx3.json
+  software/example14/spdx3.0/examplemaven-0.0.1-enriched.spdx3.json
+  software/example1/spdx3.0/example1.spdx3.json
+  software/example3/spdx3.0/example3-bin.spdx3.json
+  software/example3/spdx3.0/example3-src.spdx3.json
+  software/example4/spdx3.0/example4-bin.spdx3.json
+  software/example4/spdx3.0/example4-src.spdx3.json
+  software/example5/spdx3.0/example5-bin.spdx3.json
+  software/example5/spdx3.0/example5-src.spdx3.json
+  software/example6/spdx3.0/example6-bin.spdx3.json
+  software/example6/spdx3.0/example6-lib.spdx3.json
+  software/example6/spdx3.0/example6-src.spdx3.json
+  software/example7/spdx3.0/example7-bin.spdx3.json
+  software/example7/spdx3.0/example7-golang.spdx3.json
+  software/example7/spdx3.0/example7-go-module.spdx3.json
+  software/example7/spdx3.0/example7-third-party-modules.spdx3.json
+  software/example8/spdx3.0/examplemaven-0.0.1.spdx3.json
+  software/example9/spdx3.0/appbomination.spdx3.json
