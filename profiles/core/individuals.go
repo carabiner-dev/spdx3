@@ -32,6 +32,17 @@ const (
 	SpdxOrganizationIRI   = "https://spdx.org/rdf/3.0.1/terms/Core/SpdxOrganization"
 )
 
+// IndividualIRIs returns the IRIs of the individuals the Core profile
+// predefines. Documents reference them without ever serializing them, so
+// they are legitimate reference targets that no graph contains.
+func IndividualIRIs() []string {
+	return []string{
+		NoneElementIRI,
+		NoAssertionElementIRI,
+		SpdxOrganizationIRI,
+	}
+}
+
 // NoneElement is the individual asserting that no element exists: it
 // represents a set of Elements with cardinality zero. Shared read-only
 // instance; compare references by IRI.

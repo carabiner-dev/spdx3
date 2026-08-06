@@ -9,6 +9,8 @@ import (
 
 	"github.com/carabiner-dev/spdx3/dispatch"
 	"github.com/carabiner-dev/spdx3/marshal"
+	"github.com/carabiner-dev/spdx3/profiles/core"
+	"github.com/carabiner-dev/spdx3/profiles/expandedlicensing"
 	"github.com/carabiner-dev/spdx3/types"
 )
 
@@ -42,6 +44,31 @@ func (g *Graph) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// referenceableIDs returns the identifiers a nested node can be collapsed
+// to a reference string with: those of the graph's own nodes, which carry
+// the data a reference resolves to, plus the individuals the spec
+// predefines, which documents reference but never serialize. A nested node
+// identified by anything else is rendered inline, since a reference to it
+// would resolve to nothing.
+func (g Graph) referenceableIDs() map[string]struct{} {
+	ids := make(map[string]struct{}, len(g))
+	for _, n := range g {
+		if id := n.GetSPDXID(); id != "" {
+			ids[id] = struct{}{}
+		}
+		if id := n.GetID(); id != "" {
+			ids[id] = struct{}{}
+		}
+	}
+	for _, iri := range core.IndividualIRIs() {
+		ids[iri] = struct{}{}
+	}
+	for _, iri := range expandedlicensing.IndividualIRIs() {
+		ids[iri] = struct{}{}
+	}
+	return ids
+}
+
 // MarshalJSON marshals the graph to JSON.
 // Each top-level node in the graph is serialized fully, with any nested nodes
 // within them serialized as SPDXID reference strings.
@@ -50,7 +77,9 @@ func (g Graph) MarshalJSON() ([]byte, error) {
 		return json.Marshal([]interface{}{})
 	}
 
-	marshaler := &marshal.NodeMarshaler{}
+	marshaler := &marshal.NodeMarshaler{
+		ReferenceableIDs: g.referenceableIDs(),
+	}
 	nodeArray := make([]json.RawMessage, 0, len(g))
 
 	for i, node := range g {

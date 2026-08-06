@@ -194,6 +194,59 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 	})
 }
 
+func TestReferenceableIDs(t *testing.T) {
+	newPerson := func() *core.Person {
+		return &core.Person{
+			Agent: core.Agent{
+				Node: core.Node{
+					PreNode: base.PreNode{
+						Type:   "Person",
+						SPDXID: "SPDXRef-Person1",
+					},
+					Name: "John Doe",
+				},
+			},
+		}
+	}
+
+	marshalCreatedBy := func(t *testing.T, nm *NodeMarshaler) any {
+		t.Helper()
+		data, err := nm.MarshalNode(&core.CreationInfo{
+			PreNode:   base.PreNode{ID: "_:creationinfo", Type: "CreationInfo"},
+			CreatedBy: []core.AgentDescendant{newPerson()},
+		})
+		require.NoError(t, err)
+
+		var result map[string]any
+		require.NoError(t, json.Unmarshal(data, &result))
+		createdBy, ok := result["createdBy"].([]any)
+		require.True(t, ok, "createdBy should be an array")
+		require.Len(t, createdBy, 1)
+		return createdBy[0]
+	}
+
+	t.Run("nil map keeps every id referenceable", func(t *testing.T) {
+		require.Equal(t, "SPDXRef-Person1", marshalCreatedBy(t, &NodeMarshaler{}))
+	})
+
+	t.Run("known id collapses to a reference", func(t *testing.T) {
+		nm := &NodeMarshaler{ReferenceableIDs: map[string]struct{}{
+			"SPDXRef-Person1": {},
+		}}
+		require.Equal(t, "SPDXRef-Person1", marshalCreatedBy(t, nm))
+	})
+
+	t.Run("unknown id is written inline", func(t *testing.T) {
+		nm := &NodeMarshaler{ReferenceableIDs: map[string]struct{}{
+			"SPDXRef-SomethingElse": {},
+		}}
+		inline, ok := marshalCreatedBy(t, nm).(map[string]any)
+		require.True(t, ok, "an unreferenceable node should be inlined")
+		require.Equal(t, "SPDXRef-Person1", inline["spdxId"])
+		require.Equal(t, "John Doe", inline["name"])
+	})
+}
+
 func TestIsZeroValue(t *testing.T) {
 	tests := []struct {
 		name     string

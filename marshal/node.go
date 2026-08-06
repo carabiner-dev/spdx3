@@ -15,7 +15,28 @@ import (
 // NodeMarshaler handles marshaling of SPDX nodes to JSON.
 // It implements special logic for nested nodes, serializing them as SPDXID references
 // rather than full objects.
-type NodeMarshaler struct{}
+type NodeMarshaler struct {
+	// ReferenceableIDs lists the identifiers a nested node may be collapsed
+	// to a reference string with, normally those of the nodes of the graph
+	// being rendered. A nested node identified by anything else has no other
+	// place in the document to carry its data, so it is written inline
+	// instead of being turned into a reference nothing resolves.
+	//
+	// A nil map keeps every identifier referenceable, which is the right
+	// assumption when marshaling a node on its own, with no graph to
+	// consult.
+	ReferenceableIDs map[string]struct{}
+}
+
+// canReference reports whether a nested node identified by id can be
+// collapsed to a reference string.
+func (nm *NodeMarshaler) canReference(id string) bool {
+	if nm.ReferenceableIDs == nil {
+		return true
+	}
+	_, ok := nm.ReferenceableIDs[id]
+	return ok
+}
 
 // MarshalNode marshals a node instance to JSON.
 // Top-level nodes are serialized fully, but any nested nodes within them
@@ -170,9 +191,10 @@ func (nm *NodeMarshaler) marshalSingleNode(fieldValue reflect.Value) (any, error
 			// Fall back to ID if SPDXID is empty (reference-only nodes)
 			id = n.GetID()
 		}
-		if id == "" {
-			// Nodes without any identifier (hashes, extensions, ...) can
-			// only be represented inline.
+		if id == "" || !nm.canReference(id) {
+			// Nodes without any identifier (hashes, extensions, ...) and
+			// nodes whose data is not carried anywhere else in the document
+			// can only be represented inline.
 			return nm.marshalToMap(node, false)
 		}
 		// Return the ID in the same format it was stored
@@ -212,9 +234,10 @@ func (nm *NodeMarshaler) marshalNodeSlice(fieldValue reflect.Value) (any, error)
 				// Fall back to ID if SPDXID is empty (reference-only nodes)
 				id = node.GetID()
 			}
-			if id == "" {
-				// Nodes without any identifier (hashes, extensions, ...)
-				// can only be represented inline.
+			if id == "" || !nm.canReference(id) {
+				// Nodes without any identifier (hashes, extensions, ...) and
+				// nodes whose data is not carried anywhere else in the
+				// document can only be represented inline.
 				inline, err := nm.marshalToMap(node, false)
 				if err != nil {
 					return nil, fmt.Errorf("marshaling inline node at index %d: %w", i, err)

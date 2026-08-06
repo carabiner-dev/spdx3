@@ -22,6 +22,16 @@ const (
 	NoAssertionLicenseIRI = "https://spdx.org/rdf/3.0.1/terms/Licensing/NoAssertion"
 )
 
+// IndividualIRIs returns the IRIs of the licensing individuals the spec
+// predefines. Documents reference them without ever serializing them, so
+// they are legitimate reference targets that no graph contains.
+func IndividualIRIs() []string {
+	return []string{
+		NoneLicenseIRI,
+		NoAssertionLicenseIRI,
+	}
+}
+
 // NoneLicense is the individual asserting that the SPDX data creator
 // determined no license is present. Shared read-only instance; compare
 // references by IRI.
