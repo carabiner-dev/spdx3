@@ -42,7 +42,7 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 
 		require.Equal(t, "_:person1", result["@id"])
 		require.Equal(t, "Person", result["type"])
-		require.Equal(t, "SPDXRef-Person1", result["spdxID"])
+		require.Equal(t, "SPDXRef-Person1", result["spdxId"])
 		require.Equal(t, "John Doe", result["name"])
 	})
 

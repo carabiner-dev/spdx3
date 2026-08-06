@@ -7,7 +7,7 @@ package base
 // effectively embedded in al concrete types and is mainly used for simple
 // unmarshaling when detecting node Types
 type PreNode struct {
-	SPDXID string `json:"spdxID"`
+	SPDXID string `json:"spdxId,omitempty"`
 	ID     string `json:"@id,omitempty"`
 	Type   string `json:"type"`
 }

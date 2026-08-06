@@ -119,7 +119,7 @@ func TestGraphMarshalJSON(t *testing.T) {
 		// Verify Person node
 		personNode := result[1]
 		require.Equal(t, "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1", personNode["@id"])
-		require.Equal(t, "SPDXRef-Person1", personNode["spdxID"])
+		require.Equal(t, "SPDXRef-Person1", personNode["spdxId"])
 		require.Equal(t, "Person", personNode["type"])
 		require.Equal(t, "John Doe", personNode["name"])
 	})
@@ -250,7 +250,7 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 	}{
 		{
 			name:     "CreationInfo full object",
-			jsonData: `{"spdxID":"id1","@id":"_:ci1","type":"CreationInfo","name":"test","specVersion":"3.0.1"}`,
+			jsonData: `{"spdxId":"id1","@id":"_:ci1","type":"CreationInfo","name":"test","specVersion":"3.0.1"}`,
 			testFunc: func(t *testing.T, data []byte) {
 				var ci core.CreationInfo
 				err := ci.UnmarshalJSON(data)
@@ -273,7 +273,7 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 		},
 		{
 			name:     "Person full object",
-			jsonData: `{"spdxID":"id1","@id":"_:p1","type":"Person","name":"John Doe","externalIdentifier":[{"type":"ExternalIdentifier","externalIdentifierType":"email","identifier":"john@example.com"}]}`,
+			jsonData: `{"spdxId":"id1","@id":"_:p1","type":"Person","name":"John Doe","externalIdentifier":[{"type":"ExternalIdentifier","externalIdentifierType":"email","identifier":"john@example.com"}]}`,
 			testFunc: func(t *testing.T, data []byte) {
 				var p core.Person
 				err := p.UnmarshalJSON(data)
@@ -297,7 +297,7 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 		},
 		{
 			name:     "File full object with embedded structs",
-			jsonData: `{"spdxID":"id1","@id":"_:f1","type":"software_File","name":"test.go","software_downloadLocation":"https://example.com/test.go"}`,
+			jsonData: `{"spdxId":"id1","@id":"_:f1","type":"software_File","name":"test.go","software_downloadLocation":"https://example.com/test.go"}`,
 			testFunc: func(t *testing.T, data []byte) {
 				var f software.File
 				err := f.UnmarshalJSON(data)
@@ -325,4 +325,30 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 			tt.testFunc(t, []byte(tt.jsonData))
 		})
 	}
+}
+
+// TestParseSpdxId ensures elements are read from and written to the spec's
+// spdxId key, and that non-elements (CreationInfo) don't emit an empty one.
+func TestParseSpdxId(t *testing.T) {
+	f, err := os.Open("testdata/spdx.json")
+	require.NoError(t, err)
+	defer f.Close() //nolint:errcheck
+
+	env, err := NewParser().Parse(f)
+	require.NoError(t, err)
+
+	ids := map[string]bool{}
+	for _, n := range env.Graph {
+		ids[n.GetSPDXID()] = true
+	}
+	require.Contains(t, ids, "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1")
+	require.Contains(t, ids, "https://spdx.org/spdxdocs/File2-caf55baf-cd02-406a-b7ec-838842ca869f")
+	require.Contains(t, ids, "https://spdx.org/spdxdocs/Relationship/describes-de3f5855-bd5a-403f-9aa6-95dd97599c32")
+
+	var buf bytes.Buffer
+	require.NoError(t, (&Renderer{}).Render(env, &buf))
+	rendered := buf.String()
+	require.Contains(t, rendered, `"spdxId": "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1"`)
+	require.NotContains(t, rendered, "spdxID")
+	require.NotContains(t, rendered, `"spdxId": ""`)
 }
