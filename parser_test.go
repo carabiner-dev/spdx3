@@ -53,7 +53,7 @@ func TestRender(t *testing.T) {
 	}
 
 	e := &Envelope{
-		Context: "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+		Context: NewContext(ContextURL301),
 		Graph: Graph{
 			c,
 		},

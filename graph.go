@@ -14,8 +14,8 @@ import (
 
 // Envelope
 type Envelope struct {
-	Context string `json:"@context"`
-	Graph   Graph  `json:"@graph"`
+	Context Context `json:"@context"`
+	Graph   Graph   `json:"@graph"`
 }
 
 type Graph []types.Node
