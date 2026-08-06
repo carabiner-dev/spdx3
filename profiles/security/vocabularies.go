@@ -71,8 +71,6 @@ type VexJustificationType string
 var VexJustificationTypes = types.Vocabulary[VexJustificationType]{
 	VexJustificationTypeComponentNotPresent,
 	VexJustificationTypeInlineMitigationsAlreadyExist,
-	VexJustificationTypeRequiresConfiguration,
-	VexJustificationTypeRequiresDependency,
 	VexJustificationTypeVulnerableCodeCannotBeControlledByAdversary,
 	VexJustificationTypeVulnerableCodeNotInExecutePath,
 	VexJustificationTypeVulnerableCodeNotPresent,
@@ -83,10 +81,6 @@ const (
 	VexJustificationTypeComponentNotPresent VexJustificationType = "componentNotPresent"
 	// VexJustificationTypeInlineMitigationsAlreadyExist indicates built-in protections prevent exploitation
 	VexJustificationTypeInlineMitigationsAlreadyExist VexJustificationType = "inlineMitigationsAlreadyExist"
-	// VexJustificationTypeRequiresConfiguration indicates vulnerability requires specific configuration
-	VexJustificationTypeRequiresConfiguration VexJustificationType = "requiresConfiguration"
-	// VexJustificationTypeRequiresDependency indicates vulnerability requires specific dependency
-	VexJustificationTypeRequiresDependency VexJustificationType = "requiresDependency"
 	// VexJustificationTypeVulnerableCodeCannotBeControlledByAdversary indicates adversary cannot control vulnerable code
 	VexJustificationTypeVulnerableCodeCannotBeControlledByAdversary VexJustificationType = "vulnerableCodeCannotBeControlledByAdversary"
 	// VexJustificationTypeVulnerableCodeNotInExecutePath indicates vulnerable code is not in execution path

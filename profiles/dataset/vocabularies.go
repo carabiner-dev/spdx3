@@ -31,7 +31,7 @@ type DatasetAvailabilityType string
 
 var DatasetAvailabilityTypes = types.Vocabulary[DatasetAvailabilityType]{
 	DatasetAvailabilityTypeClickthrough,
-	DatasetAvailabilityTypeDirect,
+	DatasetAvailabilityTypeDirectDownload,
 	DatasetAvailabilityTypeQuery,
 	DatasetAvailabilityTypeRegistration,
 	DatasetAvailabilityTypeScrapingScript,
@@ -40,8 +40,8 @@ var DatasetAvailabilityTypes = types.Vocabulary[DatasetAvailabilityType]{
 const (
 	// DatasetAvailabilityTypeClickthrough indicates dataset requires accepting terms through web interface
 	DatasetAvailabilityTypeClickthrough DatasetAvailabilityType = "clickthrough"
-	// DatasetAvailabilityTypeDirect indicates dataset is directly downloadable without restrictions
-	DatasetAvailabilityTypeDirect DatasetAvailabilityType = "direct"
+	// DatasetAvailabilityTypeDirectDownload indicates dataset is directly downloadable without restrictions
+	DatasetAvailabilityTypeDirectDownload DatasetAvailabilityType = "directDownload"
 	// DatasetAvailabilityTypeQuery indicates dataset requires query to access portions
 	DatasetAvailabilityTypeQuery DatasetAvailabilityType = "query"
 	// DatasetAvailabilityTypeRegistration indicates dataset requires registration before access
@@ -55,34 +55,30 @@ type DatasetType string
 
 var DatasetTypes = types.Vocabulary[DatasetType]{
 	DatasetTypeAudio,
-	DatasetTypeCodeSnippet,
-	DatasetTypeConfiguration,
+	DatasetTypeCategorical,
 	DatasetTypeGraph,
 	DatasetTypeImage,
-	DatasetTypeIndex,
 	DatasetTypeNoAssertion,
 	DatasetTypeNumeric,
 	DatasetTypeOther,
 	DatasetTypeSensor,
 	DatasetTypeStructured,
-	DatasetTypeTable,
+	DatasetTypeSyntactic,
 	DatasetTypeText,
+	DatasetTypeTimeseries,
+	DatasetTypeTimestamp,
 	DatasetTypeVideo,
 }
 
 const (
 	// DatasetTypeAudio indicates dataset contains audio data
 	DatasetTypeAudio DatasetType = "audio"
-	// DatasetTypeCodeSnippet indicates dataset contains code snippets
-	DatasetTypeCodeSnippet DatasetType = "codeSnippet"
-	// DatasetTypeConfiguration indicates dataset contains configuration data
-	DatasetTypeConfiguration DatasetType = "configuration"
+	// DatasetTypeCategorical indicates data classified into a discrete number of categories
+	DatasetTypeCategorical DatasetType = "categorical"
 	// DatasetTypeGraph indicates dataset is in graph format
 	DatasetTypeGraph DatasetType = "graph"
 	// DatasetTypeImage indicates dataset contains image data
 	DatasetTypeImage DatasetType = "image"
-	// DatasetTypeIndex indicates dataset is an index
-	DatasetTypeIndex DatasetType = "index"
 	// DatasetTypeNoAssertion makes no assertion about dataset type
 	DatasetTypeNoAssertion DatasetType = "noAssertion"
 	// DatasetTypeNumeric indicates dataset contains numeric data
@@ -93,10 +89,14 @@ const (
 	DatasetTypeSensor DatasetType = "sensor"
 	// DatasetTypeStructured indicates dataset has structured format
 	DatasetTypeStructured DatasetType = "structured"
-	// DatasetTypeTable indicates dataset is in tabular format
-	DatasetTypeTable DatasetType = "table"
+	// DatasetTypeSyntactic indicates data describing the syntax or semantics of a language
+	DatasetTypeSyntactic DatasetType = "syntactic"
 	// DatasetTypeText indicates dataset contains text data
 	DatasetTypeText DatasetType = "text"
+	// DatasetTypeTimeseries indicates data recorded as an ordered sequence of timestamped entries
+	DatasetTypeTimeseries DatasetType = "timeseries"
+	// DatasetTypeTimestamp indicates data recorded with a timestamp per entry, not necessarily ordered
+	DatasetTypeTimestamp DatasetType = "timestamp"
 	// DatasetTypeVideo indicates dataset contains video data
 	DatasetTypeVideo DatasetType = "video"
 )
