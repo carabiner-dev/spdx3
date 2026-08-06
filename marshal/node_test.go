@@ -67,7 +67,6 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 				Type:   "CreationInfo",
 				SPDXID: "SPDXRef-CreationInfo",
 			},
-			Name:        "Test Creation",
 			SpecVersion: "3.0.1",
 			CreatedBy:   []core.AgentDescendant{person},
 			Created:     &now,
@@ -100,7 +99,6 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 				Type:   "CreationInfo",
 				SPDXID: "SPDXRef-CreationInfo",
 			},
-			Name:        "Test Creation",
 			SpecVersion: "3.0.1",
 			CreatedBy: []core.AgentDescendant{
 				types.NodeRef{ID: "https://spdx.org/spdxdocs/Person1-abc123"},

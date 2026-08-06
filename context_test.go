@@ -11,6 +11,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/carabiner-dev/spdx3/profiles/software"
 )
 
 func TestContextForms(t *testing.T) {
@@ -90,6 +92,38 @@ func TestParseContext(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "3.0.1", env.Context.Version())
 		require.Equal(t, ContextURL301, env.Context.String())
+	})
+
+	t.Run("single root element document", func(t *testing.T) {
+		// The serialization allows a lone element as the document root,
+		// with no @graph wrapper.
+		doc := `{
+			"@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+			"spdxId": "https://example.com/spdx/Package1",
+			"type": "software_Package",
+			"name": "lonely-package",
+			"software_packageVersion": "1.0.0"
+		}`
+		env, err := NewParser().Parse(strings.NewReader(doc))
+		require.NoError(t, err)
+		require.Equal(t, "3.0.1", env.Context.Version())
+		require.Len(t, env.Graph, 1)
+
+		pkg, ok := env.Graph[0].(*software.Package)
+		require.True(t, ok)
+		require.Equal(t, "lonely-package", pkg.GetName())
+		require.Equal(t, "1.0.0", pkg.PackageVersion)
+
+		// It is rendered back inside a @graph, which reparses to the same
+		// single element.
+		buf := &bytes.Buffer{}
+		require.NoError(t, (&Renderer{}).Render(env, buf))
+		require.Contains(t, buf.String(), `"@graph"`)
+
+		reparsed, err := NewParser().Parse(bytes.NewReader(buf.Bytes()))
+		require.NoError(t, err)
+		require.Len(t, reparsed.Graph, 1)
+		require.Equal(t, "lonely-package", reparsed.Graph[0].GetName())
 	})
 
 	t.Run("array context document", func(t *testing.T) {

@@ -36,12 +36,26 @@ type ExtensionDescendant interface {
 	FromExtension()
 }
 
-// Extension is the abstract base class for all SPDX extensions
+// Extension is the abstract base class for all SPDX extensions. The model
+// defines it as a standalone class, not an Element, and gives it no
+// properties of its own, so it carries only the identity fields every node
+// serializes.
 type Extension struct {
-	Node
+	base.PreNode
 }
 
 func (ex *Extension) FromExtension() {}
+
+// GetName satisfies types.Node. An Extension has no name in the model.
+func (ex *Extension) GetName() string {
+	return ""
+}
+
+// GetCreationInfo satisfies types.Node. An Extension is not an Element and
+// carries no creation information.
+func (ex *Extension) GetCreationInfo() types.Node {
+	return nil
+}
 
 func (e *Extension) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, e, &e.PreNode)
