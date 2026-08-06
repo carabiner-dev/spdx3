@@ -136,7 +136,14 @@ func (nu *NodeUnmarshaler) unmarshalNode(rawData json.RawMessage, fieldValue *re
 	if err != nil {
 		return fmt.Errorf("unmarshaling node: %w", err)
 	}
-	fieldValue.Set(reflect.ValueOf(node))
+	nodeValue := reflect.ValueOf(node)
+	if !nodeValue.Type().AssignableTo(fieldValue.Type()) {
+		return fmt.Errorf(
+			"%w: node of type %q cannot be assigned to a %s field",
+			types.ErrIncompatibleNodeType, node.GetType(), fieldValue.Type(),
+		)
+	}
+	fieldValue.Set(nodeValue)
 	return nil
 }
 
@@ -171,7 +178,14 @@ func (nu *NodeUnmarshaler) unmarshalNodeSlice(rawData json.RawMessage, fieldValu
 		if err != nil {
 			return fmt.Errorf("unmarshaling node at index %d: %w", i, err)
 		}
-		nodeSlice = reflect.Append(nodeSlice, reflect.ValueOf(node))
+		nodeValue := reflect.ValueOf(node)
+		if !nodeValue.Type().AssignableTo(sliceType.Elem()) {
+			return fmt.Errorf(
+				"%w: node #%d of type %q cannot be assigned to a %s element",
+				types.ErrIncompatibleNodeType, i, node.GetType(), sliceType.Elem(),
+			)
+		}
+		nodeSlice = reflect.Append(nodeSlice, nodeValue)
 	}
 
 	fieldValue.Set(nodeSlice)

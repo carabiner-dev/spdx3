@@ -7,7 +7,14 @@ import (
 	"errors"
 )
 
-var ErrUnsupportedNodeType = errors.New("unsupported node type")
+var (
+	ErrUnsupportedNodeType = errors.New("unsupported node type")
+
+	// ErrIncompatibleNodeType is returned when a node parses correctly but
+	// its class is not valid in the field holding it, such as a non-Element
+	// inlined in a collection's element or rootElement property.
+	ErrIncompatibleNodeType = errors.New("incompatible node type for field")
+)
 
 type ID string
 

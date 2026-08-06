@@ -177,6 +177,8 @@ type LicenseAddition struct {
 	StandardAdditionTemplate string   `json:"expandedlicensing_standardAdditionTemplate,omitempty"`
 }
 
+func (la *LicenseAddition) FromElement() {}
+
 // ListedLicenseException references an exception from the SPDX list
 type ListedLicenseException struct {
 	LicenseAddition

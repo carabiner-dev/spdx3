@@ -80,6 +80,7 @@ func (r *Relationship) UnmarshalJSON(data []byte) error {
 }
 
 func (r *Relationship) FromRelationship() {}
+func (r *Relationship) FromElement()      {}
 
 // Element is the base element, the node of the SPDX graph
 type Element struct {
@@ -92,6 +93,10 @@ func (e *Element) GetType() string {
 
 func (e *Element) FromElement() {}
 
+// ElementDescendant is implemented by every class the model derives from
+// Element. The marker sits on each direct subclass of Element rather than
+// on Node, because not everything carrying Node's properties is an Element:
+// Extension is a standalone class in the model.
 type ElementDescendant interface {
 	types.Node
 	FromElement()
@@ -113,7 +118,8 @@ func (a *Agent) GetType() string {
 	return AgentClass
 }
 
-func (a *Agent) FromAgent() {}
+func (a *Agent) FromAgent()   {}
+func (a *Agent) FromElement() {}
 
 func (a *Agent) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, a, &a.PreNode)
@@ -138,6 +144,8 @@ func (a *Artifact) GetType() string {
 func (a *Artifact) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, a, &a.PreNode)
 }
+
+func (a *Artifact) FromElement() {}
 
 type Person struct {
 	Agent
@@ -273,6 +281,8 @@ func (a *Annotation) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, a, &a.PreNode)
 }
 
+func (a *Annotation) FromElement() {}
+
 // SoftwareAgent represents a software program acting on a system
 type SoftwareAgent struct {
 	Agent
@@ -294,6 +304,8 @@ type Tool struct {
 func (t *Tool) GetType() string {
 	return ToolClass
 }
+
+func (t *Tool) FromElement() {}
 
 func (t *Tool) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, t, &t.PreNode)
@@ -324,6 +336,8 @@ type ElementCollection struct {
 func (ec *ElementCollection) GetType() string {
 	return ElementCollectionClass
 }
+
+func (ec *ElementCollection) FromElement() {}
 
 // Bundle is a collection of Elements with shared context
 type Bundle struct {
