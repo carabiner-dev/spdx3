@@ -1,0 +1,158 @@
+{
+  "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph": [
+    {
+      "type": "CreationInfo",
+      "@id": "_:creationinfo",
+      "specVersion": "3.0.1",
+      "created": "2026-08-06T00:00:00Z",
+      "createdBy": [
+        "https://example.com/spdx/Person1"
+      ]
+    },
+    {
+      "type": "Person",
+      "spdxId": "https://example.com/spdx/Person1",
+      "creationInfo": "_:creationinfo",
+      "name": "Grace Hopper"
+    },
+    {
+      "type": "software_Sbom",
+      "spdxId": "https://example.com/spdx/Sbom1",
+      "creationInfo": "_:creationinfo",
+      "software_sbomType": [
+        "build"
+      ],
+      "rootElement": [
+        "https://example.com/spdx/Package1"
+      ],
+      "element": [
+        "https://example.com/spdx/Package1",
+        "https://example.com/spdx/File1",
+        "https://example.com/spdx/Snippet1"
+      ]
+    },
+    {
+      "type": "software_Package",
+      "spdxId": "https://example.com/spdx/Package1",
+      "creationInfo": "_:creationinfo",
+      "name": "example-lib",
+      "summary": "a package exercising the software profile",
+      "software_packageVersion": "1.4.2",
+      "software_downloadLocation": "https://example.com/dist/example-lib-1.4.2.tar.gz",
+      "software_packageUrl": "pkg:generic/example-lib@1.4.2",
+      "software_homePage": "https://example.com/example-lib",
+      "software_primaryPurpose": "library",
+      "software_additionalPurpose": [
+        "source"
+      ],
+      "software_sourceInfo": "built from the public git tag v1.4.2",
+      "builtTime": "2026-08-01T12:00:00Z",
+      "originatedBy": [
+        "https://example.com/spdx/Person1"
+      ],
+      "suppliedBy": "https://example.com/spdx/Person1",
+      "verifiedUsing": [
+        {
+          "type": "Hash",
+          "algorithm": "sha256",
+          "hashValue": "5d41402abc4b2a76b9719d911017c592f0e8b1b45c0f47b09fb8f0e2e0d9c0aa"
+        },
+        {
+          "type": "PackageVerificationCode",
+          "algorithm": "sha1",
+          "hashValue": "d6a770ba38583ed4bb4525bd96e50461655d2758",
+          "packageVerificationCodeExcludedFile": [
+            "./package.spdx"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "software_File",
+      "spdxId": "https://example.com/spdx/File1",
+      "creationInfo": "_:creationinfo",
+      "name": "./src/main.go",
+      "software_fileKind": "file",
+      "contentType": "text/x-go",
+      "software_copyrightText": "Copyright 2026 Example Systems",
+      "software_attributionText": [
+        "Includes code from the Example project"
+      ],
+      "verifiedUsing": [
+        {
+          "type": "Hash",
+          "algorithm": "sha256",
+          "hashValue": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+        }
+      ],
+      "software_contentIdentifier": [
+        {
+          "type": "software_ContentIdentifier",
+          "software_contentIdentifierType": "gitoid",
+          "software_contentIdentifierValue": "gitoid:blob:sha1:261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64"
+        }
+      ]
+    },
+    {
+      "type": "software_Snippet",
+      "spdxId": "https://example.com/spdx/Snippet1",
+      "creationInfo": "_:creationinfo",
+      "name": "the interesting function",
+      "software_snippetFromFile": "https://example.com/spdx/File1",
+      "software_byteRange": {
+        "type": "PositiveIntegerRange",
+        "beginIntegerRange": 1024,
+        "endIntegerRange": 2048
+      },
+      "software_lineRange": {
+        "type": "PositiveIntegerRange",
+        "beginIntegerRange": 42,
+        "endIntegerRange": 87
+      }
+    },
+    {
+      "type": "expandedlicensing_CustomLicense",
+      "spdxId": "https://example.com/spdx/License-custom",
+      "creationInfo": "_:creationinfo",
+      "name": "Example Permissive License",
+      "simplelicensing_licenseText": "Permission is hereby granted, free of charge, ...",
+      "expandedlicensing_isOsiApproved": true,
+      "expandedlicensing_isFsfLibre": false,
+      "expandedlicensing_seeAlso": [
+        "https://example.com/licenses/permissive"
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/Relationship-concluded",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/Package1",
+      "relationshipType": "hasConcludedLicense",
+      "to": [
+        "https://example.com/spdx/License-custom"
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/Relationship-declared",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/Package1",
+      "relationshipType": "hasDeclaredLicense",
+      "to": [
+        "https://spdx.org/rdf/3.0.1/terms/Licensing/NoAssertion"
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/Relationship-contains",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/Package1",
+      "relationshipType": "contains",
+      "to": [
+        "https://example.com/spdx/File1"
+      ],
+      "completeness": "complete"
+    }
+  ]
+}

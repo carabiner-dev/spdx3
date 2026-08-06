@@ -1,0 +1,191 @@
+{
+  "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph": [
+    {
+      "type": "CreationInfo",
+      "@id": "_:creationinfo",
+      "specVersion": "3.0.1",
+      "created": "2026-08-06T00:00:00Z",
+      "createdBy": [
+        "https://example.com/spdx/Person1",
+        "https://example.com/spdx/Organization1"
+      ],
+      "createdUsing": [
+        "https://example.com/spdx/Tool1"
+      ],
+      "comment": "creation info shared by every element in this document"
+    },
+    {
+      "type": "Person",
+      "spdxId": "https://example.com/spdx/Person1",
+      "creationInfo": "_:creationinfo",
+      "name": "Ada Lovelace",
+      "externalIdentifier": [
+        {
+          "type": "ExternalIdentifier",
+          "externalIdentifierType": "email",
+          "identifier": "ada@example.com"
+        }
+      ]
+    },
+    {
+      "type": "Organization",
+      "spdxId": "https://example.com/spdx/Organization1",
+      "creationInfo": "_:creationinfo",
+      "name": "Example Systems",
+      "externalIdentifier": [
+        {
+          "type": "ExternalIdentifier",
+          "externalIdentifierType": "other",
+          "issuingAuthority": "GitHub",
+          "identifier": "example-systems",
+          "identifierLocator": [
+            "https://github.com/example-systems/"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "SoftwareAgent",
+      "spdxId": "https://example.com/spdx/SoftwareAgent1",
+      "creationInfo": "_:creationinfo",
+      "name": "nightly-build-agent"
+    },
+    {
+      "type": "Tool",
+      "spdxId": "https://example.com/spdx/Tool1",
+      "creationInfo": "_:creationinfo",
+      "name": "spdx3-go",
+      "description": "the library that produced this document"
+    },
+    {
+      "type": "SpdxDocument",
+      "spdxId": "https://example.com/spdx/Document1",
+      "creationInfo": "_:creationinfo",
+      "name": "core round-trip fixture",
+      "profileConformance": [
+        "core",
+        "software"
+      ],
+      "dataLicense": "https://spdx.org/licenses/CC0-1.0",
+      "rootElement": [
+        "https://example.com/spdx/Bom1"
+      ],
+      "namespaceMap": [
+        {
+          "type": "NamespaceMap",
+          "prefix": "ex",
+          "namespace": "https://example.com/spdx/"
+        }
+      ],
+      "import": [
+        {
+          "type": "ExternalMap",
+          "externalSpdxId": "https://other.example.com/spdx/Package9",
+          "locationHint": "https://other.example.com/spdx/document.json",
+          "verifiedUsing": [
+            {
+              "type": "Hash",
+              "algorithm": "sha256",
+              "hashValue": "d2b1c4f5a6e7089b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Bom",
+      "spdxId": "https://example.com/spdx/Bom1",
+      "creationInfo": "_:creationinfo",
+      "name": "the bill of materials",
+      "rootElement": [
+        "https://example.com/spdx/Artifact1"
+      ],
+      "element": [
+        "https://example.com/spdx/Artifact1"
+      ]
+    },
+    {
+      "type": "Artifact",
+      "spdxId": "https://example.com/spdx/Artifact1",
+      "creationInfo": "_:creationinfo",
+      "name": "an artifact with provenance",
+      "builtTime": "2026-08-05T18:30:00Z",
+      "releaseTime": "2026-08-06T09:00:00Z",
+      "standardName": [
+        "ISO/IEC 5962:2021"
+      ],
+      "originatedBy": [
+        "https://example.com/spdx/Organization1"
+      ],
+      "suppliedBy": "https://example.com/spdx/Organization1",
+      "verifiedUsing": [
+        {
+          "type": "Hash",
+          "algorithm": "sha1",
+          "hashValue": "85ed0817af83a24ad8da68c2b5094de69833983c",
+          "comment": "legacy digest kept for compatibility"
+        },
+        {
+          "type": "Hash",
+          "algorithm": "sha256",
+          "hashValue": "11b6d3ee554eedf79299905a98f9b9a04e498210b59f15094c916c91d150efcd"
+        }
+      ],
+      "externalRef": [
+        {
+          "type": "ExternalRef",
+          "externalRefType": "securityAdvisory",
+          "locator": [
+            "https://example.com/advisories/EX-2026-0001"
+          ],
+          "contentType": "text/html",
+          "comment": "advisory covering this artifact"
+        }
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/Relationship-contains",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/Bom1",
+      "relationshipType": "contains",
+      "to": [
+        "https://example.com/spdx/Artifact1"
+      ],
+      "completeness": "complete"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/Relationship-describes",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/Document1",
+      "relationshipType": "describes",
+      "to": [
+        "https://example.com/spdx/Bom1"
+      ]
+    },
+    {
+      "type": "LifecycleScopedRelationship",
+      "spdxId": "https://example.com/spdx/Relationship-dependsOn",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/Artifact1",
+      "relationshipType": "dependsOn",
+      "to": [
+        "https://example.com/spdx/Artifact1"
+      ],
+      "scope": "build",
+      "startTime": "2026-08-05T18:00:00Z",
+      "endTime": "2026-08-05T18:30:00Z"
+    },
+    {
+      "type": "Annotation",
+      "spdxId": "https://example.com/spdx/Annotation1",
+      "creationInfo": "_:creationinfo",
+      "annotationType": "review",
+      "subject": "https://example.com/spdx/Artifact1",
+      "statement": "reviewed by the release team",
+      "contentType": "text/plain"
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph": [
+    {
+      "type": "CreationInfo",
+      "@id": "_:creationinfo",
+      "specVersion": "3.0.1",
+      "created": "2026-08-06T00:00:00Z",
+      "createdBy": [
+        "https://example.com/spdx/Organization1"
+      ]
+    },
+    {
+      "type": "Organization",
+      "spdxId": "https://example.com/spdx/Organization1",
+      "creationInfo": "_:creationinfo",
+      "name": "Example Research"
+    },
+    {
+      "type": "dataset_DatasetPackage",
+      "spdxId": "https://example.com/spdx/Dataset1",
+      "creationInfo": "_:creationinfo",
+      "name": "handwriting-samples",
+      "software_downloadLocation": "https://example.com/data/handwriting.tar.gz",
+      "software_packageVersion": "2026.08",
+      "software_primaryPurpose": "data",
+      "builtTime": "2026-07-01T00:00:00Z",
+      "originatedBy": [
+        "https://example.com/spdx/Organization1"
+      ],
+      "dataset_datasetType": [
+        "image",
+        "timestamp"
+      ],
+      "dataset_datasetAvailability": "directDownload",
+      "dataset_datasetSize": 4096,
+      "dataset_dataCollectionProcess": "scanned from public archives",
+      "dataset_datasetUpdateMechanism": "quarterly re-release",
+      "dataset_intendedUse": "training handwriting recognition models",
+      "dataset_confidentialityLevel": "clear",
+      "dataset_hasSensitivePersonalInformation": "no",
+      "dataset_anonymizationMethodUsed": [
+        "author names removed"
+      ],
+      "dataset_knownBias": [
+        "latin scripts over-represented"
+      ],
+      "dataset_sensor": [
+        {
+          "type": "DictionaryEntry",
+          "key": "scanner",
+          "value": "600dpi flatbed"
+        }
+      ]
+    },
+    {
+      "type": "ai_AIPackage",
+      "spdxId": "https://example.com/spdx/Model1",
+      "creationInfo": "_:creationinfo",
+      "name": "handwriting-recognizer",
+      "software_packageVersion": "3.1.0",
+      "software_downloadLocation": "https://example.com/models/hwr-3.1.0",
+      "ai_typeOfModel": [
+        "convolutional neural network"
+      ],
+      "ai_domain": [
+        "computer vision"
+      ],
+      "ai_informationAboutTraining": "trained on the handwriting-samples dataset",
+      "ai_informationAboutApplication": "offline transcription of scanned notes",
+      "ai_limitation": "not validated on non-latin scripts",
+      "ai_safetyRiskAssessment": "low",
+      "ai_useSensitivePersonalInformation": "no",
+      "ai_standardCompliance": [
+        "ISO/IEC 23053:2022"
+      ],
+      "ai_modelExplainability": [
+        "saliency maps"
+      ],
+      "ai_modelDataPreprocessing": [
+        "greyscale normalization"
+      ],
+      "ai_hyperparameter": [
+        {
+          "type": "DictionaryEntry",
+          "key": "learningRate",
+          "value": "0.001"
+        }
+      ],
+      "ai_metric": [
+        {
+          "type": "DictionaryEntry",
+          "key": "accuracy",
+          "value": "0.97"
+        }
+      ],
+      "ai_metricDecisionThreshold": [
+        {
+          "type": "DictionaryEntry",
+          "key": "accuracy",
+          "value": "0.90"
+        }
+      ],
+      "ai_energyConsumption": {
+        "type": "ai_EnergyConsumption",
+        "ai_trainingEnergyConsumption": [
+          {
+            "type": "ai_EnergyConsumptionDescription",
+            "ai_energyQuantity": "1200.5",
+            "ai_energyUnit": "kilowattHour"
+          }
+        ],
+        "ai_inferenceEnergyConsumption": [
+          {
+            "type": "ai_EnergyConsumptionDescription",
+            "ai_energyQuantity": "0.002",
+            "ai_energyUnit": "kilowattHour"
+          }
+        ]
+      }
+    },
+    {
+      "type": "security_Vulnerability",
+      "spdxId": "https://example.com/spdx/Vuln1",
+      "creationInfo": "_:creationinfo",
+      "name": "CVE-2026-00001",
+      "summary": "a vulnerability used as a round-trip fixture",
+      "security_publishedTime": "2026-03-01T00:00:00Z",
+      "security_modifiedTime": "2026-03-05T00:00:00Z",
+      "externalIdentifier": [
+        {
+          "type": "ExternalIdentifier",
+          "externalIdentifierType": "cve",
+          "identifier": "CVE-2026-00001",
+          "identifierLocator": [
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-00001"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "security_CvssV3VulnAssessmentRelationship",
+      "spdxId": "https://example.com/spdx/Assessment-cvss",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/Vuln1",
+      "relationshipType": "hasAssessmentFor",
+      "to": [
+        "https://example.com/spdx/Model1"
+      ],
+      "security_score": "5.0",
+      "security_severity": "medium",
+      "security_vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+      "security_publishedTime": "2026-03-01T00:00:00Z",
+      "suppliedBy": "https://example.com/spdx/Organization1"
+    },
+    {
+      "type": "security_VexNotAffectedVulnAssessmentRelationship",
+      "spdxId": "https://example.com/spdx/Assessment-vex",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/Vuln1",
+      "relationshipType": "doesNotAffect",
+      "to": [
+        "https://example.com/spdx/Model1"
+      ],
+      "security_justificationType": "vulnerableCodeNotPresent",
+      "security_impactStatement": "the affected module is not shipped",
+      "security_impactStatementTime": "2026-03-06T00:00:00Z",
+      "security_vexVersion": "1.0.0"
+    },
+    {
+      "type": "build_Build",
+      "spdxId": "https://example.com/spdx/Build1",
+      "creationInfo": "_:creationinfo",
+      "name": "model training run",
+      "build_buildType": "https://example.com/buildtypes/training",
+      "build_buildId": "run-2026-08-01-01",
+      "build_buildStartTime": "2026-08-01T00:00:00Z",
+      "build_buildEndTime": "2026-08-01T06:00:00Z"
+    }
+  ]
+}

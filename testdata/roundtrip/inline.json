@@ -1,0 +1,79 @@
+{
+  "@context": [
+    "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+    {
+      "ex": "https://example.com/terms/"
+    }
+  ],
+  "@graph": [
+    {
+      "type": "CreationInfo",
+      "@id": "_:creationinfo",
+      "specVersion": "3.0.1",
+      "created": "2026-08-06T00:00:00Z",
+      "createdBy": [
+        "https://spdx.org/rdf/3.0.1/terms/Core/SpdxOrganization"
+      ]
+    },
+    {
+      "type": "SpdxDocument",
+      "spdxId": "https://example.com/spdx/Document1",
+      "creationInfo": "_:creationinfo",
+      "name": "inline shapes fixture",
+      "rootElement": [
+        {
+          "type": "software_Package",
+          "spdxId": "https://example.com/spdx/InlinePackage",
+          "creationInfo": "_:creationinfo",
+          "name": "a package that lives only inside rootElement",
+          "software_packageVersion": "0.1.0",
+          "verifiedUsing": [
+            {
+              "type": "Hash",
+              "algorithm": "sha256",
+              "hashValue": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "software_File",
+      "spdxId": "https://example.com/spdx/File1",
+      "creationInfo": "_:creationinfo",
+      "name": "./extended.bin",
+      "extension": [
+        {
+          "type": "extension_CdxPropertiesExtension",
+          "extension_cdxProperty": [
+            {
+              "type": "extension_CdxPropertyEntry",
+              "extension_cdxPropName": "internal:buildId",
+              "extension_cdxPropValue": "42"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/Relationship-none",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/File1",
+      "relationshipType": "hasDeclaredLicense",
+      "to": [
+        "https://spdx.org/rdf/3.0.1/terms/Licensing/None"
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/Relationship-noassertion",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/File1",
+      "relationshipType": "hasConcludedLicense",
+      "to": [
+        "https://spdx.org/rdf/3.0.1/terms/Core/NoAssertionElement"
+      ]
+    }
+  ]
+}
