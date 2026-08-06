@@ -19,21 +19,21 @@ const (
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		CdxPropertiesExtensionType:                              &CdxPropertiesExtension{},
+		CdxPropertiesExtensionType:                               &CdxPropertiesExtension{},
 		fmt.Sprintf("%s_%s", Prefix, CdxPropertiesExtensionType): &CdxPropertiesExtension{},
 	},
 }
 
 // CdxPropertyEntry represents a name-value pair for CycloneDX compatible properties
 type CdxPropertyEntry struct {
-	CdxPropName  string `json:"cdxPropName"`
-	CdxPropValue string `json:"cdxPropValue,omitempty"`
+	CdxPropName  string `json:"extension_cdxPropName"`
+	CdxPropValue string `json:"extension_cdxPropValue,omitempty"`
 }
 
 // CdxPropertiesExtension provides CycloneDX-compatible property extensions
 type CdxPropertiesExtension struct {
 	core.Extension
-	CdxProperty []CdxPropertyEntry `json:"cdxProperty"`
+	CdxProperty []CdxPropertyEntry `json:"extension_cdxProperty"`
 }
 
 func (cpe *CdxPropertiesExtension) GetType() string {

@@ -42,11 +42,11 @@ var Profile = types.Profile{
 // SoftwareArtifact represents a distinct article or unit related to software
 type SoftwareArtifact struct {
 	core.Artifact
-	AdditionalPurpose []SoftwarePurpose   `json:"additionalPurpose,omitempty"`
-	AttributionText   []string            `json:"attributionText,omitempty"`
-	ContentIdentifier []ContentIdentifier `json:"contentIdentifier,omitempty"`
-	CopyrightText     string              `json:"copyrightText,omitempty"`
-	PrimaryPurpose    SoftwarePurpose     `json:"primaryPurpose,omitempty"`
+	AdditionalPurpose []SoftwarePurpose   `json:"software_additionalPurpose,omitempty"`
+	AttributionText   []string            `json:"software_attributionText,omitempty"`
+	ContentIdentifier []ContentIdentifier `json:"software_contentIdentifier,omitempty"`
+	CopyrightText     string              `json:"software_copyrightText,omitempty"`
+	PrimaryPurpose    SoftwarePurpose     `json:"software_primaryPurpose,omitempty"`
 }
 
 func (sa *SoftwareArtifact) GetType() string {
@@ -61,7 +61,7 @@ func (sa *SoftwareArtifact) UnmarshalJSON(data []byte) error {
 type File struct {
 	SoftwareArtifact
 	ContentType string       `json:"contentType,omitempty"`
-	FileKind    FileKindType `json:"fileKind,omitempty"`
+	FileKind    FileKindType `json:"software_fileKind,omitempty"`
 }
 
 func (f *File) GetType() string {
@@ -79,11 +79,11 @@ type IntegrityMethod interface {
 // Package
 type Package struct {
 	SoftwareArtifact
-	DownloadLocation string `json:"downloadLocation,omitempty"`
-	HomePage         string `json:"homePage,omitempty"`
-	PackageUrl       string `json:"packageUrl,omitempty"`
-	PackageVersion   string `json:"packageVersion,omitempty"`
-	SourceInfo       string `json:"sourceInfo,omitempty"`
+	DownloadLocation string `json:"software_downloadLocation,omitempty"`
+	HomePage         string `json:"software_homePage,omitempty"`
+	PackageUrl       string `json:"software_packageUrl,omitempty"`
+	PackageVersion   string `json:"software_packageVersion,omitempty"`
+	SourceInfo       string `json:"software_sourceInfo,omitempty"`
 }
 
 func (p *Package) GetType() string {
@@ -97,8 +97,8 @@ func (p *Package) UnmarshalJSON(data []byte) error {
 // ContentIdentifier provides a canonical, unique, immutable identifier
 type ContentIdentifier struct {
 	core.IntegrityMethod
-	ContentIdentifierType  ContentIdentifierType `json:"contentIdentifierType"`
-	ContentIdentifierValue string                `json:"contentIdentifierValue"`
+	ContentIdentifierType  ContentIdentifierType `json:"software_contentIdentifierType"`
+	ContentIdentifierValue string                `json:"software_contentIdentifierValue"`
 }
 
 func (ci *ContentIdentifier) GetType() string {
@@ -108,9 +108,9 @@ func (ci *ContentIdentifier) GetType() string {
 // Snippet represents a portion of a file
 type Snippet struct {
 	SoftwareArtifact
-	ByteRange       *core.PositiveIntegerRange `json:"byteRange,omitempty"`
-	LineRange       *core.PositiveIntegerRange `json:"lineRange,omitempty"`
-	SnippetFromFile string                     `json:"snippetFromFile"`
+	ByteRange       *core.PositiveIntegerRange `json:"software_byteRange,omitempty"`
+	LineRange       *core.PositiveIntegerRange `json:"software_lineRange,omitempty"`
+	SnippetFromFile string                     `json:"software_snippetFromFile"`
 }
 
 func (s *Snippet) GetType() string {
@@ -124,7 +124,7 @@ func (s *Snippet) UnmarshalJSON(data []byte) error {
 // Sbom represents a Software Bill of Materials
 type Sbom struct {
 	core.Bom
-	SbomType []SbomType `json:"sbomType,omitempty"`
+	SbomType []SbomType `json:"software_sbomType,omitempty"`
 }
 
 func (s *Sbom) GetType() string {

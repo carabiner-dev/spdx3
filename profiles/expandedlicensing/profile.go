@@ -13,30 +13,30 @@ import (
 )
 
 const (
-	Prefix                        = "expandedlicensing"
-	ListedLicenseType             = "ListedLicense"
-	CustomLicenseType             = "CustomLicense"
-	OrLaterOperatorType           = "OrLaterOperator"
-	WithAdditionOperatorType      = "WithAdditionOperator"
-	ConjunctiveLicenseSetType     = "ConjunctiveLicenseSet"
-	DisjunctiveLicenseSetType     = "DisjunctiveLicenseSet"
-	IndividualLicensingInfoType   = "IndividualLicensingInfo"
-	ListedLicenseExceptionType    = "ListedLicenseException"
-	CustomLicenseAdditionType     = "CustomLicenseAddition"
+	Prefix                      = "expandedlicensing"
+	ListedLicenseType           = "ListedLicense"
+	CustomLicenseType           = "CustomLicense"
+	OrLaterOperatorType         = "OrLaterOperator"
+	WithAdditionOperatorType    = "WithAdditionOperator"
+	ConjunctiveLicenseSetType   = "ConjunctiveLicenseSet"
+	DisjunctiveLicenseSetType   = "DisjunctiveLicenseSet"
+	IndividualLicensingInfoType = "IndividualLicensingInfo"
+	ListedLicenseExceptionType  = "ListedLicenseException"
+	CustomLicenseAdditionType   = "CustomLicenseAddition"
 )
 
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		ListedLicenseType:                                 &ListedLicense{},
-		CustomLicenseType:                                 &CustomLicense{},
-		OrLaterOperatorType:                               &OrLaterOperator{},
-		WithAdditionOperatorType:                          &WithAdditionOperator{},
-		ConjunctiveLicenseSetType:                         &ConjunctiveLicenseSet{},
-		DisjunctiveLicenseSetType:                         &DisjunctiveLicenseSet{},
-		IndividualLicensingInfoType:                       &IndividualLicensingInfo{},
-		ListedLicenseExceptionType:                        &ListedLicenseException{},
-		CustomLicenseAdditionType:                         &CustomLicenseAddition{},
+		ListedLicenseType:                                         &ListedLicense{},
+		CustomLicenseType:                                         &CustomLicense{},
+		OrLaterOperatorType:                                       &OrLaterOperator{},
+		WithAdditionOperatorType:                                  &WithAdditionOperator{},
+		ConjunctiveLicenseSetType:                                 &ConjunctiveLicenseSet{},
+		DisjunctiveLicenseSetType:                                 &DisjunctiveLicenseSet{},
+		IndividualLicensingInfoType:                               &IndividualLicensingInfo{},
+		ListedLicenseExceptionType:                                &ListedLicenseException{},
+		CustomLicenseAdditionType:                                 &CustomLicenseAddition{},
 		fmt.Sprintf("%s_%s", Prefix, ListedLicenseType):           &ListedLicense{},
 		fmt.Sprintf("%s_%s", Prefix, CustomLicenseType):           &CustomLicense{},
 		fmt.Sprintf("%s_%s", Prefix, OrLaterOperatorType):         &OrLaterOperator{},
@@ -57,22 +57,22 @@ type ExtendableLicense struct {
 // License is an abstract class representing a license text
 type License struct {
 	ExtendableLicense
-	LicenseText             string   `json:"licenseText"`
-	IsDeprecatedLicenseId   bool     `json:"isDeprecatedLicenseId,omitempty"`
-	IsFsfLibre              bool     `json:"isFsfLibre,omitempty"`
-	IsOsiApproved           bool     `json:"isOsiApproved,omitempty"`
-	LicenseXml              string   `json:"licenseXml,omitempty"`
-	ObsoletedBy             string   `json:"obsoletedBy,omitempty"`
-	SeeAlso                 []string `json:"seeAlso,omitempty"`
-	StandardLicenseHeader   string   `json:"standardLicenseHeader,omitempty"`
-	StandardLicenseTemplate string   `json:"standardLicenseTemplate,omitempty"`
+	LicenseText             string   `json:"simplelicensing_licenseText"`
+	IsDeprecatedLicenseId   bool     `json:"expandedlicensing_isDeprecatedLicenseId,omitempty"`
+	IsFsfLibre              bool     `json:"expandedlicensing_isFsfLibre,omitempty"`
+	IsOsiApproved           bool     `json:"expandedlicensing_isOsiApproved,omitempty"`
+	LicenseXml              string   `json:"expandedlicensing_licenseXml,omitempty"`
+	ObsoletedBy             string   `json:"expandedlicensing_obsoletedBy,omitempty"`
+	SeeAlso                 []string `json:"expandedlicensing_seeAlso,omitempty"`
+	StandardLicenseHeader   string   `json:"expandedlicensing_standardLicenseHeader,omitempty"`
+	StandardLicenseTemplate string   `json:"expandedlicensing_standardLicenseTemplate,omitempty"`
 }
 
 // ListedLicense references a license from the official SPDX list
 type ListedLicense struct {
 	License
-	DeprecatedVersion string `json:"deprecatedVersion,omitempty"`
-	ListVersionAdded  string `json:"listVersionAdded,omitempty"`
+	DeprecatedVersion string `json:"expandedlicensing_deprecatedVersion,omitempty"`
+	ListVersionAdded  string `json:"expandedlicensing_listVersionAdded,omitempty"`
 }
 
 func (ll *ListedLicense) GetType() string {
@@ -99,7 +99,7 @@ func (cl *CustomLicense) UnmarshalJSON(data []byte) error {
 // OrLaterOperator represents the "or later version" operator
 type OrLaterOperator struct {
 	simplelicensing.AnyLicenseInfo
-	SubjectLicense string `json:"subjectLicense"`
+	SubjectLicense string `json:"expandedlicensing_subjectLicense"`
 }
 
 func (olo *OrLaterOperator) GetType() string {
@@ -113,8 +113,8 @@ func (olo *OrLaterOperator) UnmarshalJSON(data []byte) error {
 // WithAdditionOperator represents the "with addition" operator
 type WithAdditionOperator struct {
 	simplelicensing.AnyLicenseInfo
-	SubjectAddition          string `json:"subjectAddition"`
-	SubjectExtendableLicense string `json:"subjectExtendableLicense"`
+	SubjectAddition          string `json:"expandedlicensing_subjectAddition"`
+	SubjectExtendableLicense string `json:"expandedlicensing_subjectExtendableLicense"`
 }
 
 func (wao *WithAdditionOperator) GetType() string {
@@ -128,7 +128,7 @@ func (wao *WithAdditionOperator) UnmarshalJSON(data []byte) error {
 // ConjunctiveLicenseSet represents a conjunction of multiple licenses (AND)
 type ConjunctiveLicenseSet struct {
 	simplelicensing.AnyLicenseInfo
-	Member []string `json:"member"`
+	Member []string `json:"expandedlicensing_member"`
 }
 
 func (cls *ConjunctiveLicenseSet) GetType() string {
@@ -142,7 +142,7 @@ func (cls *ConjunctiveLicenseSet) UnmarshalJSON(data []byte) error {
 // DisjunctiveLicenseSet represents a disjunction of multiple licenses (OR)
 type DisjunctiveLicenseSet struct {
 	simplelicensing.AnyLicenseInfo
-	Member []string `json:"member"`
+	Member []string `json:"expandedlicensing_member"`
 }
 
 func (dls *DisjunctiveLicenseSet) GetType() string {
@@ -169,19 +169,19 @@ func (ili *IndividualLicensingInfo) UnmarshalJSON(data []byte) error {
 // LicenseAddition is an abstract class for additions/exceptions to licenses
 type LicenseAddition struct {
 	core.Node
-	AdditionText             string   `json:"additionText"`
-	IsDeprecatedAdditionId   bool     `json:"isDeprecatedAdditionId,omitempty"`
-	LicenseXml               string   `json:"licenseXml,omitempty"`
-	ObsoletedBy              string   `json:"obsoletedBy,omitempty"`
-	SeeAlso                  []string `json:"seeAlso,omitempty"`
-	StandardAdditionTemplate string   `json:"standardAdditionTemplate,omitempty"`
+	AdditionText             string   `json:"expandedlicensing_additionText"`
+	IsDeprecatedAdditionId   bool     `json:"expandedlicensing_isDeprecatedAdditionId,omitempty"`
+	LicenseXml               string   `json:"expandedlicensing_licenseXml,omitempty"`
+	ObsoletedBy              string   `json:"expandedlicensing_obsoletedBy,omitempty"`
+	SeeAlso                  []string `json:"expandedlicensing_seeAlso,omitempty"`
+	StandardAdditionTemplate string   `json:"expandedlicensing_standardAdditionTemplate,omitempty"`
 }
 
 // ListedLicenseException references an exception from the SPDX list
 type ListedLicenseException struct {
 	LicenseAddition
-	DeprecatedVersion string `json:"deprecatedVersion,omitempty"`
-	ListVersionAdded  string `json:"listVersionAdded,omitempty"`
+	DeprecatedVersion string `json:"expandedlicensing_deprecatedVersion,omitempty"`
+	ListVersionAdded  string `json:"expandedlicensing_listVersionAdded,omitempty"`
 }
 
 func (lle *ListedLicenseException) GetType() string {

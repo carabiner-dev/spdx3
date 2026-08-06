@@ -20,7 +20,7 @@ const (
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		BuildType:                          &Build{},
+		BuildType:                               &Build{},
 		fmt.Sprintf("%s_%s", Prefix, BuildType): &Build{},
 	},
 }
@@ -28,15 +28,15 @@ var Profile = types.Profile{
 // Build represents the act of converting software inputs into software artifacts
 type Build struct {
 	core.Element
-	BuildEndTime           *time.Time             `json:"buildEndTime,omitempty"`
-	BuildId                string                 `json:"buildId,omitempty"`
-	BuildStartTime         *time.Time             `json:"buildStartTime,omitempty"`
-	BuildType              string                 `json:"buildType"`
-	ConfigSourceDigest     []core.Hash            `json:"configSourceDigest,omitempty"`
-	ConfigSourceEntrypoint []string               `json:"configSourceEntrypoint,omitempty"`
-	ConfigSourceUri        []string               `json:"configSourceUri,omitempty"`
-	Environment            []core.DictionaryEntry `json:"environment,omitempty"`
-	Parameter              []core.DictionaryEntry `json:"parameter,omitempty"`
+	BuildEndTime           *time.Time             `json:"build_buildEndTime,omitempty"`
+	BuildId                string                 `json:"build_buildId,omitempty"`
+	BuildStartTime         *time.Time             `json:"build_buildStartTime,omitempty"`
+	BuildType              string                 `json:"build_buildType"`
+	ConfigSourceDigest     []core.Hash            `json:"build_configSourceDigest,omitempty"`
+	ConfigSourceEntrypoint []string               `json:"build_configSourceEntrypoint,omitempty"`
+	ConfigSourceUri        []string               `json:"build_configSourceUri,omitempty"`
+	Environment            []core.DictionaryEntry `json:"build_environment,omitempty"`
+	Parameter              []core.DictionaryEntry `json:"build_parameter,omitempty"`
 }
 
 func (b *Build) GetType() string {

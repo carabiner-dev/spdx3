@@ -20,42 +20,42 @@ const (
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		AIPackageType:                          &AIPackage{},
+		AIPackageType: &AIPackage{},
 		fmt.Sprintf("%s_%s", Prefix, AIPackageType): &AIPackage{},
 	},
 }
 
 // EnergyConsumptionDescription provides detailed documentation of energy consumption metrics
 type EnergyConsumptionDescription struct {
-	EnergyQuantity float64        `json:"energyQuantity"`
-	EnergyUnit     EnergyUnitType `json:"energyUnit"`
+	EnergyQuantity types.Decimal  `json:"ai_energyQuantity"`
+	EnergyUnit     EnergyUnitType `json:"ai_energyUnit"`
 }
 
 // EnergyConsumption captures information about energy usage associated with AI model operations
 type EnergyConsumption struct {
-	TrainingEnergyConsumption   []EnergyConsumptionDescription `json:"trainingEnergyConsumption,omitempty"`
-	FinetuningEnergyConsumption []EnergyConsumptionDescription `json:"finetuningEnergyConsumption,omitempty"`
-	InferenceEnergyConsumption  []EnergyConsumptionDescription `json:"inferenceEnergyConsumption,omitempty"`
+	TrainingEnergyConsumption   []EnergyConsumptionDescription `json:"ai_trainingEnergyConsumption,omitempty"`
+	FinetuningEnergyConsumption []EnergyConsumptionDescription `json:"ai_finetuningEnergyConsumption,omitempty"`
+	InferenceEnergyConsumption  []EnergyConsumptionDescription `json:"ai_inferenceEnergyConsumption,omitempty"`
 }
 
 // AIPackage represents an AI software package or system
 type AIPackage struct {
 	software.Package
-	AutonomyType                    core.PresenceType        `json:"autonomyType,omitempty"`
-	Domain                          []string                 `json:"domain,omitempty"`
-	EnergyConsumption               *EnergyConsumption       `json:"energyConsumption,omitempty"`
-	Hyperparameter                  []core.DictionaryEntry   `json:"hyperparameter,omitempty"`
-	InformationAboutApplication     string                   `json:"informationAboutApplication,omitempty"`
-	InformationAboutTraining        string                   `json:"informationAboutTraining,omitempty"`
-	Limitation                      string                   `json:"limitation,omitempty"`
-	Metric                          []core.DictionaryEntry   `json:"metric,omitempty"`
-	MetricDecisionThreshold         []core.DictionaryEntry   `json:"metricDecisionThreshold,omitempty"`
-	ModelDataPreprocessing          []string                 `json:"modelDataPreprocessing,omitempty"`
-	ModelExplainability             []string                 `json:"modelExplainability,omitempty"`
-	SafetyRiskAssessment            SafetyRiskAssessmentType `json:"safetyRiskAssessment,omitempty"`
-	StandardCompliance              []string                 `json:"standardCompliance,omitempty"`
-	TypeOfModel                     []string                 `json:"typeOfModel,omitempty"`
-	UseSensitivePersonalInformation core.PresenceType        `json:"useSensitivePersonalInformation,omitempty"`
+	AutonomyType                    core.PresenceType        `json:"ai_autonomyType,omitempty"`
+	Domain                          []string                 `json:"ai_domain,omitempty"`
+	EnergyConsumption               *EnergyConsumption       `json:"ai_energyConsumption,omitempty"`
+	Hyperparameter                  []core.DictionaryEntry   `json:"ai_hyperparameter,omitempty"`
+	InformationAboutApplication     string                   `json:"ai_informationAboutApplication,omitempty"`
+	InformationAboutTraining        string                   `json:"ai_informationAboutTraining,omitempty"`
+	Limitation                      string                   `json:"ai_limitation,omitempty"`
+	Metric                          []core.DictionaryEntry   `json:"ai_metric,omitempty"`
+	MetricDecisionThreshold         []core.DictionaryEntry   `json:"ai_metricDecisionThreshold,omitempty"`
+	ModelDataPreprocessing          []string                 `json:"ai_modelDataPreprocessing,omitempty"`
+	ModelExplainability             []string                 `json:"ai_modelExplainability,omitempty"`
+	SafetyRiskAssessment            SafetyRiskAssessmentType `json:"ai_safetyRiskAssessment,omitempty"`
+	StandardCompliance              []string                 `json:"ai_standardCompliance,omitempty"`
+	TypeOfModel                     []string                 `json:"ai_typeOfModel,omitempty"`
+	UseSensitivePersonalInformation core.PresenceType        `json:"ai_useSensitivePersonalInformation,omitempty"`
 }
 
 func (a *AIPackage) GetType() string {

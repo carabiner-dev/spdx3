@@ -12,20 +12,20 @@ import (
 )
 
 const (
-	Prefix                   = "simplelicensing"
-	AnyLicenseInfoType       = "AnyLicenseInfo"
-	LicenseExpressionType    = "LicenseExpression"
-	SimpleLicensingTextType  = "SimpleLicensingText"
+	Prefix                  = "simplelicensing"
+	AnyLicenseInfoType      = "AnyLicenseInfo"
+	LicenseExpressionType   = "LicenseExpression"
+	SimpleLicensingTextType = "SimpleLicensingText"
 )
 
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		AnyLicenseInfoType:                                 &AnyLicenseInfo{},
-		LicenseExpressionType:                              &LicenseExpression{},
-		SimpleLicensingTextType:                            &SimpleLicensingText{},
-		fmt.Sprintf("%s_%s", Prefix, AnyLicenseInfoType):  &AnyLicenseInfo{},
-		fmt.Sprintf("%s_%s", Prefix, LicenseExpressionType): &LicenseExpression{},
+		AnyLicenseInfoType:                                    &AnyLicenseInfo{},
+		LicenseExpressionType:                                 &LicenseExpression{},
+		SimpleLicensingTextType:                               &SimpleLicensingText{},
+		fmt.Sprintf("%s_%s", Prefix, AnyLicenseInfoType):      &AnyLicenseInfo{},
+		fmt.Sprintf("%s_%s", Prefix, LicenseExpressionType):   &LicenseExpression{},
 		fmt.Sprintf("%s_%s", Prefix, SimpleLicensingTextType): &SimpleLicensingText{},
 	},
 }
@@ -46,7 +46,7 @@ func (ali *AnyLicenseInfo) UnmarshalJSON(data []byte) error {
 // LicenseExpression represents licenses expressed as license expression strings
 type LicenseExpression struct {
 	AnyLicenseInfo
-	CustomIdToUri      []core.DictionaryEntry `json:"customIdToUri,omitempty"`
+	CustomIdToUri      []core.DictionaryEntry `json:"simplelicensing_customIdToUri,omitempty"`
 	LicenseExpression  string                 `json:"simplelicensing_licenseExpression"`
 	LicenseListVersion string                 `json:"simplelicensing_licenseListVersion,omitempty"`
 }
@@ -62,7 +62,7 @@ func (le *LicenseExpression) UnmarshalJSON(data []byte) error {
 // SimpleLicensingText represents license text not on the SPDX License List
 type SimpleLicensingText struct {
 	core.Element
-	LicenseText string `json:"licenseText"`
+	LicenseText string `json:"simplelicensing_licenseText"`
 }
 
 func (slt *SimpleLicensingText) GetType() string {

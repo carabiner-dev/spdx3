@@ -30,17 +30,17 @@ const (
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		VulnerabilityType:                                   &Vulnerability{},
-		CvssV2VulnAssessmentRelationshipType:                &CvssV2VulnAssessmentRelationship{},
-		CvssV3VulnAssessmentRelationshipType:                &CvssV3VulnAssessmentRelationship{},
-		CvssV4VulnAssessmentRelationshipType:                &CvssV4VulnAssessmentRelationship{},
-		EpssVulnAssessmentRelationshipType:                  &EpssVulnAssessmentRelationship{},
-		SsvcVulnAssessmentRelationshipType:                  &SsvcVulnAssessmentRelationship{},
-		ExploitCatalogVulnAssessmentRelationshipType:        &ExploitCatalogVulnAssessmentRelationship{},
-		VexAffectedVulnAssessmentRelationshipType:           &VexAffectedVulnAssessmentRelationship{},
-		VexFixedVulnAssessmentRelationshipType:              &VexFixedVulnAssessmentRelationship{},
-		VexNotAffectedVulnAssessmentRelationshipType:        &VexNotAffectedVulnAssessmentRelationship{},
-		VexUnderInvestigationVulnAssessmentRelationshipType: &VexUnderInvestigationVulnAssessmentRelationship{},
+		VulnerabilityType:                                                                 &Vulnerability{},
+		CvssV2VulnAssessmentRelationshipType:                                              &CvssV2VulnAssessmentRelationship{},
+		CvssV3VulnAssessmentRelationshipType:                                              &CvssV3VulnAssessmentRelationship{},
+		CvssV4VulnAssessmentRelationshipType:                                              &CvssV4VulnAssessmentRelationship{},
+		EpssVulnAssessmentRelationshipType:                                                &EpssVulnAssessmentRelationship{},
+		SsvcVulnAssessmentRelationshipType:                                                &SsvcVulnAssessmentRelationship{},
+		ExploitCatalogVulnAssessmentRelationshipType:                                      &ExploitCatalogVulnAssessmentRelationship{},
+		VexAffectedVulnAssessmentRelationshipType:                                         &VexAffectedVulnAssessmentRelationship{},
+		VexFixedVulnAssessmentRelationshipType:                                            &VexFixedVulnAssessmentRelationship{},
+		VexNotAffectedVulnAssessmentRelationshipType:                                      &VexNotAffectedVulnAssessmentRelationship{},
+		VexUnderInvestigationVulnAssessmentRelationshipType:                               &VexUnderInvestigationVulnAssessmentRelationship{},
 		fmt.Sprintf("%s_%s", Prefix, VulnerabilityType):                                   &Vulnerability{},
 		fmt.Sprintf("%s_%s", Prefix, CvssV2VulnAssessmentRelationshipType):                &CvssV2VulnAssessmentRelationship{},
 		fmt.Sprintf("%s_%s", Prefix, CvssV3VulnAssessmentRelationshipType):                &CvssV3VulnAssessmentRelationship{},
@@ -58,9 +58,9 @@ var Profile = types.Profile{
 // Vulnerability represents a security vulnerability
 type Vulnerability struct {
 	core.Artifact
-	ModifiedTime  *time.Time `json:"modifiedTime,omitempty"`
-	PublishedTime *time.Time `json:"publishedTime,omitempty"`
-	WithdrawnTime *time.Time `json:"withdrawnTime,omitempty"`
+	ModifiedTime  *time.Time `json:"security_modifiedTime,omitempty"`
+	PublishedTime *time.Time `json:"security_publishedTime,omitempty"`
+	WithdrawnTime *time.Time `json:"security_withdrawnTime,omitempty"`
 }
 
 func (v *Vulnerability) GetType() string {
@@ -74,18 +74,18 @@ func (v *Vulnerability) UnmarshalJSON(data []byte) error {
 // VulnAssessmentRelationship is the abstract ancestor for all vulnerability assessments
 type VulnAssessmentRelationship struct {
 	core.Relationship
-	AssessedElement string      `json:"assessedElement,omitempty"`
-	ModifiedTime    *time.Time  `json:"modifiedTime,omitempty"`
-	PublishedTime   *time.Time  `json:"publishedTime,omitempty"`
+	AssessedElement string      `json:"security_assessedElement,omitempty"`
+	ModifiedTime    *time.Time  `json:"security_modifiedTime,omitempty"`
+	PublishedTime   *time.Time  `json:"security_publishedTime,omitempty"`
 	SuppliedBy      *core.Agent `json:"suppliedBy,omitempty"`
-	WithdrawnTime   *time.Time  `json:"withdrawnTime,omitempty"`
+	WithdrawnTime   *time.Time  `json:"security_withdrawnTime,omitempty"`
 }
 
 // CvssV2VulnAssessmentRelationship represents a CVSS v2 assessment
 type CvssV2VulnAssessmentRelationship struct {
 	VulnAssessmentRelationship
-	Score        float64 `json:"score"`
-	VectorString string  `json:"vectorString"`
+	Score        types.Decimal `json:"security_score"`
+	VectorString string        `json:"security_vectorString"`
 }
 
 func (c *CvssV2VulnAssessmentRelationship) GetType() string {
@@ -99,9 +99,9 @@ func (c *CvssV2VulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 // CvssV3VulnAssessmentRelationship represents a CVSS v3 assessment
 type CvssV3VulnAssessmentRelationship struct {
 	VulnAssessmentRelationship
-	Score        float64          `json:"score"`
-	Severity     CvssSeverityType `json:"severity"`
-	VectorString string           `json:"vectorString"`
+	Score        types.Decimal    `json:"security_score"`
+	Severity     CvssSeverityType `json:"security_severity"`
+	VectorString string           `json:"security_vectorString"`
 }
 
 func (c *CvssV3VulnAssessmentRelationship) GetType() string {
@@ -115,9 +115,9 @@ func (c *CvssV3VulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 // CvssV4VulnAssessmentRelationship represents a CVSS v4 assessment
 type CvssV4VulnAssessmentRelationship struct {
 	VulnAssessmentRelationship
-	Score        float64          `json:"score"`
-	Severity     CvssSeverityType `json:"severity"`
-	VectorString string           `json:"vectorString"`
+	Score        types.Decimal    `json:"security_score"`
+	Severity     CvssSeverityType `json:"security_severity"`
+	VectorString string           `json:"security_vectorString"`
 }
 
 func (c *CvssV4VulnAssessmentRelationship) GetType() string {
@@ -131,8 +131,8 @@ func (c *CvssV4VulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 // EpssVulnAssessmentRelationship represents an EPSS assessment
 type EpssVulnAssessmentRelationship struct {
 	VulnAssessmentRelationship
-	Percentile  float64 `json:"percentile"`
-	Probability float64 `json:"probability"`
+	Percentile  types.Decimal `json:"security_percentile"`
+	Probability types.Decimal `json:"security_probability"`
 }
 
 func (e *EpssVulnAssessmentRelationship) GetType() string {
@@ -146,7 +146,7 @@ func (e *EpssVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 // SsvcVulnAssessmentRelationship represents an SSVC assessment
 type SsvcVulnAssessmentRelationship struct {
 	VulnAssessmentRelationship
-	DecisionType SsvcDecisionType `json:"decisionType"`
+	DecisionType SsvcDecisionType `json:"security_decisionType"`
 }
 
 func (s *SsvcVulnAssessmentRelationship) GetType() string {
@@ -160,9 +160,9 @@ func (s *SsvcVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 // ExploitCatalogVulnAssessmentRelationship references known exploit catalogs
 type ExploitCatalogVulnAssessmentRelationship struct {
 	VulnAssessmentRelationship
-	CatalogType ExploitCatalogType `json:"catalogType"`
-	Exploited   bool               `json:"exploited"`
-	Locator     string             `json:"locator"`
+	CatalogType ExploitCatalogType `json:"security_catalogType"`
+	Exploited   bool               `json:"security_exploited"`
+	Locator     string             `json:"security_locator"`
 }
 
 func (e *ExploitCatalogVulnAssessmentRelationship) GetType() string {
@@ -176,15 +176,15 @@ func (e *ExploitCatalogVulnAssessmentRelationship) UnmarshalJSON(data []byte) er
 // VexVulnAssessmentRelationship is the abstract base for VEX assessments
 type VexVulnAssessmentRelationship struct {
 	VulnAssessmentRelationship
-	StatusNotes string `json:"statusNotes,omitempty"`
-	VexVersion  string `json:"vexVersion,omitempty"`
+	StatusNotes string `json:"security_statusNotes,omitempty"`
+	VexVersion  string `json:"security_vexVersion,omitempty"`
 }
 
 // VexAffectedVulnAssessmentRelationship represents a VEX affected statement
 type VexAffectedVulnAssessmentRelationship struct {
 	VexVulnAssessmentRelationship
-	ActionStatement     string     `json:"actionStatement"`
-	ActionStatementTime *time.Time `json:"actionStatementTime,omitempty"`
+	ActionStatement     string     `json:"security_actionStatement"`
+	ActionStatementTime *time.Time `json:"security_actionStatementTime,omitempty"`
 }
 
 func (v *VexAffectedVulnAssessmentRelationship) GetType() string {
@@ -211,9 +211,9 @@ func (v *VexFixedVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 // VexNotAffectedVulnAssessmentRelationship represents a VEX not_affected statement
 type VexNotAffectedVulnAssessmentRelationship struct {
 	VexVulnAssessmentRelationship
-	ImpactStatement     string               `json:"impactStatement,omitempty"`
-	ImpactStatementTime *time.Time           `json:"impactStatementTime,omitempty"`
-	JustificationType   VexJustificationType `json:"justificationType,omitempty"`
+	ImpactStatement     string               `json:"security_impactStatement,omitempty"`
+	ImpactStatementTime *time.Time           `json:"security_impactStatementTime,omitempty"`
+	JustificationType   VexJustificationType `json:"security_justificationType,omitempty"`
 }
 
 func (v *VexNotAffectedVulnAssessmentRelationship) GetType() string {
