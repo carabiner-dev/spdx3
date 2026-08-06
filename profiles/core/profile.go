@@ -30,6 +30,7 @@ const (
 	SpdxDocumentClass                = "SpdxDocument"
 	HashClass                        = "Hash"
 	PackageVerificationCodeClass     = "PackageVerificationCode"
+	IndividualElementClass           = "IndividualElement"
 )
 
 var Profile = types.Profile{
@@ -52,6 +53,7 @@ var Profile = types.Profile{
 		SpdxDocumentClass:                &SpdxDocument{},
 		HashClass:                        &Hash{},
 		PackageVerificationCodeClass:     &PackageVerificationCode{},
+		IndividualElementClass:           &IndividualElement{},
 	},
 }
 
