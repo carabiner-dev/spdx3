@@ -24,11 +24,15 @@ import (
 // so they are asserted directly rather than through a golden file, which
 // would only pin today's formatting.
 
-// corpusEnv names a directory of SPDX 3 documents to check in addition to
-// the fixtures. The official example documents are published under
-// licenses that differ from this library's, so they are not vendored here;
-// point this at a clone to run against them.
-const corpusEnv = "SPDX3_CORPUS"
+const (
+	// corpusDir holds the SPDX project's example documents, vendored by
+	// ./hack/update-spdx-examples.sh so the tests stay hermetic.
+	corpusDir = "testdata/corpus"
+
+	// corpusEnv points the same checks at a different directory, for trying
+	// documents that are not vendored here.
+	corpusEnv = "SPDX3_CORPUS"
+)
 
 func TestRoundTripFixtures(t *testing.T) {
 	files, err := filepath.Glob("testdata/roundtrip/*.json")
@@ -45,11 +49,13 @@ func TestRoundTripFixtures(t *testing.T) {
 	}
 }
 
-func TestRoundTripCorpus(t *testing.T) {
+// TestRoundTripExamples runs the same contract over the SPDX project's own
+// example documents, which exercise shapes no hand-written fixture would
+// think to cover.
+func TestRoundTripExamples(t *testing.T) {
 	dir := os.Getenv(corpusEnv)
 	if dir == "" {
-		t.Skipf("set %s to a directory of SPDX 3 documents to check them too, "+
-			"such as a clone of github.com/spdx/spdx-examples", corpusEnv)
+		dir = corpusDir
 	}
 
 	var checked int
@@ -69,7 +75,8 @@ func TestRoundTripCorpus(t *testing.T) {
 		t.Run(rel, func(t *testing.T) { checkRoundTrip(t, data) })
 		return nil
 	}))
-	require.NotZero(t, checked, "no SPDX 3 documents found under %s", dir)
+	require.NotZero(t, checked,
+		"no SPDX 3 documents under %s; run ./hack/update-spdx-examples.sh", dir)
 	t.Logf("checked %d documents under %s", checked, dir)
 }
 
