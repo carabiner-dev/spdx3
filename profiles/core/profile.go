@@ -120,13 +120,13 @@ func (a *Agent) UnmarshalJSON(data []byte) error {
 // Artifact represents a distinct article or unit within the digital domain
 type Artifact struct {
 	Node
-	BuiltTime      *time.Time    `json:"builtTime,omitempty"`
-	OriginatedBy   []*Agent      `json:"originatedBy,omitempty"`
-	ReleaseTime    *time.Time    `json:"releaseTime,omitempty"`
-	StandardName   []string      `json:"standardName,omitempty"`
-	SuppliedBy     *Agent        `json:"suppliedBy,omitempty"`
-	SupportLevel   []SupportType `json:"supportLevel,omitempty"`
-	ValidUntilTime *time.Time    `json:"validUntilTime,omitempty"`
+	BuiltTime      *time.Time        `json:"builtTime,omitempty"`
+	OriginatedBy   []AgentDescendant `json:"originatedBy,omitempty"`
+	ReleaseTime    *time.Time        `json:"releaseTime,omitempty"`
+	StandardName   []string          `json:"standardName,omitempty"`
+	SuppliedBy     AgentDescendant   `json:"suppliedBy,omitempty"`
+	SupportLevel   []SupportType     `json:"supportLevel,omitempty"`
+	ValidUntilTime *time.Time        `json:"validUntilTime,omitempty"`
 }
 
 func (a *Artifact) GetType() string {
@@ -151,8 +151,8 @@ func (p *Person) UnmarshalJSON(data []byte) error {
 }
 
 type Organization struct {
-	Node
-	ExternalIdentifier []ExternalIdentifier `json:"externalIdentifier"`
+	Agent
+	ExternalIdentifier []ExternalIdentifier `json:"externalIdentifier,omitempty"`
 }
 
 func (o *Organization) GetType() string {
@@ -173,6 +173,7 @@ type ExternalIdentifier struct {
 
 // ExternalRef represents a reference to a resource outside SPDX-3.0 content
 type ExternalRef struct {
+	Type            string          `json:"type,omitempty"`
 	Comment         string          `json:"comment,omitempty"`
 	ContentType     string          `json:"contentType,omitempty"`
 	ExternalRefType ExternalRefType `json:"externalRefType,omitempty"`
@@ -181,6 +182,7 @@ type ExternalRef struct {
 
 // DictionaryEntry represents a key-value pair mapping
 type DictionaryEntry struct {
+	Type  string `json:"type,omitempty"`
 	Key   string `json:"key"`
 	Value string `json:"value,omitempty"`
 }
@@ -204,8 +206,9 @@ type IntegrityMethodDescendant interface {
 
 // PositiveIntegerRange represents a tuple of two positive integers defining a range
 type PositiveIntegerRange struct {
-	BeginIntegerRange int `json:"beginIntegerRange"`
-	EndIntegerRange   int `json:"endIntegerRange"`
+	Type              string `json:"type,omitempty"`
+	BeginIntegerRange int    `json:"beginIntegerRange"`
+	EndIntegerRange   int    `json:"endIntegerRange"`
 }
 
 // Hash represents a cryptographic hash value
@@ -246,6 +249,7 @@ func (em *ExternalMap) UnmarshalJSON(data []byte) error {
 
 // NamespaceMap allows shorter identifiers for namespace portions
 type NamespaceMap struct {
+	Type      string `json:"type,omitempty"`
 	Namespace string `json:"namespace"`
 	Prefix    string `json:"prefix"`
 }
@@ -335,7 +339,6 @@ func (b *Bundle) UnmarshalJSON(data []byte) error {
 
 type Bom struct {
 	Bundle
-	types.RootedNode
 }
 
 func (b *Bom) GetType() string {
@@ -348,7 +351,6 @@ func (b *Bom) UnmarshalJSON(data []byte) error {
 
 type SpdxDocument struct {
 	Bundle
-	types.RootedNode
 	DataLicense  types.Node     `json:"dataLicense,omitempty"` // This is simple licenseinfo but we can't loop
 	Import       []ExternalMap  `json:"import,omitempty"`
 	NamespaceMap []NamespaceMap `json:"namespaceMap,omitempty"`

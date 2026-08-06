@@ -268,7 +268,7 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 				var ci core.CreationInfo
 				err := ci.UnmarshalJSON(data)
 				require.NoError(t, err)
-				require.Equal(t, "ci2", ci.ID)
+				require.Equal(t, "_:ci2", ci.ID)
 			},
 		},
 		{
@@ -292,7 +292,7 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 				var p core.Person
 				err := p.UnmarshalJSON(data)
 				require.NoError(t, err)
-				require.Equal(t, "p2", p.ID)
+				require.Equal(t, "_:p2", p.ID)
 			},
 		},
 		{
@@ -314,7 +314,7 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 				var f software.File
 				err := f.UnmarshalJSON(data)
 				require.NoError(t, err)
-				require.Equal(t, "f2", f.ID)
+				require.Equal(t, "_:f2", f.ID)
 			},
 		},
 	}

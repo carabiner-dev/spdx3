@@ -44,10 +44,11 @@ type NodeUnmarshaler struct {
 // unmarshal.NodeUnmarshaler is a universal unmarshaling helper for any type that embeds PreNode.
 // It handles both full object serialization and string reference serialization (e.g., "_:id").
 func (nu *NodeUnmarshaler) Unmarshal(data []byte, target any, preNodePtr *base.PreNode) error {
-	// First, check if it's a string reference
+	// First, check if it's a string reference. Blank-node labels ("_:id")
+	// are kept verbatim so references still match their nodes on output.
 	var s string
 	if err := json.Unmarshal(data, &s); err == nil {
-		preNodePtr.ID = strings.TrimPrefix(s, "_:")
+		preNodePtr.ID = s
 		return nil
 	}
 
@@ -127,7 +128,7 @@ func (nu *NodeUnmarshaler) unmarshalNode(rawData json.RawMessage, fieldValue *re
 	var s string
 	if err := json.Unmarshal(rawData, &s); err == nil {
 		// It's a string reference, create a NodeRef
-		fieldValue.Set(reflect.ValueOf(types.NodeRef{ID: strings.TrimPrefix(s, "_:")}))
+		fieldValue.Set(reflect.ValueOf(types.NodeRef{ID: s}))
 		return nil
 	}
 
@@ -159,7 +160,7 @@ func (nu *NodeUnmarshaler) unmarshalNodeSlice(rawData json.RawMessage, fieldValu
 		var s string
 		if err := json.Unmarshal(item, &s); err == nil {
 			// It's a string reference, create a NodeRef
-			nodeRef := types.NodeRef{ID: strings.TrimPrefix(s, "_:")}
+			nodeRef := types.NodeRef{ID: s}
 			nodeSlice = reflect.Append(nodeSlice, reflect.ValueOf(nodeRef))
 			continue
 		}

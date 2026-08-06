@@ -74,11 +74,11 @@ func (v *Vulnerability) UnmarshalJSON(data []byte) error {
 // VulnAssessmentRelationship is the abstract ancestor for all vulnerability assessments
 type VulnAssessmentRelationship struct {
 	core.Relationship
-	AssessedElement string      `json:"security_assessedElement,omitempty"`
-	ModifiedTime    *time.Time  `json:"security_modifiedTime,omitempty"`
-	PublishedTime   *time.Time  `json:"security_publishedTime,omitempty"`
-	SuppliedBy      *core.Agent `json:"suppliedBy,omitempty"`
-	WithdrawnTime   *time.Time  `json:"security_withdrawnTime,omitempty"`
+	AssessedElement string               `json:"security_assessedElement,omitempty"`
+	ModifiedTime    *time.Time           `json:"security_modifiedTime,omitempty"`
+	PublishedTime   *time.Time           `json:"security_publishedTime,omitempty"`
+	SuppliedBy      core.AgentDescendant `json:"suppliedBy,omitempty"`
+	WithdrawnTime   *time.Time           `json:"security_withdrawnTime,omitempty"`
 }
 
 // CvssV2VulnAssessmentRelationship represents a CVSS v2 assessment

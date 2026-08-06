@@ -34,10 +34,6 @@ type AddressableById interface {
 	GetID() string
 }
 
-type RootedNode struct {
-	RootElement []Node `json:"rootElement"`
-}
-
 // Node is an interface requiring the base accesor methods of a node
 type Node interface {
 	GetSPDXID() string

@@ -17,7 +17,7 @@ type CreationInfo struct {
 	Name         string            `json:"name,omitempty"`
 	SpecVersion  string            `json:"specVersion"`
 	CreatedBy    []AgentDescendant `json:"createdBy"`
-	CreatedUsing []Tool            `json:"createdUsing,omitempty"`
+	CreatedUsing []types.Node      `json:"createdUsing,omitempty"`
 	Created      *time.Time        `json:"created"`
 	Comment      string            `json:"comment,omitempty"`
 }

@@ -26,6 +26,7 @@ var Profile = types.Profile{
 
 // CdxPropertyEntry represents a name-value pair for CycloneDX compatible properties
 type CdxPropertyEntry struct {
+	Type         string `json:"type,omitempty"`
 	CdxPropName  string `json:"extension_cdxPropName"`
 	CdxPropValue string `json:"extension_cdxPropValue,omitempty"`
 }

@@ -27,12 +27,14 @@ var Profile = types.Profile{
 
 // EnergyConsumptionDescription provides detailed documentation of energy consumption metrics
 type EnergyConsumptionDescription struct {
+	Type           string         `json:"type,omitempty"`
 	EnergyQuantity types.Decimal  `json:"ai_energyQuantity"`
 	EnergyUnit     EnergyUnitType `json:"ai_energyUnit"`
 }
 
 // EnergyConsumption captures information about energy usage associated with AI model operations
 type EnergyConsumption struct {
+	Type                        string                         `json:"type,omitempty"`
 	TrainingEnergyConsumption   []EnergyConsumptionDescription `json:"ai_trainingEnergyConsumption,omitempty"`
 	FinetuningEnergyConsumption []EnergyConsumptionDescription `json:"ai_finetuningEnergyConsumption,omitempty"`
 	InferenceEnergyConsumption  []EnergyConsumptionDescription `json:"ai_inferenceEnergyConsumption,omitempty"`
