@@ -233,10 +233,15 @@ func (pvc *PackageVerificationCode) GetType() string {
 
 // ExternalMap maps Element identifiers defined external to the SpdxDocument
 type ExternalMap struct {
-	DefiningArtifact string            `json:"definingArtifact,omitempty"`
-	ExternalSpdxId   string            `json:"externalSpdxId"`
-	LocationHint     string            `json:"locationHint,omitempty"`
-	VerifiedUsing    []IntegrityMethod `json:"verifiedUsing,omitempty"`
+	base.PreNode
+	DefiningArtifact string                      `json:"definingArtifact,omitempty"`
+	ExternalSpdxId   string                      `json:"externalSpdxId"`
+	LocationHint     string                      `json:"locationHint,omitempty"`
+	VerifiedUsing    []IntegrityMethodDescendant `json:"verifiedUsing,omitempty"`
+}
+
+func (em *ExternalMap) UnmarshalJSON(data []byte) error {
+	return unmarshal.Node(data, em, &em.PreNode)
 }
 
 // NamespaceMap allows shorter identifiers for namespace portions
@@ -345,7 +350,7 @@ type SpdxDocument struct {
 	Bundle
 	types.RootedNode
 	DataLicense  types.Node     `json:"dataLicense,omitempty"` // This is simple licenseinfo but we can't loop
-	ExternalMap  []ExternalMap  `json:"externalMap,omitempty"`
+	Import       []ExternalMap  `json:"import,omitempty"`
 	NamespaceMap []NamespaceMap `json:"namespaceMap,omitempty"`
 }
 
