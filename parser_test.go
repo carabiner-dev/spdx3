@@ -327,6 +327,53 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 	}
 }
 
+// TestVerifiedUsingHash ensures inline integrity methods are dispatched to
+// their concrete types on parse and serialized back inline (they have no
+// identifier to be referenced by).
+func TestVerifiedUsingHash(t *testing.T) {
+	doc := `{"@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld", "@graph": [
+		{
+			"type": "software_File",
+			"spdxId": "urn:example:file1",
+			"name": "data.bin",
+			"verifiedUsing": [
+				{"type": "Hash", "algorithm": "sha256", "hashValue": "aabbcc"},
+				{"type": "PackageVerificationCode", "algorithm": "sha1", "hashValue": "ddeeff"}
+			]
+		}
+	]}`
+
+	env, err := NewParser().Parse(bytes.NewReader([]byte(doc)))
+	require.NoError(t, err)
+	require.Len(t, env.Graph, 1)
+
+	file, ok := env.Graph[0].(*software.File)
+	require.True(t, ok)
+	require.Len(t, file.VerifiedUsing, 2)
+
+	hash, ok := file.VerifiedUsing[0].(*core.Hash)
+	require.True(t, ok)
+	require.Equal(t, core.HashAlgorithm("sha256"), hash.Algorithm)
+	require.Equal(t, "aabbcc", hash.HashValue)
+
+	pvc, ok := file.VerifiedUsing[1].(*core.PackageVerificationCode)
+	require.True(t, ok)
+	require.Equal(t, "ddeeff", pvc.HashValue)
+
+	// The hashes must survive a round trip as inline objects.
+	var buf bytes.Buffer
+	require.NoError(t, (&Renderer{}).Render(env, &buf))
+
+	env2, err := NewParser().Parse(bytes.NewReader(buf.Bytes()))
+	require.NoError(t, err)
+	file2, ok := env2.Graph[0].(*software.File)
+	require.True(t, ok)
+	require.Len(t, file2.VerifiedUsing, 2)
+	hash2, ok := file2.VerifiedUsing[0].(*core.Hash)
+	require.True(t, ok)
+	require.Equal(t, "aabbcc", hash2.HashValue)
+}
+
 // TestParseSpdxId ensures elements are read from and written to the spec's
 // spdxId key, and that non-elements (CreationInfo) don't emit an empty one.
 func TestParseSpdxId(t *testing.T) {

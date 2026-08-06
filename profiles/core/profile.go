@@ -6,47 +6,52 @@ package core
 import (
 	"time"
 
+	"github.com/carabiner-dev/spdx3/base"
 	"github.com/carabiner-dev/spdx3/types"
 	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
 const (
-	Prefix                                = "core"
-	ElementClass                          = "Element"
-	CreationInfoClass                     = "CreationInfo"
-	RelationshipClass                     = "Relationship"
-	AgentClass                            = "Agent"
-	ArtifactClass                         = "Artifact"
-	PersonClass                           = "Person"
-	OrganizationClass                     = "Organization"
-	AnnotationClass                       = "Annotation"
-	SoftwareAgentClass                    = "SoftwareAgent"
-	ToolClass                             = "Tool"
-	LifecycleScopedRelationshipClass      = "LifecycleScopedRelationship"
-	ElementCollectionClass                = "ElementCollection"
-	BundleClass                           = "Bundle"
-	BomClass                              = "Bom"
-	SpdxDocumentClass                     = "SpdxDocument"
+	Prefix                           = "core"
+	ElementClass                     = "Element"
+	CreationInfoClass                = "CreationInfo"
+	RelationshipClass                = "Relationship"
+	AgentClass                       = "Agent"
+	ArtifactClass                    = "Artifact"
+	PersonClass                      = "Person"
+	OrganizationClass                = "Organization"
+	AnnotationClass                  = "Annotation"
+	SoftwareAgentClass               = "SoftwareAgent"
+	ToolClass                        = "Tool"
+	LifecycleScopedRelationshipClass = "LifecycleScopedRelationship"
+	ElementCollectionClass           = "ElementCollection"
+	BundleClass                      = "Bundle"
+	BomClass                         = "Bom"
+	SpdxDocumentClass                = "SpdxDocument"
+	HashClass                        = "Hash"
+	PackageVerificationCodeClass     = "PackageVerificationCode"
 )
 
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		ElementClass:                      &Node{},
-		CreationInfoClass:                 &CreationInfo{},
-		RelationshipClass:                 &Relationship{},
-		AgentClass:                        &Agent{},
-		ArtifactClass:                     &Artifact{},
-		PersonClass:                       &Person{},
-		OrganizationClass:                 &Organization{},
-		AnnotationClass:                   &Annotation{},
-		SoftwareAgentClass:                &SoftwareAgent{},
-		ToolClass:                         &Tool{},
-		LifecycleScopedRelationshipClass:  &LifecycleScopedRelationship{},
-		ElementCollectionClass:            &ElementCollection{},
-		BundleClass:                       &Bundle{},
-		BomClass:                          &Bom{},
-		SpdxDocumentClass:                 &SpdxDocument{},
+		ElementClass:                     &Node{},
+		CreationInfoClass:                &CreationInfo{},
+		RelationshipClass:                &Relationship{},
+		AgentClass:                       &Agent{},
+		ArtifactClass:                    &Artifact{},
+		PersonClass:                      &Person{},
+		OrganizationClass:                &Organization{},
+		AnnotationClass:                  &Annotation{},
+		SoftwareAgentClass:               &SoftwareAgent{},
+		ToolClass:                        &Tool{},
+		LifecycleScopedRelationshipClass: &LifecycleScopedRelationship{},
+		ElementCollectionClass:           &ElementCollection{},
+		BundleClass:                      &Bundle{},
+		BomClass:                         &Bom{},
+		SpdxDocumentClass:                &SpdxDocument{},
+		HashClass:                        &Hash{},
+		PackageVerificationCodeClass:     &PackageVerificationCode{},
 	},
 }
 
@@ -182,7 +187,19 @@ type DictionaryEntry struct {
 
 // IntegrityMethod provides an independently reproducible mechanism for verification
 type IntegrityMethod struct {
+	base.PreNode
 	Comment string `json:"comment,omitempty"`
+}
+
+func (im *IntegrityMethod) GetName() string             { return "" }
+func (im *IntegrityMethod) GetCreationInfo() types.Node { return nil }
+func (im *IntegrityMethod) FromIntegrityMethod()        {}
+
+// IntegrityMethodDescendant is implemented by all integrity method types so
+// that fields like verifiedUsing can dispatch them polymorphically.
+type IntegrityMethodDescendant interface {
+	types.Node
+	FromIntegrityMethod()
 }
 
 // PositiveIntegerRange represents a tuple of two positive integers defining a range
@@ -198,12 +215,20 @@ type Hash struct {
 	HashValue string        `json:"hashValue"`
 }
 
+func (h *Hash) GetType() string {
+	return HashClass
+}
+
 // PackageVerificationCode provides package integrity verification
 type PackageVerificationCode struct {
 	IntegrityMethod
 	Algorithm                           HashAlgorithm `json:"algorithm"`
 	HashValue                           string        `json:"hashValue"`
 	PackageVerificationCodeExcludedFile []string      `json:"packageVerificationCodeExcludedFile,omitempty"`
+}
+
+func (pvc *PackageVerificationCode) GetType() string {
+	return PackageVerificationCodeClass
 }
 
 // ExternalMap maps Element identifiers defined external to the SpdxDocument

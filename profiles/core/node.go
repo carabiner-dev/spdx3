@@ -12,15 +12,15 @@ import (
 // Node is the common ancestor of all node types
 type Node struct {
 	base.PreNode
-	Name               string                `json:"name,omitempty"`
-	CreationInfo       *CreationInfo         `json:"creationInfo"`
-	Comment            string                `json:"comment,omitempty"`
-	Description        string                `json:"description,omitempty"`
-	Summary            string                `json:"summary,omitempty"`
-	Extension          []ExtensionDescendant `json:"extension,omitempty"`
-	ExternalIdentifier []ExternalIdentifier  `json:"externalIdentifier,omitempty"`
-	ExternalRef        []ExternalRef         `json:"externalRef,omitempty"`
-	VerifiedUsing      []IntegrityMethod     `json:"verifiedUsing,omitempty"`
+	Name               string                      `json:"name,omitempty"`
+	CreationInfo       *CreationInfo               `json:"creationInfo"`
+	Comment            string                      `json:"comment,omitempty"`
+	Description        string                      `json:"description,omitempty"`
+	Summary            string                      `json:"summary,omitempty"`
+	Extension          []ExtensionDescendant       `json:"extension,omitempty"`
+	ExternalIdentifier []ExternalIdentifier        `json:"externalIdentifier,omitempty"`
+	ExternalRef        []ExternalRef               `json:"externalRef,omitempty"`
+	VerifiedUsing      []IntegrityMethodDescendant `json:"verifiedUsing,omitempty"`
 }
 
 func (bn *Node) GetCreationInfo() types.Node {

@@ -12,43 +12,41 @@ import (
 )
 
 const (
-	Prefix               = "software"
-	SoftwareArtifactType = "SoftwareArtifact"
-	FileType             = "File"
-	PackageType          = "Package"
-	SnippetType          = "Snippet"
-	SbomClass            = "Sbom"
+	Prefix                 = "software"
+	SoftwareArtifactType   = "SoftwareArtifact"
+	FileType               = "File"
+	PackageType            = "Package"
+	SnippetType            = "Snippet"
+	SbomClass              = "Sbom"
+	ContentIdentifierClass = "ContentIdentifier"
 )
 
 var Profile = types.Profile{
 	Prefix: Prefix,
 	Classes: map[string]types.Node{
-		SoftwareArtifactType:                                &SoftwareArtifact{},
-		FileType:                                            &File{},
-		PackageType:                                         &Package{},
-		SnippetType:                                         &Snippet{},
-		SbomClass:                                           &Sbom{},
-		fmt.Sprintf("%s_%s", Prefix, SoftwareArtifactType): &SoftwareArtifact{},
-		fmt.Sprintf("%s_%s", Prefix, FileType):             &File{},
-		fmt.Sprintf("%s_%s", Prefix, PackageType):          &Package{},
-		fmt.Sprintf("%s_%s", Prefix, SnippetType):          &Snippet{},
-		fmt.Sprintf("%s_%s", Prefix, SbomClass):            &Sbom{},
+		SoftwareArtifactType:   &SoftwareArtifact{},
+		FileType:               &File{},
+		PackageType:            &Package{},
+		SnippetType:            &Snippet{},
+		SbomClass:              &Sbom{},
+		ContentIdentifierClass: &ContentIdentifier{},
+		fmt.Sprintf("%s_%s", Prefix, SoftwareArtifactType):   &SoftwareArtifact{},
+		fmt.Sprintf("%s_%s", Prefix, FileType):               &File{},
+		fmt.Sprintf("%s_%s", Prefix, PackageType):            &Package{},
+		fmt.Sprintf("%s_%s", Prefix, SnippetType):            &Snippet{},
+		fmt.Sprintf("%s_%s", Prefix, SbomClass):              &Sbom{},
+		fmt.Sprintf("%s_%s", Prefix, ContentIdentifierClass): &ContentIdentifier{},
 	},
 }
 
 // SoftwareArtifact represents a distinct article or unit related to software
 type SoftwareArtifact struct {
 	core.Artifact
-	AdditionalPurpose  []SoftwarePurpose `json:"additionalPurpose,omitempty"`
-	AttributionText    []string          `json:"attributionText,omitempty"`
-	ContentIdentifier  []string          `json:"contentIdentifier,omitempty"`
-	CopyrightText      string            `json:"copyrightText,omitempty"`
-	Extension          []string          `json:"extension,omitempty"`
-	ExternalIdentifier []string          `json:"externalIdentifier,omitempty"`
-	ExternalRef        []string          `json:"externalRef,omitempty"`
-	PrimaryPurpose     SoftwarePurpose   `json:"primaryPurpose,omitempty"`
-	Summary            string            `json:"summary,omitempty"`
-	VerifiedUsing      []string          `json:"verifiedUsing,omitempty"`
+	AdditionalPurpose []SoftwarePurpose   `json:"additionalPurpose,omitempty"`
+	AttributionText   []string            `json:"attributionText,omitempty"`
+	ContentIdentifier []ContentIdentifier `json:"contentIdentifier,omitempty"`
+	CopyrightText     string              `json:"copyrightText,omitempty"`
+	PrimaryPurpose    SoftwarePurpose     `json:"primaryPurpose,omitempty"`
 }
 
 func (sa *SoftwareArtifact) GetType() string {
@@ -101,6 +99,10 @@ type ContentIdentifier struct {
 	core.IntegrityMethod
 	ContentIdentifierType  ContentIdentifierType `json:"contentIdentifierType"`
 	ContentIdentifierValue string                `json:"contentIdentifierValue"`
+}
+
+func (ci *ContentIdentifier) GetType() string {
+	return fmt.Sprintf("%s_%s", Prefix, ContentIdentifierClass)
 }
 
 // Snippet represents a portion of a file

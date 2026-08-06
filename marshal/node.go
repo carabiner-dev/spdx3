@@ -169,9 +169,11 @@ func (nm *NodeMarshaler) marshalSingleNode(fieldValue reflect.Value) (any, error
 		if id == "" {
 			// Fall back to ID if SPDXID is empty (reference-only nodes)
 			id = n.GetID()
-			if id == "" {
-				return nil, fmt.Errorf("node has empty SPDXID and ID")
-			}
+		}
+		if id == "" {
+			// Nodes without any identifier (hashes, extensions, ...) can
+			// only be represented inline.
+			return nm.marshalToMap(node, false)
 		}
 		// Return the ID in the same format it was stored
 		return id, nil
@@ -209,9 +211,16 @@ func (nm *NodeMarshaler) marshalNodeSlice(fieldValue reflect.Value) (any, error)
 			if id == "" {
 				// Fall back to ID if SPDXID is empty (reference-only nodes)
 				id = node.GetID()
-				if id == "" {
-					return nil, fmt.Errorf("node at index %d has empty SPDXID and ID", i)
+			}
+			if id == "" {
+				// Nodes without any identifier (hashes, extensions, ...)
+				// can only be represented inline.
+				inline, err := nm.marshalToMap(node, false)
+				if err != nil {
+					return nil, fmt.Errorf("marshaling inline node at index %d: %w", i, err)
 				}
+				result = append(result, inline)
+				continue
 			}
 			result = append(result, id)
 			continue
