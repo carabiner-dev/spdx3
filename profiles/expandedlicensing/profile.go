@@ -58,9 +58,9 @@ type ExtendableLicense struct {
 type License struct {
 	ExtendableLicense
 	LicenseText             string   `json:"simplelicensing_licenseText"`
-	IsDeprecatedLicenseId   bool     `json:"expandedlicensing_isDeprecatedLicenseId,omitempty"`
-	IsFsfLibre              bool     `json:"expandedlicensing_isFsfLibre,omitempty"`
-	IsOsiApproved           bool     `json:"expandedlicensing_isOsiApproved,omitempty"`
+	IsDeprecatedLicenseId   *bool    `json:"expandedlicensing_isDeprecatedLicenseId,omitempty"`
+	IsFsfLibre              *bool    `json:"expandedlicensing_isFsfLibre,omitempty"`
+	IsOsiApproved           *bool    `json:"expandedlicensing_isOsiApproved,omitempty"`
 	LicenseXml              string   `json:"expandedlicensing_licenseXml,omitempty"`
 	ObsoletedBy             string   `json:"expandedlicensing_obsoletedBy,omitempty"`
 	SeeAlso                 []string `json:"expandedlicensing_seeAlso,omitempty"`
@@ -170,7 +170,7 @@ func (ili *IndividualLicensingInfo) UnmarshalJSON(data []byte) error {
 type LicenseAddition struct {
 	core.Node
 	AdditionText             string   `json:"expandedlicensing_additionText"`
-	IsDeprecatedAdditionId   bool     `json:"expandedlicensing_isDeprecatedAdditionId,omitempty"`
+	IsDeprecatedAdditionId   *bool    `json:"expandedlicensing_isDeprecatedAdditionId,omitempty"`
 	LicenseXml               string   `json:"expandedlicensing_licenseXml,omitempty"`
 	ObsoletedBy              string   `json:"expandedlicensing_obsoletedBy,omitempty"`
 	SeeAlso                  []string `json:"expandedlicensing_seeAlso,omitempty"`
