@@ -11,10 +11,11 @@ import (
 	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
+// CreationInfo records who created an Element and when. It is not an
+// Element itself, so it carries none of Element's properties: the model
+// gives it only the five below.
 type CreationInfo struct {
 	base.PreNode
-	root         bool              `json:""`
-	Name         string            `json:"name,omitempty"`
 	SpecVersion  string            `json:"specVersion"`
 	CreatedBy    []AgentDescendant `json:"createdBy"`
 	CreatedUsing []types.Node      `json:"createdUsing,omitempty"`
@@ -26,23 +27,14 @@ func (ci *CreationInfo) GetType() string {
 	return CreationInfoClass
 }
 
+// GetName satisfies types.Node. CreationInfo has no name in the model.
 func (ci *CreationInfo) GetName() string {
-	return ci.Name
+	return ""
 }
 
 func (ci *CreationInfo) GetCreationInfo() types.Node {
 	return ci
 }
-
-// func (ci *CreationInfo) MarshalJSON() ([]byte, error) {
-// 	return json.Marshal(ci)
-
-// 	// if ci.root {
-// 	// 	return json.Marshal(ci)
-// 	// }
-
-// 	// return fmt.Appendf(nil, "\"_:%s\"", ci.ID), nil
-// }
 
 func (ci *CreationInfo) UnmarshalJSON(data []byte) error {
 	return unmarshal.Node(data, ci, &ci.PreNode)
