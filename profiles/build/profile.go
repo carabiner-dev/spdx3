@@ -5,7 +5,6 @@ package build
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/types"
@@ -28,9 +27,9 @@ var Profile = types.Profile{
 // Build represents the act of converting software inputs into software artifacts
 type Build struct {
 	core.Element
-	BuildEndTime           *time.Time             `json:"build_buildEndTime,omitempty"`
+	BuildEndTime           *types.DateTime        `json:"build_buildEndTime,omitempty"`
 	BuildId                string                 `json:"build_buildId,omitempty"`
-	BuildStartTime         *time.Time             `json:"build_buildStartTime,omitempty"`
+	BuildStartTime         *types.DateTime        `json:"build_buildStartTime,omitempty"`
 	BuildType              string                 `json:"build_buildType"`
 	ConfigSourceDigest     []core.Hash            `json:"build_configSourceDigest,omitempty"`
 	ConfigSourceEntrypoint []string               `json:"build_configSourceEntrypoint,omitempty"`

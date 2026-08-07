@@ -27,7 +27,7 @@ formatters:
       sections:
         - standard
         - default
-        - prefix(github.com/carabiner-dev/bnd)
+        - prefix(github.com/carabiner-dev/spdx3)
 linters:
   enable:
     - asasalint

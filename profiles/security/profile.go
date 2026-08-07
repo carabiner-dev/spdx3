@@ -5,7 +5,6 @@ package security
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/types"
@@ -58,9 +57,9 @@ var Profile = types.Profile{
 // Vulnerability represents a security vulnerability
 type Vulnerability struct {
 	core.Artifact
-	ModifiedTime  *time.Time `json:"security_modifiedTime,omitempty"`
-	PublishedTime *time.Time `json:"security_publishedTime,omitempty"`
-	WithdrawnTime *time.Time `json:"security_withdrawnTime,omitempty"`
+	ModifiedTime  *types.DateTime `json:"security_modifiedTime,omitempty"`
+	PublishedTime *types.DateTime `json:"security_publishedTime,omitempty"`
+	WithdrawnTime *types.DateTime `json:"security_withdrawnTime,omitempty"`
 }
 
 func (v *Vulnerability) GetType() string {
@@ -75,10 +74,10 @@ func (v *Vulnerability) UnmarshalJSON(data []byte) error {
 type VulnAssessmentRelationship struct {
 	core.Relationship
 	AssessedElement string               `json:"security_assessedElement,omitempty"`
-	ModifiedTime    *time.Time           `json:"security_modifiedTime,omitempty"`
-	PublishedTime   *time.Time           `json:"security_publishedTime,omitempty"`
+	ModifiedTime    *types.DateTime      `json:"security_modifiedTime,omitempty"`
+	PublishedTime   *types.DateTime      `json:"security_publishedTime,omitempty"`
 	SuppliedBy      core.AgentDescendant `json:"suppliedBy,omitempty"`
-	WithdrawnTime   *time.Time           `json:"security_withdrawnTime,omitempty"`
+	WithdrawnTime   *types.DateTime      `json:"security_withdrawnTime,omitempty"`
 }
 
 // CvssV2VulnAssessmentRelationship represents a CVSS v2 assessment
@@ -183,8 +182,8 @@ type VexVulnAssessmentRelationship struct {
 // VexAffectedVulnAssessmentRelationship represents a VEX affected statement
 type VexAffectedVulnAssessmentRelationship struct {
 	VexVulnAssessmentRelationship
-	ActionStatement     string     `json:"security_actionStatement"`
-	ActionStatementTime *time.Time `json:"security_actionStatementTime,omitempty"`
+	ActionStatement     string          `json:"security_actionStatement"`
+	ActionStatementTime *types.DateTime `json:"security_actionStatementTime,omitempty"`
 }
 
 func (v *VexAffectedVulnAssessmentRelationship) GetType() string {
@@ -212,7 +211,7 @@ func (v *VexFixedVulnAssessmentRelationship) UnmarshalJSON(data []byte) error {
 type VexNotAffectedVulnAssessmentRelationship struct {
 	VexVulnAssessmentRelationship
 	ImpactStatement     string               `json:"security_impactStatement,omitempty"`
-	ImpactStatementTime *time.Time           `json:"security_impactStatementTime,omitempty"`
+	ImpactStatementTime *types.DateTime      `json:"security_impactStatementTime,omitempty"`
 	JustificationType   VexJustificationType `json:"security_justificationType,omitempty"`
 }
 

@@ -9,10 +9,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/carabiner-dev/spdx3/base"
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/types"
-	"github.com/stretchr/testify/require"
 )
 
 // Values the tests of this package repeat often enough to name.
@@ -80,7 +81,7 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 			},
 			SpecVersion: "3.0.1",
 			CreatedBy:   []core.AgentDescendant{person},
-			Created:     &now,
+			Created:     types.NewDateTime(now),
 		}
 
 		data, err := marshaler.MarshalNode(creationInfo)
@@ -114,7 +115,7 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 			CreatedBy: []core.AgentDescendant{
 				types.NodeRef{ID: "https://spdx.org/spdxdocs/Person1-abc123"},
 			},
-			Created: &now,
+			Created: types.NewDateTime(now),
 		}
 
 		data, err := marshaler.MarshalNode(creationInfo)

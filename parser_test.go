@@ -10,16 +10,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/carabiner-dev/spdx3/base"
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/profiles/software"
-	"github.com/stretchr/testify/require"
+	"github.com/carabiner-dev/spdx3/types"
 )
 
 // Values the tests of this package repeat often enough to name.
 const (
 	specVersion301   = "3.0.1"
 	creationInfoType = "CreationInfo"
+	creationInfoID   = "_:creationinfo"
 )
 
 func textractNodeTypes(t *testing.T, graph *Graph) map[string]int {
@@ -51,9 +54,9 @@ func TestRender(t *testing.T) {
 				},
 			},
 		},
-		Created: &n,
+		Created: types.NewDateTime(n),
 		PreNode: base.PreNode{
-			ID:   "_:creationinfo",
+			ID:   creationInfoID,
 			Type: creationInfoType,
 		},
 	}
@@ -87,13 +90,13 @@ func TestGraphMarshalJSON(t *testing.T) {
 
 		creationInfo := &core.CreationInfo{
 			PreNode: base.PreNode{
-				ID:     "_:creationinfo",
+				ID:     creationInfoID,
 				Type:   creationInfoType,
 				SPDXID: "SPDXRef-CreationInfo",
 			},
 			SpecVersion: specVersion301,
 			CreatedBy:   []core.AgentDescendant{person},
-			Created:     &now,
+			Created:     types.NewDateTime(now),
 		}
 
 		graph := Graph{creationInfo, person}
@@ -110,7 +113,7 @@ func TestGraphMarshalJSON(t *testing.T) {
 
 		// Verify CreationInfo node
 		ciNode := result[0]
-		require.Equal(t, "_:creationinfo", ciNode["@id"])
+		require.Equal(t, creationInfoID, ciNode["@id"])
 		require.Equal(t, creationInfoType, ciNode["type"])
 		require.Equal(t, specVersion301, ciNode["specVersion"])
 
@@ -232,10 +235,11 @@ func TestNode(t *testing.T) {
 		require.True(t, ok)
 
 		require.Equal(t, specVersion301, ci.SpecVersion)
-		require.Equal(t, "_:creationinfo", ci.ID)
+		require.Equal(t, creationInfoID, ci.ID)
 		crt, err := time.Parse(time.RFC3339, "2024-05-31T00:00:00Z")
 		require.NoError(t, err)
-		require.Equal(t, &crt, ci.Created)
+		require.NotNil(t, ci.Created)
+		require.True(t, crt.Equal(ci.Created.Time()))
 
 		// Created by. This checks that the length and the ID match. When
 		// finished, we should compare the pointer address of ci.CreatedBy[0]

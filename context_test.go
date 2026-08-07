@@ -10,8 +10,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/carabiner-dev/spdx3/profiles/software"
 	"github.com/stretchr/testify/require"
+
+	"github.com/carabiner-dev/spdx3/profiles/software"
 )
 
 func TestContextForms(t *testing.T) {

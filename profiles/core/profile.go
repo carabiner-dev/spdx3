@@ -4,8 +4,6 @@
 package core
 
 import (
-	"time"
-
 	"github.com/carabiner-dev/spdx3/base"
 	"github.com/carabiner-dev/spdx3/types"
 	"github.com/carabiner-dev/spdx3/unmarshal"
@@ -67,8 +65,8 @@ type Relationship struct {
 	To               []types.Node             `json:"to"`
 	RelationshipType RelationshipType         `json:"relationshipType"`
 	Completeness     RelationshipCompleteness `json:"completeness,omitempty"`
-	StartTime        *time.Time               `json:"startTime,omitempty"`
-	EndTime          *time.Time               `json:"endTime,omitempty"`
+	StartTime        *types.DateTime          `json:"startTime,omitempty"`
+	EndTime          *types.DateTime          `json:"endTime,omitempty"`
 }
 
 func (r *Relationship) GetType() string {
@@ -128,13 +126,13 @@ func (a *Agent) UnmarshalJSON(data []byte) error {
 // Artifact represents a distinct article or unit within the digital domain
 type Artifact struct {
 	Node
-	BuiltTime      *time.Time        `json:"builtTime,omitempty"`
+	BuiltTime      *types.DateTime   `json:"builtTime,omitempty"`
 	OriginatedBy   []AgentDescendant `json:"originatedBy,omitempty"`
-	ReleaseTime    *time.Time        `json:"releaseTime,omitempty"`
+	ReleaseTime    *types.DateTime   `json:"releaseTime,omitempty"`
 	StandardName   []string          `json:"standardName,omitempty"`
 	SuppliedBy     AgentDescendant   `json:"suppliedBy,omitempty"`
 	SupportLevel   []SupportType     `json:"supportLevel,omitempty"`
-	ValidUntilTime *time.Time        `json:"validUntilTime,omitempty"`
+	ValidUntilTime *types.DateTime   `json:"validUntilTime,omitempty"`
 }
 
 func (a *Artifact) GetType() string {

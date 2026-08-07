@@ -8,10 +8,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/profiles/software"
 	"github.com/carabiner-dev/spdx3/types"
-	"github.com/stretchr/testify/require"
 )
 
 func docWithRootElement(rootElement string) string {

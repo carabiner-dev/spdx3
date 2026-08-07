@@ -4,8 +4,6 @@
 package core
 
 import (
-	"time"
-
 	"github.com/carabiner-dev/spdx3/base"
 	"github.com/carabiner-dev/spdx3/types"
 	"github.com/carabiner-dev/spdx3/unmarshal"
@@ -19,7 +17,7 @@ type CreationInfo struct {
 	SpecVersion  string            `json:"specVersion"`
 	CreatedBy    []AgentDescendant `json:"createdBy"`
 	CreatedUsing []types.Node      `json:"createdUsing,omitempty"`
-	Created      *time.Time        `json:"created"`
+	Created      *types.DateTime   `json:"created"`
 	Comment      string            `json:"comment,omitempty"`
 }
 
