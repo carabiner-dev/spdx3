@@ -84,10 +84,12 @@ func (g *Graph) unmarshalWith(data []byte, nu *unmarshal.NodeUnmarshaler) error 
 			return fmt.Errorf("unmarshaling node #%d: %w", i, err)
 		}
 		// TODO(puerco): Dedupe IDs of the resulting node
-		// TODO(puerco): Dedupe IDs of any fields that are nodes by looking up
-		// existing nodes with the same ID
 		*g = append(*g, n)
 	}
+
+	// References can point at a node the graph has not reached yet, so they
+	// are resolved once it is complete.
+	g.resolveReferences()
 
 	return nil
 }
