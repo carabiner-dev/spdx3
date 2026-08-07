@@ -5,6 +5,7 @@ package spdx3
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"github.com/carabiner-dev/spdx3/dispatch"
@@ -23,8 +24,14 @@ func WithInvalidVocabularyValues() ParserOption {
 	return func(p *Parser) { p.keepInvalidVocabularyValues = true }
 }
 
-func NewParser(opts ...ParserOption) *Parser {
+// Unmarshaling a node on its own, with encoding/json rather than a Parser,
+// goes through the package-level dispatcher. Set it once here; a Parser
+// carries its own and never writes this.
+func init() {
 	unmarshal.SetDefaultDispatcher(dispatch.New())
+}
+
+func NewParser(opts ...ParserOption) *Parser {
 	p := &Parser{}
 	for _, opt := range opts {
 		opt(p)
@@ -51,11 +58,19 @@ type Parser struct {
 }
 
 func (p *Parser) Parse(r io.Reader) (*Envelope, error) {
-	unmarshal.SetKeepInvalidVocabularyValues(p.keepInvalidVocabularyValues)
+	data, err := io.ReadAll(r)
+	if err != nil {
+		return nil, fmt.Errorf("reading the document: %w", err)
+	}
 
-	dec := json.NewDecoder(r)
+	// The unmarshaler carries everything this parse needs, so parsers
+	// configured differently can run at the same time.
+	nu := unmarshal.New(dispatch.Classes(), unmarshal.Options{
+		KeepInvalidVocabularyValues: p.keepInvalidVocabularyValues,
+	})
+
 	env := &Envelope{}
-	if err := dec.Decode(env); err != nil {
+	if err := env.unmarshalWith(data, nu); err != nil {
 		return nil, err
 	}
 	return env, nil

@@ -12,6 +12,7 @@ import (
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/profiles/expandedlicensing"
 	"github.com/carabiner-dev/spdx3/types"
+	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
 // Envelope
@@ -25,6 +26,12 @@ type Envelope struct {
 // the document root. A single root element is read into a one-node graph,
 // so it is rendered back inside a @graph.
 func (e *Envelope) UnmarshalJSON(data []byte) error {
+	return e.unmarshalWith(data, defaultUnmarshaler())
+}
+
+// unmarshalWith reads a document with a given unmarshaler, which carries the
+// class registry and the options for this parse.
+func (e *Envelope) unmarshalWith(data []byte, nu *unmarshal.NodeUnmarshaler) error {
 	var raw map[string]json.RawMessage
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return fmt.Errorf("unmarshaling document: %w", err)
@@ -37,14 +44,14 @@ func (e *Envelope) UnmarshalJSON(data []byte) error {
 	}
 
 	if graph, ok := raw["@graph"]; ok {
-		return e.Graph.UnmarshalJSON(graph)
+		return e.Graph.unmarshalWith(graph, nu)
 	}
 
 	single, err := json.Marshal([]json.RawMessage{data})
 	if err != nil {
 		return fmt.Errorf("reading the root element: %w", err)
 	}
-	return e.Graph.UnmarshalJSON(single)
+	return e.Graph.unmarshalWith(single, nu)
 }
 
 // Graph is the list of nodes a document carries. The receivers are
@@ -56,14 +63,23 @@ type Graph []types.Node
 
 // UnmarshalJSON unmarshalls the JSONLD graph into nodes typed to their kinds.
 func (g *Graph) UnmarshalJSON(data []byte) error {
-	dispatcher := dispatch.New()
+	return g.unmarshalWith(data, defaultUnmarshaler())
+}
+
+// defaultUnmarshaler serves the encoding/json entry points, which have
+// nowhere to pass a configured one. A Parser always supplies its own.
+func defaultUnmarshaler() *unmarshal.NodeUnmarshaler {
+	return unmarshal.New(dispatch.Classes(), unmarshal.Options{})
+}
+
+func (g *Graph) unmarshalWith(data []byte, nu *unmarshal.NodeUnmarshaler) error {
 	list := []json.RawMessage{}
 	if err := json.Unmarshal(data, &list); err != nil {
 		return fmt.Errorf("unmarshaling graph: %w", err)
 	}
 
 	for i, prenodeData := range list {
-		n, err := dispatcher.UnmarshalNode(prenodeData)
+		n, err := nu.UnmarshalNode(prenodeData)
 		if err != nil {
 			return fmt.Errorf("unmarshaling node #%d: %w", i, err)
 		}

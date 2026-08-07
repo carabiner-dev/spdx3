@@ -4,12 +4,8 @@
 package dispatch
 
 import (
-	"encoding/json"
-	"fmt"
 	"maps"
-	"reflect"
 
-	"github.com/carabiner-dev/spdx3/base"
 	"github.com/carabiner-dev/spdx3/profiles/ai"
 	"github.com/carabiner-dev/spdx3/profiles/build"
 	"github.com/carabiner-dev/spdx3/profiles/core"
@@ -20,9 +16,14 @@ import (
 	"github.com/carabiner-dev/spdx3/profiles/simplelicensing"
 	"github.com/carabiner-dev/spdx3/profiles/software"
 	"github.com/carabiner-dev/spdx3/types"
+	"github.com/carabiner-dev/spdx3/unmarshal"
 )
 
-func New() types.Dispatcher {
+// Classes returns the registry mapping every SPDX type name this library
+// knows to a prototype of the Go type modelling it, in both its bare and
+// profile-prefixed spellings. It is plain data, so an unmarshaler can hold
+// it without this package's behaviour and without an import cycle.
+func Classes() map[string]types.Node {
 	classes := map[string]types.Node{}
 
 	// Add the types for all profiles
@@ -36,46 +37,10 @@ func New() types.Dispatcher {
 	maps.Copy(classes, simplelicensing.Profile.Classes)
 	maps.Copy(classes, software.Profile.Classes)
 
-	return &Default{
-		Classes: classes,
-	}
+	return classes
 }
 
-// Default is the default type dispatcher. Its job is to
-// detect its type and pass the correct node type to the
-// json unmarshaller.
-type Default struct {
-	Classes map[string]types.Node
-}
-
-// UnmarshalNode takes raw JSON data and unmarshals it into the appropriate
-// concrete type based on the "type" field. This is used to handle polymorphic
-// node types in SPDX3 JSON-LD documents.
-func (d *Default) UnmarshalNode(prenodeData []byte) (types.Node, error) {
-	prenode := &base.PreNode{}
-	// Parse the entry to a prenode to determine its type
-	if err := json.Unmarshal(prenodeData, prenode); err != nil {
-		return nil, fmt.Errorf("parsing node: %w", err)
-	}
-
-	proto, ok := d.Classes[prenode.Type]
-	if !ok {
-		return nil, fmt.Errorf("parsing type %q: %w", prenode.Type, types.ErrUnsupportedNodeType)
-	}
-
-	// The registry values are shared prototypes: unmarshal into a fresh
-	// instance so that nodes of the same type never alias each other.
-	protoType := reflect.TypeOf(proto)
-	if protoType.Kind() == reflect.Pointer {
-		protoType = protoType.Elem()
-	}
-	n, ok := reflect.New(protoType).Interface().(types.Node)
-	if !ok {
-		return nil, fmt.Errorf("parsing type %q: registered class does not implement types.Node", prenode.Type)
-	}
-
-	if err := json.Unmarshal(prenodeData, n); err != nil {
-		return nil, fmt.Errorf("unmarshaling node of type %q: %w", prenode.Type, err)
-	}
-	return n, nil
+// New returns a dispatcher over every class this library knows.
+func New() types.Dispatcher {
+	return unmarshal.New(Classes(), unmarshal.Options{})
 }

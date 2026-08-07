@@ -9,27 +9,13 @@ import (
 	"github.com/carabiner-dev/spdx3/types"
 )
 
-// keepInvalidVocabularyValues turns off the check that drops values outside
-// their vocabulary while parsing. It is package level for the same reason
-// the default dispatcher is: the parser has no other way to reach the
-// reflective unmarshaler the profiles call into.
-var keepInvalidVocabularyValues bool
-
-// SetKeepInvalidVocabularyValues controls what happens to a property whose
-// value is not a member of its vocabulary. By default such a value is
-// dropped while parsing, leaving the property unset. Passing true keeps it,
-// so the document is read exactly as written and Validate can report on it.
-func SetKeepInvalidVocabularyValues(keep bool) {
-	keepInvalidVocabularyValues = keep
-}
-
 var vocabularyValueType = reflect.TypeOf((*types.VocabularyValue)(nil)).Elem()
 
 // dropInvalidVocabularyValues clears a field holding a value outside its
 // vocabulary, and removes such entries from a field holding a list of them.
 // Anything that is not a vocabulary value is left alone.
-func dropInvalidVocabularyValues(field reflect.Value) {
-	if keepInvalidVocabularyValues || !field.IsValid() {
+func (nu *NodeUnmarshaler) dropInvalidVocabularyValues(field reflect.Value) {
+	if nu.Options.KeepInvalidVocabularyValues || !field.IsValid() {
 		return
 	}
 

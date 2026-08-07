@@ -4,6 +4,7 @@
 package unmarshal
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -13,22 +14,49 @@ import (
 	"github.com/carabiner-dev/spdx3/types"
 )
 
+// defaultDispatcher backs the Node helper, which the UnmarshalJSON method of
+// every node calls. It is only reached when a node is unmarshaled on its own,
+// with encoding/json rather than a Parser: the parser drives the traversal
+// with its own unmarshaler and never consults this.
 var defaultDispatcher types.Dispatcher
 
-// SetDefaultDispatcher sets the package-level dispatcher used by the Node helper function.
-// This should be called once during initialization to avoid import cycles.
+// SetDefaultDispatcher sets the package-level dispatcher used by the Node
+// helper function. This should be called once during initialization to avoid
+// import cycles.
 func SetDefaultDispatcher(d types.Dispatcher) {
 	defaultDispatcher = d
 }
 
-// Node is a package-level helper function that unmarshals JSON data into a target node.
-// It uses the default dispatcher set via SetDefaultDispatcher.
+// Node unmarshals JSON data into a target node using the default dispatcher.
+// It is what a node's own UnmarshalJSON calls, so that unmarshaling a node
+// directly with encoding/json works; the parser does not go through it.
 func Node(data []byte, target any, preNodePtr *base.PreNode) error {
 	if defaultDispatcher == nil {
 		return fmt.Errorf("default dispatcher not set; call unmarshal.SetDefaultDispatcher first")
 	}
-	nu := NewNodeUnmarshaler(defaultDispatcher)
+	nu, ok := defaultDispatcher.(*NodeUnmarshaler)
+	if !ok {
+		nu = NewNodeUnmarshaler(defaultDispatcher)
+	}
 	return nu.Unmarshal(data, target, preNodePtr)
+}
+
+// Options are the choices a parser makes about how a document is read.
+type Options struct {
+	// KeepInvalidVocabularyValues stops values that are not members of
+	// their vocabulary being dropped as the document is read.
+	KeepInvalidVocabularyValues bool
+}
+
+// New returns an unmarshaler that resolves node types through classes and
+// reads documents according to opts. Everything the unmarshaler needs is
+// held on it, so unmarshalers configured differently can run at the same
+// time without interfering.
+func New(classes map[string]types.Node, opts Options) *NodeUnmarshaler {
+	return &NodeUnmarshaler{
+		Classes: classes,
+		Options: opts,
+	}
 }
 
 func NewNodeUnmarshaler(dispatcher types.Dispatcher) *NodeUnmarshaler {
@@ -38,7 +66,66 @@ func NewNodeUnmarshaler(dispatcher types.Dispatcher) *NodeUnmarshaler {
 }
 
 type NodeUnmarshaler struct {
+	// Classes maps an SPDX type name to a prototype of the Go type
+	// modelling it. It is the registry an unmarshaler built with New
+	// resolves node types through.
+	Classes map[string]types.Node
+
+	// Dispatcher resolves node types for an unmarshaler built with
+	// NewNodeUnmarshaler, which has no registry of its own.
 	Dispatcher types.Dispatcher
+
+	Options Options
+}
+
+// preNodeCarrier is satisfied by every node, since they all embed
+// base.PreNode, whose GetPreNode method is promoted to them.
+type preNodeCarrier interface {
+	GetPreNode() *base.PreNode
+}
+
+// UnmarshalNode resolves the SPDX type named in the data and reads it into a
+// fresh instance of the Go type modelling it. It makes NodeUnmarshaler a
+// types.Dispatcher, and recurses through this same unmarshaler rather than
+// handing the node back to encoding/json, which would lose the registry and
+// the options along the way.
+func (nu *NodeUnmarshaler) UnmarshalNode(data []byte) (types.Node, error) {
+	if nu.Classes == nil {
+		if nu.Dispatcher == nil {
+			return nil, fmt.Errorf("unmarshaler has neither a class registry nor a dispatcher")
+		}
+		return nu.Dispatcher.UnmarshalNode(data)
+	}
+
+	prenode := &base.PreNode{}
+	if err := json.Unmarshal(data, prenode); err != nil {
+		return nil, fmt.Errorf("parsing node: %w", err)
+	}
+
+	proto, ok := nu.Classes[prenode.Type]
+	if !ok {
+		return nil, fmt.Errorf("parsing type %q: %w", prenode.Type, types.ErrUnsupportedNodeType)
+	}
+
+	protoType := reflect.TypeOf(proto)
+	if protoType.Kind() == reflect.Pointer {
+		protoType = protoType.Elem()
+	}
+	fresh := reflect.New(protoType).Interface()
+
+	node, ok := fresh.(types.Node)
+	if !ok {
+		return nil, fmt.Errorf("parsing type %q: registered class does not implement types.Node", prenode.Type)
+	}
+	carrier, ok := fresh.(preNodeCarrier)
+	if !ok {
+		return nil, fmt.Errorf("parsing type %q: registered class does not embed base.PreNode", prenode.Type)
+	}
+
+	if err := nu.Unmarshal(data, node, carrier.GetPreNode()); err != nil {
+		return nil, fmt.Errorf("unmarshaling node of type %q: %w", prenode.Type, err)
+	}
+	return node, nil
 }
 
 // unmarshal.NodeUnmarshaler is a universal unmarshaling helper for any type that embeds PreNode.
@@ -111,18 +198,40 @@ func (nu *NodeUnmarshaler) unmarshalFields(raw map[string]json.RawMessage, targe
 				continue
 			}
 
-			// fmt.Printf("Type: %+v\n", fieldValue.Type().)
-			// Create a new value of the field's type
 			newVal := reflect.New(fieldValue.Type())
-			if err := json.Unmarshal(rawData, newVal.Interface()); err != nil {
-				return fmt.Errorf("fallo: %w", err)
+			if err := nu.unmarshalValue(rawData, newVal.Interface()); err != nil {
+				return fmt.Errorf("unmarshaling field %s: %w", tagName, err)
 			}
 			fieldValue.Set(newVal.Elem())
-			dropInvalidVocabularyValues(fieldValue)
+			nu.dropInvalidVocabularyValues(fieldValue)
 		}
 	}
 
 	return nil
+}
+
+// unmarshalValue reads a field's value. A field holding a node is read
+// through this unmarshaler rather than encoding/json, which would route back
+// to the node's own UnmarshalJSON and, with it, to the package defaults.
+func (nu *NodeUnmarshaler) unmarshalValue(rawData json.RawMessage, target any) error {
+	// target is a pointer to the field; a node-valued field is a pointer to
+	// a pointer, which has to be allocated before its PreNode can be reached.
+	v := reflect.ValueOf(target)
+	if v.Kind() == reflect.Pointer && v.Elem().Kind() == reflect.Pointer {
+		if bytes.Equal(bytes.TrimSpace(rawData), []byte("null")) {
+			return nil
+		}
+		if v.Elem().IsNil() {
+			v.Elem().Set(reflect.New(v.Elem().Type().Elem()))
+		}
+		if carrier, ok := v.Elem().Interface().(preNodeCarrier); ok {
+			return nu.Unmarshal(rawData, v.Elem().Interface(), carrier.GetPreNode())
+		}
+	}
+	if carrier, ok := target.(preNodeCarrier); ok {
+		return nu.Unmarshal(rawData, target, carrier.GetPreNode())
+	}
+	return json.Unmarshal(rawData, target)
 }
 
 func (nu *NodeUnmarshaler) unmarshalNode(rawData json.RawMessage, fieldValue *reflect.Value) error {
@@ -133,7 +242,7 @@ func (nu *NodeUnmarshaler) unmarshalNode(rawData json.RawMessage, fieldValue *re
 		return nil
 	}
 
-	node, err := nu.Dispatcher.UnmarshalNode(rawData)
+	node, err := nu.UnmarshalNode(rawData)
 	if err != nil {
 		return fmt.Errorf("unmarshaling node: %w", err)
 	}
@@ -175,7 +284,7 @@ func (nu *NodeUnmarshaler) unmarshalNodeSlice(rawData json.RawMessage, fieldValu
 
 		// It's not a string, so it must be a full object
 		// We need to dispatch it to the appropriate concrete type
-		node, err := nu.Dispatcher.UnmarshalNode(item)
+		node, err := nu.UnmarshalNode(item)
 		if err != nil {
 			return fmt.Errorf("unmarshaling node at index %d: %w", i, err)
 		}

@@ -23,3 +23,11 @@ func (pn *PreNode) GetID() string {
 func (pn *PreNode) GetType() string {
 	return pn.Type
 }
+
+// GetPreNode returns the identity fields of a node. Every node embeds
+// PreNode, so the method is promoted to all of them, which lets the
+// unmarshaler reach a node's identity without knowing its concrete type and
+// so drive the whole traversal itself.
+func (pn *PreNode) GetPreNode() *PreNode {
+	return pn
+}
