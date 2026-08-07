@@ -26,6 +26,12 @@ var contextVersionPatterns = []*regexp.Regexp{
 // Context holds a document's JSON-LD @context. SPDX 3 documents normally
 // carry a single context URL string, but JSON-LD also admits array and
 // object forms; those parse too and are preserved verbatim when rendering.
+// The receivers are deliberately mixed: json.Unmarshaler has to take a
+// pointer, while the accessors take values so they work on the Context field
+// of an Envelope value, which is not addressable when the envelope is
+// rendered.
+//
+//nolint:recvcheck // mixing receivers is required, see above
 type Context struct {
 	url string
 	raw json.RawMessage

@@ -61,15 +61,19 @@ type NodeRef struct {
 func (NodeRef) GetSPDXID() string {
 	return ""
 }
+
 func (nf NodeRef) GetID() string {
 	return nf.ID
 }
+
 func (NodeRef) GetType() string {
 	return ""
 }
+
 func (NodeRef) GetName() string {
 	return ""
 }
+
 func (NodeRef) GetCreationInfo() Node {
 	return nil
 }

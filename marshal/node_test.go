@@ -15,6 +15,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// Values the tests of this package repeat often enough to name.
+const (
+	personType          = "Person"
+	personName          = "John Doe"
+	personSPDXID        = "SPDXRef-Person1"
+	personBlankID       = "_:person1"
+	creationInfoType    = "CreationInfo"
+	creationInfoSPDXID  = "SPDXRef-CreationInfo"
+	creationInfoBlankID = "_:creationinfo"
+)
+
 func TestNodeMarshaler_MarshalNode(t *testing.T) {
 	marshaler := &NodeMarshaler{}
 
@@ -23,11 +34,11 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 			Agent: core.Agent{
 				Node: core.Node{
 					PreNode: base.PreNode{
-						ID:     "_:person1",
-						Type:   "Person",
-						SPDXID: "SPDXRef-Person1",
+						ID:     personBlankID,
+						Type:   personType,
+						SPDXID: personSPDXID,
 					},
-					Name: "John Doe",
+					Name: personName,
 				},
 			},
 		}
@@ -40,10 +51,10 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 		err = json.Unmarshal(data, &result)
 		require.NoError(t, err)
 
-		require.Equal(t, "_:person1", result["@id"])
-		require.Equal(t, "Person", result["type"])
-		require.Equal(t, "SPDXRef-Person1", result["spdxId"])
-		require.Equal(t, "John Doe", result["name"])
+		require.Equal(t, personBlankID, result["@id"])
+		require.Equal(t, personType, result["type"])
+		require.Equal(t, personSPDXID, result["spdxId"])
+		require.Equal(t, personName, result["name"])
 	})
 
 	t.Run("CreationInfo with nested node reference", func(t *testing.T) {
@@ -53,19 +64,19 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 				Node: core.Node{
 					PreNode: base.PreNode{
 						ID:     "https://spdx.org/spdxdocs/Person1-1000e6a2-0229-4875-baa7-c99be213b6e1",
-						Type:   "Person",
-						SPDXID: "SPDXRef-Person1",
+						Type:   personType,
+						SPDXID: personSPDXID,
 					},
-					Name: "John Doe",
+					Name: personName,
 				},
 			},
 		}
 
 		creationInfo := &core.CreationInfo{
 			PreNode: base.PreNode{
-				ID:     "_:creationinfo",
-				Type:   "CreationInfo",
-				SPDXID: "SPDXRef-CreationInfo",
+				ID:     creationInfoBlankID,
+				Type:   creationInfoType,
+				SPDXID: creationInfoSPDXID,
 			},
 			SpecVersion: "3.0.1",
 			CreatedBy:   []core.AgentDescendant{person},
@@ -80,24 +91,24 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 		err = json.Unmarshal(data, &result)
 		require.NoError(t, err)
 
-		require.Equal(t, "_:creationinfo", result["@id"])
-		require.Equal(t, "CreationInfo", result["type"])
+		require.Equal(t, creationInfoBlankID, result["@id"])
+		require.Equal(t, creationInfoType, result["type"])
 		require.Equal(t, "3.0.1", result["specVersion"])
 
 		// Check that CreatedBy is serialized as an array of SPDXID strings
 		createdBy, ok := result["createdBy"].([]interface{})
 		require.True(t, ok, "createdBy should be an array")
 		require.Len(t, createdBy, 1)
-		require.Equal(t, "SPDXRef-Person1", createdBy[0])
+		require.Equal(t, personSPDXID, createdBy[0])
 	})
 
 	t.Run("Node with NodeRef in CreatedBy", func(t *testing.T) {
 		now := time.Now()
 		creationInfo := &core.CreationInfo{
 			PreNode: base.PreNode{
-				ID:     "_:creationinfo",
-				Type:   "CreationInfo",
-				SPDXID: "SPDXRef-CreationInfo",
+				ID:     creationInfoBlankID,
+				Type:   creationInfoType,
+				SPDXID: creationInfoSPDXID,
 			},
 			SpecVersion: "3.0.1",
 			CreatedBy: []core.AgentDescendant{
@@ -125,9 +136,9 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 	t.Run("Person with nested CreationInfo reference", func(t *testing.T) {
 		creationInfo := &core.CreationInfo{
 			PreNode: base.PreNode{
-				ID:     "_:creationinfo",
-				Type:   "CreationInfo",
-				SPDXID: "SPDXRef-CreationInfo",
+				ID:     creationInfoBlankID,
+				Type:   creationInfoType,
+				SPDXID: creationInfoSPDXID,
 			},
 		}
 
@@ -135,11 +146,11 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 			Agent: core.Agent{
 				Node: core.Node{
 					PreNode: base.PreNode{
-						ID:     "_:person1",
-						Type:   "Person",
-						SPDXID: "SPDXRef-Person1",
+						ID:     personBlankID,
+						Type:   personType,
+						SPDXID: personSPDXID,
 					},
-					Name:         "John Doe",
+					Name:         personName,
 					CreationInfo: creationInfo,
 				},
 			},
@@ -153,14 +164,14 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 		err = json.Unmarshal(data, &result)
 		require.NoError(t, err)
 
-		require.Equal(t, "_:person1", result["@id"])
-		require.Equal(t, "Person", result["type"])
-		require.Equal(t, "John Doe", result["name"])
+		require.Equal(t, personBlankID, result["@id"])
+		require.Equal(t, personType, result["type"])
+		require.Equal(t, personName, result["name"])
 
 		// Check that creationInfo is serialized as a SPDXID reference string
 		creationInfoID, ok := result["creationInfo"].(string)
 		require.True(t, ok, "creationInfo should be a string")
-		require.Equal(t, "SPDXRef-CreationInfo", creationInfoID)
+		require.Equal(t, creationInfoSPDXID, creationInfoID)
 	})
 
 	t.Run("Omitempty fields", func(t *testing.T) {
@@ -168,11 +179,11 @@ func TestNodeMarshaler_MarshalNode(t *testing.T) {
 			Agent: core.Agent{
 				Node: core.Node{
 					PreNode: base.PreNode{
-						ID:     "_:person1",
-						Type:   "Person",
-						SPDXID: "SPDXRef-Person1",
+						ID:     personBlankID,
+						Type:   personType,
+						SPDXID: personSPDXID,
 					},
-					Name: "John Doe",
+					Name: personName,
 					// Comment is omitted (zero value)
 				},
 			},
@@ -198,10 +209,10 @@ func TestReferenceableIDs(t *testing.T) {
 			Agent: core.Agent{
 				Node: core.Node{
 					PreNode: base.PreNode{
-						Type:   "Person",
-						SPDXID: "SPDXRef-Person1",
+						Type:   personType,
+						SPDXID: personSPDXID,
 					},
-					Name: "John Doe",
+					Name: personName,
 				},
 			},
 		}
@@ -210,7 +221,7 @@ func TestReferenceableIDs(t *testing.T) {
 	marshalCreatedBy := func(t *testing.T, nm *NodeMarshaler) any {
 		t.Helper()
 		data, err := nm.MarshalNode(&core.CreationInfo{
-			PreNode:   base.PreNode{ID: "_:creationinfo", Type: "CreationInfo"},
+			PreNode:   base.PreNode{ID: creationInfoBlankID, Type: creationInfoType},
 			CreatedBy: []core.AgentDescendant{newPerson()},
 		})
 		require.NoError(t, err)
@@ -224,14 +235,14 @@ func TestReferenceableIDs(t *testing.T) {
 	}
 
 	t.Run("nil map keeps every id referenceable", func(t *testing.T) {
-		require.Equal(t, "SPDXRef-Person1", marshalCreatedBy(t, &NodeMarshaler{}))
+		require.Equal(t, personSPDXID, marshalCreatedBy(t, &NodeMarshaler{}))
 	})
 
 	t.Run("known id collapses to a reference", func(t *testing.T) {
 		nm := &NodeMarshaler{ReferenceableIDs: map[string]struct{}{
-			"SPDXRef-Person1": {},
+			personSPDXID: {},
 		}}
-		require.Equal(t, "SPDXRef-Person1", marshalCreatedBy(t, nm))
+		require.Equal(t, personSPDXID, marshalCreatedBy(t, nm))
 	})
 
 	t.Run("unknown id is written inline", func(t *testing.T) {
@@ -240,8 +251,8 @@ func TestReferenceableIDs(t *testing.T) {
 		}}
 		inline, ok := marshalCreatedBy(t, nm).(map[string]any)
 		require.True(t, ok, "an unreferenceable node should be inlined")
-		require.Equal(t, "SPDXRef-Person1", inline["spdxId"])
-		require.Equal(t, "John Doe", inline["name"])
+		require.Equal(t, personSPDXID, inline["spdxId"])
+		require.Equal(t, personName, inline["name"])
 	})
 }
 

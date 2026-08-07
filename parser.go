@@ -28,8 +28,7 @@ func (r *Renderer) Render(env *Envelope, w io.Writer) error {
 	return enc.Encode(*env)
 }
 
-type Parser struct {
-}
+type Parser struct{}
 
 func (p *Parser) Parse(r io.Reader) (*Envelope, error) {
 	dec := json.NewDecoder(r)

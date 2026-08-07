@@ -52,7 +52,7 @@ type Default struct {
 // concrete type based on the "type" field. This is used to handle polymorphic
 // node types in SPDX3 JSON-LD documents.
 func (d *Default) UnmarshalNode(prenodeData []byte) (types.Node, error) {
-	var prenode = &base.PreNode{}
+	prenode := &base.PreNode{}
 	// Parse the entry to a prenode to determine its type
 	if err := json.Unmarshal(prenodeData, prenode); err != nil {
 		return nil, fmt.Errorf("parsing node: %w", err)

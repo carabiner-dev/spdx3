@@ -8,9 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/carabiner-dev/spdx3/profiles/expandedlicensing"
+	"github.com/stretchr/testify/require"
 )
 
 // TestOptionalBooleansRoundTrip guards the tri-state optional booleans: an

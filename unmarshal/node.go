@@ -69,7 +69,7 @@ func (nu *NodeUnmarshaler) unmarshalFields(raw map[string]json.RawMessage, targe
 
 	typeOfNode := reflect.TypeOf((*types.Node)(nil)).Elem()
 
-	for i := 0; i < t.NumField(); i++ {
+	for i := range t.NumField() {
 		field := t.Field(i)
 		fieldValue := v.Field(i)
 

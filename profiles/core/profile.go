@@ -102,7 +102,7 @@ type ElementDescendant interface {
 	FromElement()
 }
 
-var _ types.Node = (AgentDescendant)(nil)
+var _ types.Node = AgentDescendant(nil)
 
 type AgentDescendant interface {
 	types.Node

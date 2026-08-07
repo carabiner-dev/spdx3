@@ -25,7 +25,7 @@ func TestDecimal(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			var d Decimal
 			require.NoError(t, json.Unmarshal([]byte(tc.input), &d))
-			require.Equal(t, tc.expected, d.Value)
+			require.InDelta(t, tc.expected, d.Value, 1e-12)
 			out, err := json.Marshal(d)
 			require.NoError(t, err)
 			require.Equal(t, tc.output, string(out))

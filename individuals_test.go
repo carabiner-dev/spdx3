@@ -8,12 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/carabiner-dev/spdx3/base"
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/profiles/expandedlicensing"
 	"github.com/carabiner-dev/spdx3/types"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseIndividuals(t *testing.T) {

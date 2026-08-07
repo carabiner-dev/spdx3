@@ -10,9 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/carabiner-dev/spdx3/profiles/software"
+	"github.com/stretchr/testify/require"
 )
 
 func TestContextForms(t *testing.T) {
@@ -27,13 +26,13 @@ func TestContextForms(t *testing.T) {
 			name:    "string",
 			json:    `"https://spdx.org/rdf/3.0.1/spdx-context.jsonld"`,
 			urls:    []string{ContextURL301},
-			version: "3.0.1",
+			version: specVersion301,
 		},
 		{
 			name:    "array",
 			json:    `["https://spdx.org/rdf/3.0.1/spdx-context.jsonld", {"myns": "https://example.com/terms/"}]`,
 			urls:    []string{ContextURL301},
-			version: "3.0.1",
+			version: specVersion301,
 		},
 		{
 			name: "object",
@@ -71,7 +70,7 @@ func TestContextForms(t *testing.T) {
 
 func TestContextVersion(t *testing.T) {
 	for url, version := range map[string]string{
-		"https://spdx.org/rdf/3.0.1/spdx-context.jsonld":                    "3.0.1",
+		"https://spdx.org/rdf/3.0.1/spdx-context.jsonld":                    specVersion301,
 		"https://spdx.org/rdf/3.1/spdx-context.jsonld":                      "3.1",
 		"https://spdx.org/rdf/3/spdx-context.jsonld":                        "3",
 		"https://spdx.github.io/spdx-spec/v3.1-RC1/rdf/spdx-context.jsonld": "3.1-RC1",
@@ -90,7 +89,7 @@ func TestParseContext(t *testing.T) {
 
 		env, err := NewParser().Parse(f)
 		require.NoError(t, err)
-		require.Equal(t, "3.0.1", env.Context.Version())
+		require.Equal(t, specVersion301, env.Context.Version())
 		require.Equal(t, ContextURL301, env.Context.String())
 	})
 
@@ -106,7 +105,7 @@ func TestParseContext(t *testing.T) {
 		}`
 		env, err := NewParser().Parse(strings.NewReader(doc))
 		require.NoError(t, err)
-		require.Equal(t, "3.0.1", env.Context.Version())
+		require.Equal(t, specVersion301, env.Context.Version())
 		require.Len(t, env.Graph, 1)
 
 		pkg, ok := env.Graph[0].(*software.Package)
@@ -133,14 +132,14 @@ func TestParseContext(t *testing.T) {
 		}`
 		env, err := NewParser().Parse(strings.NewReader(doc))
 		require.NoError(t, err)
-		require.Equal(t, "3.0.1", env.Context.Version())
+		require.Equal(t, specVersion301, env.Context.Version())
 
 		// The array form must survive rendering verbatim.
 		buf := &bytes.Buffer{}
 		require.NoError(t, (&Renderer{}).Render(env, buf))
 		reparsed, err := NewParser().Parse(bytes.NewReader(buf.Bytes()))
 		require.NoError(t, err)
-		require.Equal(t, "3.0.1", reparsed.Context.Version())
+		require.Equal(t, specVersion301, reparsed.Context.Version())
 		require.Equal(t, env.Context.URLs(), reparsed.Context.URLs())
 	})
 }

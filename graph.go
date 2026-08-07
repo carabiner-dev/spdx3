@@ -47,6 +47,11 @@ func (e *Envelope) UnmarshalJSON(data []byte) error {
 	return e.Graph.UnmarshalJSON(single)
 }
 
+// Graph is the list of nodes a document carries. The receivers are
+// deliberately mixed: json.Unmarshaler has to take a pointer to grow the
+// slice, while json.Marshaler takes a value so it is found on a Graph value.
+//
+//nolint:recvcheck // mixing receivers is required, see above
 type Graph []types.Node
 
 // UnmarshalJSON unmarshalls the JSONLD graph into nodes typed to their kinds.
@@ -64,7 +69,7 @@ func (g *Graph) UnmarshalJSON(data []byte) error {
 		}
 		// TODO(puerco): Dedupe IDs of the resulting node
 		// TODO(puerco): Dedupe IDs of any fields that are nodes by looking up
-		// exising nodes with the same ID
+		// existing nodes with the same ID
 		*g = append(*g, n)
 	}
 

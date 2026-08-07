@@ -59,10 +59,13 @@ func TestRoundTripExamples(t *testing.T) {
 	}
 
 	var checked int
+	//nolint:gosec // G703: the directory is this repository's own corpus, or
+	// one the person running the tests named themselves.
 	require.NoError(t, filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".json") {
 			return err
 		}
+		//nolint:gosec // G122: as above, the walked tree is trusted.
 		data, readErr := os.ReadFile(path)
 		if readErr != nil || !isSPDX3Document(data) {
 			return readErr

@@ -8,11 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/profiles/software"
 	"github.com/carabiner-dev/spdx3/types"
+	"github.com/stretchr/testify/require"
 )
 
 func docWithRootElement(rootElement string) string {
@@ -135,5 +134,5 @@ func TestNonElementInCollection(t *testing.T) {
 	_, err := NewParser().Parse(strings.NewReader(doc))
 	require.Error(t, err)
 	require.ErrorIs(t, err, types.ErrIncompatibleNodeType)
-	require.Contains(t, err.Error(), "CreationInfo")
+	require.Contains(t, err.Error(), creationInfoType)
 }

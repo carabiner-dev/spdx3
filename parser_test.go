@@ -16,6 +16,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// Values the tests of this package repeat often enough to name.
+const (
+	specVersion301   = "3.0.1"
+	creationInfoType = "CreationInfo"
+)
+
 func textractNodeTypes(t *testing.T, graph *Graph) map[string]int {
 	t.Helper()
 	ret := map[string]int{}
@@ -33,7 +39,7 @@ func TestRender(t *testing.T) {
 	r := Renderer{}
 	n := time.Now()
 	c := &core.CreationInfo{
-		SpecVersion: "3.0.1",
+		SpecVersion: specVersion301,
 		CreatedBy: []core.AgentDescendant{
 			&core.Person{
 				Agent: core.Agent{
@@ -48,7 +54,7 @@ func TestRender(t *testing.T) {
 		Created: &n,
 		PreNode: base.PreNode{
 			ID:   "_:creationinfo",
-			Type: "CreationInfo",
+			Type: creationInfoType,
 		},
 	}
 
@@ -59,8 +65,7 @@ func TestRender(t *testing.T) {
 		},
 	}
 
-	r.Render(e, os.Stdout)
-	// t.Fail()
+	require.NoError(t, r.Render(e, os.Stdout))
 }
 
 func TestGraphMarshalJSON(t *testing.T) {
@@ -83,10 +88,10 @@ func TestGraphMarshalJSON(t *testing.T) {
 		creationInfo := &core.CreationInfo{
 			PreNode: base.PreNode{
 				ID:     "_:creationinfo",
-				Type:   "CreationInfo",
+				Type:   creationInfoType,
 				SPDXID: "SPDXRef-CreationInfo",
 			},
-			SpecVersion: "3.0.1",
+			SpecVersion: specVersion301,
 			CreatedBy:   []core.AgentDescendant{person},
 			Created:     &now,
 		}
@@ -106,8 +111,8 @@ func TestGraphMarshalJSON(t *testing.T) {
 		// Verify CreationInfo node
 		ciNode := result[0]
 		require.Equal(t, "_:creationinfo", ciNode["@id"])
-		require.Equal(t, "CreationInfo", ciNode["type"])
-		require.Equal(t, "3.0.1", ciNode["specVersion"])
+		require.Equal(t, creationInfoType, ciNode["type"])
+		require.Equal(t, specVersion301, ciNode["specVersion"])
 
 		// Verify that CreatedBy is serialized as an array of SPDXID references
 		createdBy, ok := ciNode["createdBy"].([]interface{})
@@ -156,7 +161,7 @@ func TestRoundtrip(t *testing.T) {
 		require.NotNil(t, env2)
 
 		// 4. Compare structures
-		require.Equal(t, len(env1.Graph), len(env2.Graph))
+		require.Len(t, env2.Graph, len(env1.Graph))
 		require.Equal(t, env1.Context, env2.Context)
 
 		for i, node := range env1.Graph {
@@ -170,7 +175,7 @@ func TestRoundtrip(t *testing.T) {
 
 		// 5. Verify CreationInfo nested references are preserved
 		for _, n := range env2.Graph {
-			if n.GetType() != "CreationInfo" {
+			if n.GetType() != creationInfoType {
 				continue
 			}
 
@@ -192,13 +197,14 @@ func TestNode(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, env)
 	require.NotNil(t, env.Graph)
-	require.Equal(t, "CreationInfo", env.Graph[0].GetType())
+	require.Equal(t, creationInfoType, env.Graph[0].GetType())
 	require.IsType(t, &core.CreationInfo{}, env.Graph[0])
 	require.IsType(t, &core.Person{}, env.Graph[1])
 	require.Len(t, env.Graph, 13)
-	person := env.Graph[1].(*core.Person)
+	person, ok := env.Graph[1].(*core.Person)
+	require.True(t, ok)
 	require.Len(t, person.ExternalIdentifier, 1)
-	require.EqualValues(t, core.ExternalIdentifier{
+	require.Equal(t, core.ExternalIdentifier{
 		Type:                   "ExternalIdentifier",
 		ExternalIdentifierType: "email",
 		Identifier:             "suriyawa@tcd.ie",
@@ -206,7 +212,7 @@ func TestNode(t *testing.T) {
 
 	require.Equal(t, map[string]int{
 		"Bom":                               1,
-		"CreationInfo":                      1,
+		creationInfoType:                    1,
 		"SpdxDocument":                      1,
 		"Organization":                      1,
 		"Person":                            1,
@@ -218,14 +224,14 @@ func TestNode(t *testing.T) {
 
 	// Check the values of the CreationInfo node
 	for _, n := range env.Graph {
-		if n.GetType() != "CreationInfo" {
+		if n.GetType() != creationInfoType {
 			continue
 		}
 
 		ci, ok := n.(*core.CreationInfo)
 		require.True(t, ok)
 
-		require.Equal(t, "3.0.1", ci.SpecVersion)
+		require.Equal(t, specVersion301, ci.SpecVersion)
 		require.Equal(t, "_:creationinfo", ci.ID)
 		crt, err := time.Parse(time.RFC3339, "2024-05-31T00:00:00Z")
 		require.NoError(t, err)
@@ -255,8 +261,8 @@ func TestUnmarshalNodeWithAlias(t *testing.T) {
 				err := ci.UnmarshalJSON(data)
 				require.NoError(t, err)
 				require.Equal(t, "_:ci1", ci.ID)
-				require.Equal(t, "CreationInfo", ci.Type)
-				require.Equal(t, "3.0.1", ci.SpecVersion)
+				require.Equal(t, creationInfoType, ci.Type)
+				require.Equal(t, specVersion301, ci.SpecVersion)
 			},
 		},
 		{

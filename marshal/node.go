@@ -69,7 +69,7 @@ func (nm *NodeMarshaler) marshalToMap(source any) (map[string]any, error) {
 	t := v.Type()
 	typeOfNode := reflect.TypeOf((*types.Node)(nil)).Elem()
 
-	for i := 0; i < t.NumField(); i++ {
+	for i := range t.NumField() {
 		field := t.Field(i)
 		fieldValue := v.Field(i)
 
@@ -212,7 +212,7 @@ func (nm *NodeMarshaler) marshalNodeSlice(fieldValue reflect.Value) (any, error)
 
 	result := make([]interface{}, 0, fieldValue.Len())
 
-	for i := 0; i < fieldValue.Len(); i++ {
+	for i := range fieldValue.Len() {
 		item := fieldValue.Index(i)
 
 		// Check if it's a NodeRef - use GetID() since NodeRef.GetSPDXID() returns empty
@@ -276,11 +276,15 @@ func isZeroValue(v reflect.Value) bool {
 		return v.Complex() == 0
 	case reflect.Struct:
 		// For structs, check if all fields are zero
-		for i := 0; i < v.NumField(); i++ {
+		for i := range v.NumField() {
 			if !isZeroValue(v.Field(i)) {
 				return false
 			}
 		}
+		return true
+	case reflect.Chan, reflect.Func, reflect.UnsafePointer:
+		return v.IsNil()
+	case reflect.Invalid:
 		return true
 	}
 	return false
