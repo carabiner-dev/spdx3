@@ -21,6 +21,18 @@ type Envelope struct {
 	Graph   Graph   `json:"@graph"`
 }
 
+// NewEnvelope returns an empty document bound to the context of the SPDX
+// version this library targets, ready for elements to be added to its graph:
+//
+//	env := spdx3.NewEnvelope()
+//	env.Graph.AddNode(creationInfo, person, pkg)
+func NewEnvelope() *Envelope {
+	return &Envelope{
+		Context: NewContext(ContextURL301),
+		Graph:   Graph{},
+	}
+}
+
 // UnmarshalJSON reads a document in either of the two shapes the
 // serialization allows: a @graph holding the elements, or a lone element as
 // the document root. A single root element is read into a one-node graph,
@@ -60,6 +72,11 @@ func (e *Envelope) unmarshalWith(data []byte, nu *unmarshal.NodeUnmarshaler) err
 //
 //nolint:recvcheck // mixing receivers is required, see above
 type Graph []types.Node
+
+// AddNode appends elements to the graph, in the order given.
+func (g *Graph) AddNode(nodes ...types.Node) {
+	*g = append(*g, nodes...)
+}
 
 // UnmarshalJSON unmarshalls the JSONLD graph into nodes typed to their kinds.
 func (g *Graph) UnmarshalJSON(data []byte) error {

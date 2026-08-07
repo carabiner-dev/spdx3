@@ -176,10 +176,8 @@ func writeAuthored(target string) error {
 		DownloadLocation: "https://example.com/example-lib-1.4.2.tar.gz",
 	}
 
-	env := &spdx3.Envelope{
-		Context: spdx3.NewContext(spdx3.ContextURL301),
-		Graph:   spdx3.Graph{creation, alice, tool, pkg},
-	}
+	env := spdx3.NewEnvelope()
+	env.Graph.AddNode(creation, alice, tool, pkg)
 
 	buf := &bytes.Buffer{}
 	if err := (&spdx3.Renderer{}).Render(env, buf); err != nil {
