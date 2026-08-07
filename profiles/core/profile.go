@@ -10,6 +10,10 @@ import (
 )
 
 const (
+	// SpecVersion is the version of the specification this library models,
+	// and the value an element's creation information carries.
+	SpecVersion = "3.0.1"
+
 	Prefix                           = "core"
 	ElementClass                     = "Element"
 	CreationInfoClass                = "CreationInfo"
@@ -336,6 +340,18 @@ func (ec *ElementCollection) GetType() string {
 }
 
 func (ec *ElementCollection) FromElement() {}
+
+// AddRootElement names what this collection is about. A document's root
+// elements are the ones it was written to describe; the rest are there to
+// support them.
+func (ec *ElementCollection) AddRootElement(elements ...ElementDescendant) {
+	ec.RootElement = append(ec.RootElement, elements...)
+}
+
+// AddElement adds elements this collection contains.
+func (ec *ElementCollection) AddElement(elements ...ElementDescendant) {
+	ec.Element = append(ec.Element, elements...)
+}
 
 // Bundle is a collection of Elements with shared context
 type Bundle struct {

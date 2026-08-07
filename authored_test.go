@@ -55,7 +55,7 @@ func TestAuthoredDocumentTimestamps(t *testing.T) {
 				ReleaseTime: types.NewDateTime(now.UTC()),
 			},
 		},
-		PackageVersion: "1.0.0",
+		PackageVersion: packageVersion,
 	}
 
 	env := &Envelope{

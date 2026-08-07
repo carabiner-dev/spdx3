@@ -23,7 +23,6 @@ import (
 	"time"
 
 	spdx3 "github.com/carabiner-dev/spdx3"
-	"github.com/carabiner-dev/spdx3/base"
 	"github.com/carabiner-dev/spdx3/profiles/core"
 	"github.com/carabiner-dev/spdx3/profiles/software"
 	"github.com/carabiner-dev/spdx3/types"
@@ -130,54 +129,38 @@ func render(source, target string) error {
 func writeAuthored(target string) error {
 	now := time.Now()
 
-	creation := &core.CreationInfo{
-		PreNode:      base.PreNode{ID: "_:creationinfo", Type: core.CreationInfoClass},
-		SpecVersion:  "3.0.1",
-		Created:      types.NewDateTime(now),
-		CreatedBy:    []core.AgentDescendant{types.NodeRef{ID: "https://example.com/spdx/alice"}},
-		CreatedUsing: []types.Node{types.NodeRef{ID: "https://example.com/spdx/tool"}},
+	alice := core.NewPerson("https://example.com/spdx/alice", "Alice")
+	tool := core.NewTool("https://example.com/spdx/tool", "spdx3 render")
+
+	pkg := software.NewPackage("https://example.com/spdx/pkg", "example-lib")
+	pkg.PackageVersion = "1.4.2"
+	pkg.DownloadLocation = "https://example.com/example-lib-1.4.2.tar.gz"
+	pkg.PrimaryPurpose = software.SoftwarePurposeLibrary
+	pkg.VerifiedUsing = []core.IntegrityMethodDescendant{
+		core.NewHash(core.HashAlgorithmSha256,
+			"5d41402abc4b2a76b9719d911017c592f0e8b1b45c0f47b09fb8f0e2e0d9c0aa"),
 	}
+	// Timestamps carrying the precision and the offset of the machine, so
+	// that the conversion to what SPDX allows is exercised.
+	pkg.BuiltTime = types.NewDateTime(now.Add(-time.Hour))
+	pkg.ReleaseTime = types.NewDateTime(now)
 
-	alice := &core.Person{
-		Agent: core.Agent{Node: core.Node{
-			PreNode:      base.PreNode{SPDXID: "https://example.com/spdx/alice", Type: core.PersonClass},
-			Name:         "Alice",
-			CreationInfo: creation,
-		}},
-	}
+	file := software.NewFile("https://example.com/spdx/file", "./src/main.go")
 
-	tool := &core.Tool{Node: core.Node{
-		PreNode:      base.PreNode{SPDXID: "https://example.com/spdx/tool", Type: core.ToolClass},
-		Name:         "spdx3 render",
-		CreationInfo: creation,
-	}}
-
-	pkg := &software.Package{
-		SoftwareArtifact: software.SoftwareArtifact{
-			Artifact: core.Artifact{
-				Node: core.Node{
-					PreNode:      base.PreNode{SPDXID: "https://example.com/spdx/pkg", Type: "software_Package"},
-					Name:         "example-lib",
-					CreationInfo: creation,
-					VerifiedUsing: []core.IntegrityMethodDescendant{
-						&core.Hash{
-							IntegrityMethod: core.IntegrityMethod{PreNode: base.PreNode{Type: core.HashClass}},
-							Algorithm:       core.HashAlgorithmSha256,
-							HashValue:       "5d41402abc4b2a76b9719d911017c592f0e8b1b45c0f47b09fb8f0e2e0d9c0aa",
-						},
-					},
-				},
-				BuiltTime:   types.NewDateTime(now.Add(-time.Hour)),
-				ReleaseTime: types.NewDateTime(now),
-			},
-			PrimaryPurpose: software.SoftwarePurposeLibrary,
-		},
-		PackageVersion:   "1.4.2",
-		DownloadLocation: "https://example.com/example-lib-1.4.2.tar.gz",
+	doc := core.NewSpdxDocument("https://example.com/spdx/document")
+	doc.AddRootElement(pkg)
+	doc.ProfileConformance = []core.ProfileIdentifierType{
+		core.ProfileIdentifierTypeCore, core.ProfileIdentifierTypeSoftware,
 	}
 
 	env := spdx3.NewEnvelope()
-	env.Graph.AddNode(creation, alice, tool, pkg)
+	env.Graph.AddNode(alice, tool, doc, pkg, file)
+	env.Graph.Relate("https://example.com/spdx/describes", doc, core.RelationshipTypeDescribes, pkg)
+	env.Graph.Relate("https://example.com/spdx/contains", pkg, core.RelationshipTypeContains, file)
+
+	creation := core.NewCreationInfo(now, alice)
+	creation.CreatedUsing = []types.Node{tool}
+	env.Graph.SetCreationInfo(creation)
 
 	buf := &bytes.Buffer{}
 	if err := (&spdx3.Renderer{}).Render(env, buf); err != nil {

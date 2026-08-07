@@ -23,6 +23,7 @@ const (
 	specVersion301   = "3.0.1"
 	creationInfoType = "CreationInfo"
 	creationInfoID   = "_:creationinfo"
+	packageVersion   = "1.0.0"
 )
 
 func textractNodeTypes(t *testing.T, graph *Graph) map[string]int {

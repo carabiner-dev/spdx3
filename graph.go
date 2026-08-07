@@ -78,6 +78,41 @@ func (g *Graph) AddNode(nodes ...types.Node) {
 	*g = append(*g, nodes...)
 }
 
+// Relate joins elements with a relationship of relType, adds it to the graph
+// and returns it, so that the relationships of a document can be stated where
+// they are read rather than built one struct at a time:
+//
+//	env.Graph.Relate(id, doc, core.RelationshipTypeDescribes, pkg)
+func (g *Graph) Relate(spdxID string, from types.Node, relType core.RelationshipType, to ...types.Node) *core.Relationship {
+	relationship := core.NewRelationship(spdxID, from, relType, to...)
+	g.AddNode(relationship)
+	return relationship
+}
+
+// SetCreationInfo gives every element of the graph that has none the
+// creation information passed, and adds it to the graph if it is not there
+// already. A document normally states its provenance once and shares it, so
+// this is called after its elements are in place rather than repeated on
+// each of them.
+func (g *Graph) SetCreationInfo(creation *core.CreationInfo) {
+	if creation == nil {
+		return
+	}
+
+	present := false
+	for _, node := range *g {
+		if node == creation {
+			present = true
+		}
+		if setter, ok := node.(interface{ SetCreationInfo(*core.CreationInfo) }); ok {
+			setter.SetCreationInfo(creation)
+		}
+	}
+	if !present {
+		g.AddNode(creation)
+	}
+}
+
 // UnmarshalJSON unmarshalls the JSONLD graph into nodes typed to their kinds.
 func (g *Graph) UnmarshalJSON(data []byte) error {
 	return g.unmarshalWith(data, defaultUnmarshaler())

@@ -44,7 +44,7 @@ func TestNewEnvelope(t *testing.T) {
 			Name:         "example-lib",
 			CreationInfo: creation,
 		}}},
-		PackageVersion: "1.0.0",
+		PackageVersion: packageVersion,
 	}
 
 	// Nodes can be added one at a time or several at once, and keep the

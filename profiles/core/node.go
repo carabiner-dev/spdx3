@@ -31,6 +31,14 @@ func (bn *Node) GetName() string {
 	return bn.Name
 }
 
+// SetCreationInfo records how this element came to be, leaving alone one
+// that already says so.
+func (bn *Node) SetCreationInfo(creation *CreationInfo) {
+	if bn.CreationInfo == nil {
+		bn.CreationInfo = creation
+	}
+}
+
 type ExtensionDescendant interface {
 	types.Node
 	FromExtension()
