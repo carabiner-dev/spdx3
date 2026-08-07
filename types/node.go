@@ -104,3 +104,10 @@ func (NodeRef) FromAgent()           {}
 func (NodeRef) FromArtifact()        {}
 func (NodeRef) FromRelationship()    {}
 func (NodeRef) FromIntegrityMethod() {}
+
+// The licensing markers, so a reference can stand in for a license anywhere
+// a license, a license set member or an exception is expected.
+func (NodeRef) FromAnyLicenseInfo()    {}
+func (NodeRef) FromExtendableLicense() {}
+func (NodeRef) FromLicense()           {}
+func (NodeRef) FromLicenseAddition()   {}

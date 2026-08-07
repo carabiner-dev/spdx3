@@ -54,6 +54,29 @@ type ExtendableLicense struct {
 	simplelicensing.AnyLicenseInfo
 }
 
+func (el *ExtendableLicense) FromExtendableLicense() {}
+
+// ExtendableLicenseDescendant is implemented by the classes the model
+// derives from ExtendableLicense: the licenses proper and OrLaterOperator.
+type ExtendableLicenseDescendant interface {
+	types.Node
+	FromExtendableLicense()
+}
+
+// LicenseDescendant is implemented by the classes the model derives from
+// License, which is what an OrLaterOperator applies to.
+type LicenseDescendant interface {
+	types.Node
+	FromLicense()
+}
+
+// LicenseAdditionDescendant is implemented by the classes the model derives
+// from LicenseAddition, the exceptions a WithAdditionOperator applies.
+type LicenseAdditionDescendant interface {
+	types.Node
+	FromLicenseAddition()
+}
+
 // License is an abstract class representing a license text
 type License struct {
 	ExtendableLicense
@@ -67,6 +90,8 @@ type License struct {
 	StandardLicenseHeader   string   `json:"expandedlicensing_standardLicenseHeader,omitempty"`
 	StandardLicenseTemplate string   `json:"expandedlicensing_standardLicenseTemplate,omitempty"`
 }
+
+func (l *License) FromLicense() {}
 
 // ListedLicense references a license from the official SPDX list
 type ListedLicense struct {
@@ -98,8 +123,8 @@ func (cl *CustomLicense) UnmarshalJSON(data []byte) error {
 
 // OrLaterOperator represents the "or later version" operator
 type OrLaterOperator struct {
-	simplelicensing.AnyLicenseInfo
-	SubjectLicense string `json:"expandedlicensing_subjectLicense"`
+	ExtendableLicense
+	SubjectLicense LicenseDescendant `json:"expandedlicensing_subjectLicense"`
 }
 
 func (olo *OrLaterOperator) GetType() string {
@@ -113,8 +138,8 @@ func (olo *OrLaterOperator) UnmarshalJSON(data []byte) error {
 // WithAdditionOperator represents the "with addition" operator
 type WithAdditionOperator struct {
 	simplelicensing.AnyLicenseInfo
-	SubjectAddition          string `json:"expandedlicensing_subjectAddition"`
-	SubjectExtendableLicense string `json:"expandedlicensing_subjectExtendableLicense"`
+	SubjectAddition          LicenseAdditionDescendant   `json:"expandedlicensing_subjectAddition"`
+	SubjectExtendableLicense ExtendableLicenseDescendant `json:"expandedlicensing_subjectExtendableLicense"`
 }
 
 func (wao *WithAdditionOperator) GetType() string {
@@ -128,7 +153,7 @@ func (wao *WithAdditionOperator) UnmarshalJSON(data []byte) error {
 // ConjunctiveLicenseSet represents a conjunction of multiple licenses (AND)
 type ConjunctiveLicenseSet struct {
 	simplelicensing.AnyLicenseInfo
-	Member []string `json:"expandedlicensing_member"`
+	Member []simplelicensing.AnyLicenseInfoDescendant `json:"expandedlicensing_member"`
 }
 
 func (cls *ConjunctiveLicenseSet) GetType() string {
@@ -142,7 +167,7 @@ func (cls *ConjunctiveLicenseSet) UnmarshalJSON(data []byte) error {
 // DisjunctiveLicenseSet represents a disjunction of multiple licenses (OR)
 type DisjunctiveLicenseSet struct {
 	simplelicensing.AnyLicenseInfo
-	Member []string `json:"expandedlicensing_member"`
+	Member []simplelicensing.AnyLicenseInfoDescendant `json:"expandedlicensing_member"`
 }
 
 func (dls *DisjunctiveLicenseSet) GetType() string {
@@ -177,7 +202,8 @@ type LicenseAddition struct {
 	StandardAdditionTemplate string   `json:"expandedlicensing_standardAdditionTemplate,omitempty"`
 }
 
-func (la *LicenseAddition) FromElement() {}
+func (la *LicenseAddition) FromElement()         {}
+func (la *LicenseAddition) FromLicenseAddition() {}
 
 // ListedLicenseException references an exception from the SPDX list
 type ListedLicenseException struct {

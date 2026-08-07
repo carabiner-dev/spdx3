@@ -35,6 +35,17 @@ type AnyLicenseInfo struct {
 	core.Element
 }
 
+func (ali *AnyLicenseInfo) FromAnyLicenseInfo() {}
+
+// AnyLicenseInfoDescendant is implemented by every class the model derives
+// from AnyLicenseInfo, so a property whose range is a license, such as a
+// license set's member, can hold any of them and dispatch inline objects to
+// their concrete type.
+type AnyLicenseInfoDescendant interface {
+	types.Node
+	FromAnyLicenseInfo()
+}
+
 func (ali *AnyLicenseInfo) GetType() string {
 	return fmt.Sprintf("%s_%s", Prefix, AnyLicenseInfoType)
 }
