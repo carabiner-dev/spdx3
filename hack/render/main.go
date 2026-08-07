@@ -20,11 +20,25 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	spdx3 "github.com/carabiner-dev/spdx3"
+	"github.com/carabiner-dev/spdx3/base"
+	"github.com/carabiner-dev/spdx3/profiles/core"
+	"github.com/carabiner-dev/spdx3/profiles/software"
+	"github.com/carabiner-dev/spdx3/types"
 )
 
-const defaultCorpus = "testdata/corpus"
+const (
+	defaultCorpus = "testdata/corpus"
+
+	// authoredName is the document the library builds itself, which the
+	// conformance checks validate alongside the rendered corpus. Rendering
+	// existing documents cannot exercise the code paths that turn Go values
+	// into SPDX ones, since a value read from a document is written back as
+	// it came.
+	authoredName = "authored.spdx.json"
+)
 
 func main() {
 	if err := run(); err != nil {
@@ -36,6 +50,7 @@ func main() {
 func run() error {
 	out := flag.String("out", "", "directory to write the rendered documents to (required)")
 	in := flag.String("in", defaultCorpus, "directory to read documents from when none are named")
+	authored := flag.Bool("authored", false, "also write a document built in Go rather than read from a file")
 	flag.Parse()
 
 	if *out == "" {
@@ -44,22 +59,30 @@ func run() error {
 	}
 
 	files := flag.Args()
-	base := ""
+	baseDir := ""
 	if len(files) == 0 {
 		var err error
 		if files, err = findDocuments(*in); err != nil {
 			return err
 		}
-		base = *in
+		baseDir = *in
 	}
 	if len(files) == 0 {
 		return fmt.Errorf("no SPDX 3 documents found in %s", *in)
 	}
 
+	if *authored {
+		target := filepath.Join(*out, authoredName)
+		if err := writeAuthored(target); err != nil {
+			return err
+		}
+		fmt.Println(target)
+	}
+
 	for _, file := range files {
 		target := filepath.Join(*out, filepath.Base(file))
-		if base != "" {
-			rel, err := filepath.Rel(base, file)
+		if baseDir != "" {
+			rel, err := filepath.Rel(baseDir, file)
 			if err != nil {
 				return fmt.Errorf("locating %s: %w", file, err)
 			}
@@ -91,6 +114,77 @@ func render(source, target string) error {
 		return fmt.Errorf("rendering %s: %w", source, err)
 	}
 
+	if err := os.MkdirAll(filepath.Dir(target), 0o750); err != nil {
+		return fmt.Errorf("creating %s: %w", filepath.Dir(target), err)
+	}
+	if err := os.WriteFile(target, buf.Bytes(), 0o600); err != nil {
+		return fmt.Errorf("writing %s: %w", target, err)
+	}
+	return nil
+}
+
+// writeAuthored builds a document out of Go values and writes it. The
+// timestamps come from time.Now(), so they carry the sub-second precision and
+// the local offset that SPDX does not allow, and the document is only valid
+// if the library converts them.
+func writeAuthored(target string) error {
+	now := time.Now()
+
+	creation := &core.CreationInfo{
+		PreNode:      base.PreNode{ID: "_:creationinfo", Type: core.CreationInfoClass},
+		SpecVersion:  "3.0.1",
+		Created:      types.NewDateTime(now),
+		CreatedBy:    []core.AgentDescendant{types.NodeRef{ID: "https://example.com/spdx/alice"}},
+		CreatedUsing: []types.Node{types.NodeRef{ID: "https://example.com/spdx/tool"}},
+	}
+
+	alice := &core.Person{
+		Agent: core.Agent{Node: core.Node{
+			PreNode:      base.PreNode{SPDXID: "https://example.com/spdx/alice", Type: core.PersonClass},
+			Name:         "Alice",
+			CreationInfo: creation,
+		}},
+	}
+
+	tool := &core.Tool{Node: core.Node{
+		PreNode:      base.PreNode{SPDXID: "https://example.com/spdx/tool", Type: core.ToolClass},
+		Name:         "spdx3 render",
+		CreationInfo: creation,
+	}}
+
+	pkg := &software.Package{
+		SoftwareArtifact: software.SoftwareArtifact{
+			Artifact: core.Artifact{
+				Node: core.Node{
+					PreNode:      base.PreNode{SPDXID: "https://example.com/spdx/pkg", Type: "software_Package"},
+					Name:         "example-lib",
+					CreationInfo: creation,
+					VerifiedUsing: []core.IntegrityMethodDescendant{
+						&core.Hash{
+							IntegrityMethod: core.IntegrityMethod{PreNode: base.PreNode{Type: core.HashClass}},
+							Algorithm:       core.HashAlgorithmSha256,
+							HashValue:       "5d41402abc4b2a76b9719d911017c592f0e8b1b45c0f47b09fb8f0e2e0d9c0aa",
+						},
+					},
+				},
+				BuiltTime:   types.NewDateTime(now.Add(-time.Hour)),
+				ReleaseTime: types.NewDateTime(now),
+			},
+			PrimaryPurpose: software.SoftwarePurposeLibrary,
+		},
+		PackageVersion:   "1.4.2",
+		DownloadLocation: "https://example.com/example-lib-1.4.2.tar.gz",
+	}
+
+	env := &spdx3.Envelope{
+		Context: spdx3.NewContext(spdx3.ContextURL301),
+		Graph:   spdx3.Graph{creation, alice, tool, pkg},
+	}
+
+	buf := &bytes.Buffer{}
+	if err := (&spdx3.Renderer{}).Render(env, buf); err != nil {
+		return fmt.Errorf("rendering the authored document: %w", err)
+	}
 	if err := os.MkdirAll(filepath.Dir(target), 0o750); err != nil {
 		return fmt.Errorf("creating %s: %w", filepath.Dir(target), err)
 	}

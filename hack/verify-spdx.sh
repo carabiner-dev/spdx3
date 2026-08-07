@@ -4,18 +4,24 @@
 #
 # Checks what this library writes against the SPDX project's own tooling.
 #
-# Every vendored document is read and written back out by the library, and the
-# result is put through two independent checks:
+# Every vendored document is read and written back out by the library, and a
+# further document is built out of Go values rather than read from a file, so
+# that the code turning Go values into SPDX ones is exercised too. Each result
+# is put through two independent checks:
 #
 #   * the official SPDX 3.0.1 JSON schema, for structural conformance;
 #   * the SPDX Java tools' Verify command, the reference implementation, for
 #     semantic conformance.
 #
-# Both checks run over the input as well, and a document is only reported as a
-# failure when the input passes and our output does not. That way a defect in
-# an upstream example cannot fail this repository's builds: at the time of
-# writing, spdx-examples' simplehtr document declares the same spdxId twice and
-# Verify rejects it, ours and theirs alike.
+# For the rendered documents both checks run over the input as well, and one is
+# only reported as a failure when the input passes and our output does not.
+# The authored document has no input to compare against and must simply be
+# valid.
+#
+# Comparing against the input keeps a defect in an upstream example from
+# failing this repository's builds: at the time of writing, spdx-examples'
+# simplehtr document declares the same spdxId twice, and Verify rejects it
+# whether they wrote it or we did.
 #
 #   ./hack/verify-spdx.sh [--keep DIR]
 #
@@ -83,7 +89,7 @@ else
 fi
 
 echo "Rendering the vendored documents through the library..."
-(cd "${root}" && go run ./hack/render -out "${rendered}" >/dev/null)
+(cd "${root}" && go run ./hack/render -authored -out "${rendered}" >/dev/null)
 
 # schema_ok and verify_ok answer whether a document passes each check, and
 # schema_output and verify_output say why it did not. None of them pipe the
@@ -163,6 +169,38 @@ while read -r original; do
 		report "$(verify_output "${output}")"
 	fi
 done < <(find "${corpus}" -name '*.json' | sort)
+
+# The authored document has no input to compare against: the library built it
+# out of Go values, so it simply has to be valid. This is the only check that
+# exercises turning Go values into SPDX ones; rendering an existing document
+# writes back what it read.
+authored="${rendered}/authored.spdx.json"
+if [[ -f "${authored}" ]]; then
+	echo
+	checked+=1
+	authored_schema="ok"
+	authored_verify="ok"
+	if ! schema_ok "${authored}"; then
+		authored_schema="FAILED"
+		regressions+=1
+	fi
+	if ! verify_ok "${authored}"; then
+		authored_verify="FAILED"
+		regressions+=1
+	fi
+	printf '%-58s %-8s %s\n' "authored.spdx.json (built by the library)" "${authored_schema}" "${authored_verify}"
+	if [[ "${authored_schema}" == "FAILED" ]]; then
+		echo "  the schema rejects the document the library authored:"
+		report "$(schema_output "${authored}")"
+	fi
+	if [[ "${authored_verify}" == "FAILED" ]]; then
+		echo "  Verify rejects the document the library authored:"
+		report "$(verify_output "${authored}")"
+	fi
+else
+	echo "the authored document was not written" >&2
+	regressions+=1
+fi
 
 echo
 if [[ ${regressions} -gt 0 ]]; then
