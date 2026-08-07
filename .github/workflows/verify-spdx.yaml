@@ -1,0 +1,57 @@
+# SPDX-FileCopyrightText: Copyright 2025 Carabiner Systems, Inc
+# SPDX-License-Identifier: Apache-2.0
+
+name: Validate SPDX Conformance
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+  push:
+    branches:
+      - 'main'
+
+permissions: {}
+
+jobs:
+  verify-spdx:
+    name: Check our output with the SPDX tools
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version-file: go.mod
+          check-latest: true
+
+      # The SPDX Java tools run the reference implementation's Verify command.
+      - uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: '3.13'
+
+      - name: Install check-jsonschema
+        run: pip install --disable-pip-version-check check-jsonschema==0.37.4
+
+      # Renders every vendored document through the library and checks the
+      # result against the official 3.0.1 JSON schema and the SPDX Java
+      # tools, failing only where the tools accept the input but not ours.
+      - name: Verify the documents the library writes
+        run: ./hack/verify-spdx.sh --keep rendered
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ always() }}
+        with:
+          name: rendered-documents
+          path: rendered

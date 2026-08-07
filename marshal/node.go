@@ -42,16 +42,16 @@ func (nm *NodeMarshaler) canReference(id string) bool {
 // Top-level nodes are serialized fully, but any nested nodes within them
 // are serialized as just their SPDXID strings.
 func (nm *NodeMarshaler) MarshalNode(source any) ([]byte, error) {
-	m, err := nm.marshalToMap(source, false)
+	m, err := nm.marshalToMap(source)
 	if err != nil {
 		return nil, err
 	}
 	return json.Marshal(m)
 }
 
-// marshalToMap converts a struct to a map[string]interface{} using reflection.
-// If asReference is true, nested nodes are serialized as SPDXID strings.
-func (nm *NodeMarshaler) marshalToMap(source any, asReference bool) (map[string]any, error) {
+// marshalToMap converts a struct to a map[string]any using reflection,
+// serializing the nodes nested in it as references where it can.
+func (nm *NodeMarshaler) marshalToMap(source any) (map[string]any, error) {
 	result := make(map[string]any)
 
 	v := reflect.ValueOf(source)
@@ -82,7 +82,7 @@ func (nm *NodeMarshaler) marshalToMap(source any, asReference bool) (map[string]
 		if field.Anonymous {
 			if fieldValue.Kind() == reflect.Ptr {
 				if !fieldValue.IsNil() {
-					embedded, err := nm.marshalToMap(fieldValue.Interface(), asReference)
+					embedded, err := nm.marshalToMap(fieldValue.Interface())
 					if err != nil {
 						return nil, fmt.Errorf("marshaling embedded field %s: %w", field.Name, err)
 					}
@@ -92,7 +92,7 @@ func (nm *NodeMarshaler) marshalToMap(source any, asReference bool) (map[string]
 					}
 				}
 			} else if fieldValue.Kind() == reflect.Struct {
-				embedded, err := nm.marshalToMap(fieldValue.Interface(), asReference)
+				embedded, err := nm.marshalToMap(fieldValue.Interface())
 				if err != nil {
 					return nil, fmt.Errorf("marshaling embedded field %s: %w", field.Name, err)
 				}
@@ -195,7 +195,7 @@ func (nm *NodeMarshaler) marshalSingleNode(fieldValue reflect.Value) (any, error
 			// Nodes without any identifier (hashes, extensions, ...) and
 			// nodes whose data is not carried anywhere else in the document
 			// can only be represented inline.
-			return nm.marshalToMap(node, false)
+			return nm.marshalToMap(node)
 		}
 		// Return the ID in the same format it was stored
 		return id, nil
@@ -238,7 +238,7 @@ func (nm *NodeMarshaler) marshalNodeSlice(fieldValue reflect.Value) (any, error)
 				// Nodes without any identifier (hashes, extensions, ...) and
 				// nodes whose data is not carried anywhere else in the
 				// document can only be represented inline.
-				inline, err := nm.marshalToMap(node, false)
+				inline, err := nm.marshalToMap(node)
 				if err != nil {
 					return nil, fmt.Errorf("marshaling inline node at index %d: %w", i, err)
 				}
