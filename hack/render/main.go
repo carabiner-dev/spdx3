@@ -91,10 +91,10 @@ func render(source, target string) error {
 		return fmt.Errorf("rendering %s: %w", source, err)
 	}
 
-	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(target), 0o750); err != nil {
 		return fmt.Errorf("creating %s: %w", filepath.Dir(target), err)
 	}
-	if err := os.WriteFile(target, buf.Bytes(), 0o644); err != nil {
+	if err := os.WriteFile(target, buf.Bytes(), 0o600); err != nil {
 		return fmt.Errorf("writing %s: %w", target, err)
 	}
 	return nil
@@ -106,6 +106,8 @@ func findDocuments(dir string) ([]string, error) {
 		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".json") {
 			return err
 		}
+		//nolint:gosec // G122: the tree walked is a directory named on the
+		// command line, not attacker-controlled input.
 		data, readErr := os.ReadFile(path)
 		if readErr != nil {
 			return readErr
