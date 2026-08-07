@@ -100,3 +100,9 @@ const (
 	// DatasetTypeVideo indicates dataset contains video data
 	DatasetTypeVideo DatasetType = "video"
 )
+
+// IsValid reports whether the value is a member of its vocabulary, so that
+// the parser and Validate can check it without knowing which one it is.
+func (c ConfidentialityLevelType) IsValid() bool { return ConfidentialityLevelTypes.Contains(c) }
+func (d DatasetAvailabilityType) IsValid() bool  { return DatasetAvailabilityTypes.Contains(d) }
+func (d DatasetType) IsValid() bool              { return DatasetTypes.Contains(d) }

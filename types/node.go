@@ -5,6 +5,7 @@ package types
 
 import (
 	"errors"
+	"slices"
 )
 
 var (
@@ -23,7 +24,24 @@ type Profile struct {
 	Classes map[string]Node
 }
 
+// Vocabulary is the set of values an SPDX enumerated property admits.
 type Vocabulary[T ~string] []T
+
+// Contains reports whether value is a member of the vocabulary.
+func (v Vocabulary[T]) Contains(value T) bool {
+	return slices.Contains(v, value)
+}
+
+// VocabularyValue is implemented by every string type modelling an SPDX
+// vocabulary, so a value can be checked without knowing which vocabulary it
+// belongs to. The parser uses it to drop values outside their vocabulary,
+// and Validate to report them.
+type VocabularyValue interface {
+	// IsValid reports whether the value is a member of its vocabulary. The
+	// empty string is not a member: an absent property is represented by
+	// the field being unset, not by an empty value.
+	IsValid() bool
+}
 
 func (id ID) GetID() string {
 	return string(id)

@@ -157,3 +157,10 @@ const (
 	// SoftwarePurposeTest indicates the element is a test
 	SoftwarePurposeTest SoftwarePurpose = "test"
 )
+
+// IsValid reports whether the value is a member of its vocabulary, so that
+// the parser and Validate can check it without knowing which one it is.
+func (c ContentIdentifierType) IsValid() bool { return ContentIdentifierTypes.Contains(c) }
+func (f FileKindType) IsValid() bool          { return FileKindTypes.Contains(f) }
+func (s SbomType) IsValid() bool              { return SbomTypes.Contains(s) }
+func (s SoftwarePurpose) IsValid() bool       { return SoftwarePurposes.Contains(s) }

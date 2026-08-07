@@ -118,6 +118,7 @@ func (nu *NodeUnmarshaler) unmarshalFields(raw map[string]json.RawMessage, targe
 				return fmt.Errorf("fallo: %w", err)
 			}
 			fieldValue.Set(newVal.Elem())
+			dropInvalidVocabularyValues(fieldValue)
 		}
 	}
 

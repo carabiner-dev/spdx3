@@ -447,3 +447,16 @@ const (
 	// SupportTypeSupport indicates released with active supplier support
 	SupportTypeSupport SupportType = "support"
 )
+
+// IsValid reports whether the value is a member of its vocabulary, so that
+// the parser and Validate can check it without knowing which one it is.
+func (a AnnotationType) IsValid() bool           { return AnnotationTypes.Contains(a) }
+func (e ExternalIdentifierType) IsValid() bool   { return ExternalIdentifierTypes.Contains(e) }
+func (e ExternalRefType) IsValid() bool          { return ExternalRefTypes.Contains(e) }
+func (h HashAlgorithm) IsValid() bool            { return HashAlgorithms.Contains(h) }
+func (l LifecycleScopeType) IsValid() bool       { return LifecycleScopeTypes.Contains(l) }
+func (p PresenceType) IsValid() bool             { return PresenceTypes.Contains(p) }
+func (p ProfileIdentifierType) IsValid() bool    { return ProfileIdentifierTypes.Contains(p) }
+func (r RelationshipCompleteness) IsValid() bool { return RelationshipCompletenesses.Contains(r) }
+func (r RelationshipType) IsValid() bool         { return RelationshipTypes.Contains(r) }
+func (s SupportType) IsValid() bool              { return SupportTypes.Contains(s) }

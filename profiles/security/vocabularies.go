@@ -88,3 +88,10 @@ const (
 	// VexJustificationTypeVulnerableCodeNotPresent indicates vulnerable code is not present in component
 	VexJustificationTypeVulnerableCodeNotPresent VexJustificationType = "vulnerableCodeNotPresent"
 )
+
+// IsValid reports whether the value is a member of its vocabulary, so that
+// the parser and Validate can check it without knowing which one it is.
+func (c CvssSeverityType) IsValid() bool     { return CvssSeverityTypes.Contains(c) }
+func (e ExploitCatalogType) IsValid() bool   { return ExploitCatalogTypes.Contains(e) }
+func (s SsvcDecisionType) IsValid() bool     { return SsvcDecisionTypes.Contains(s) }
+func (v VexJustificationType) IsValid() bool { return VexJustificationTypes.Contains(v) }

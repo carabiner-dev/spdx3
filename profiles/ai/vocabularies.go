@@ -43,3 +43,8 @@ const (
 	// SafetyRiskAssessmentTypeSerious indicates serious safety risk
 	SafetyRiskAssessmentTypeSerious SafetyRiskAssessmentType = "serious"
 )
+
+// IsValid reports whether the value is a member of its vocabulary, so that
+// the parser and Validate can check it without knowing which one it is.
+func (e EnergyUnitType) IsValid() bool           { return EnergyUnitTypes.Contains(e) }
+func (s SafetyRiskAssessmentType) IsValid() bool { return SafetyRiskAssessmentTypes.Contains(s) }
