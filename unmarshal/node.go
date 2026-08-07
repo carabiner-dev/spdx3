@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"slices"
 	"strings"
 
 	"github.com/carabiner-dev/spdx3/base"
@@ -101,6 +102,9 @@ func (nu *NodeUnmarshaler) UnmarshalNode(data []byte) (types.Node, error) {
 	if err := json.Unmarshal(data, prenode); err != nil {
 		return nil, fmt.Errorf("parsing node: %w", err)
 	}
+	if prenode.Type == "" {
+		prenode.Type = atTypeOf(data)
+	}
 
 	proto, ok := nu.Classes[prenode.Type]
 	if !ok {
@@ -145,12 +149,18 @@ func (nu *NodeUnmarshaler) Unmarshal(data []byte, target any, preNodePtr *base.P
 		return err
 	}
 
+	aliasJSONLDKeys(raw)
+
 	// Use reflection to set fields directly
-	return nu.unmarshalFields(raw, target)
+	bound := map[string]bool{}
+	if err := nu.unmarshalFields(raw, target, bound); err != nil {
+		return err
+	}
+	return checkBoundProperties(raw, bound)
 }
 
 // unmarshalFields recursively unmarshals fields including embedded structs
-func (nu *NodeUnmarshaler) unmarshalFields(raw map[string]json.RawMessage, target any) error {
+func (nu *NodeUnmarshaler) unmarshalFields(raw map[string]json.RawMessage, target any, bound map[string]bool) error {
 	v := reflect.ValueOf(target).Elem()
 	t := v.Type()
 
@@ -163,7 +173,7 @@ func (nu *NodeUnmarshaler) unmarshalFields(raw map[string]json.RawMessage, targe
 		if field.Anonymous {
 			// Handle embedded structs by recursively unmarshaling
 			if fieldValue.CanAddr() {
-				if err := nu.unmarshalFields(raw, fieldValue.Addr().Interface()); err != nil {
+				if err := nu.unmarshalFields(raw, fieldValue.Addr().Interface(), bound); err != nil {
 					return err
 				}
 			}
@@ -183,6 +193,7 @@ func (nu *NodeUnmarshaler) unmarshalFields(raw map[string]json.RawMessage, targe
 
 		// Check if we have data for this field
 		if rawData, ok := raw[tagName]; ok {
+			bound[tagName] = true
 			// If the field is a slice of nodes (interfaces)
 			if fieldValue.Kind() == reflect.Slice && fieldValue.Type().Elem().Kind() == reflect.Interface && fieldValue.Type().Elem().Implements(typeOfNode) {
 				if err := nu.unmarshalNodeSlice(rawData, &fieldValue); err != nil {
@@ -213,6 +224,59 @@ func (nu *NodeUnmarshaler) unmarshalFields(raw map[string]json.RawMessage, targe
 // unmarshalValue reads a field's value. A field holding a node is read
 // through this unmarshaler rather than encoding/json, which would route back
 // to the node's own UnmarshalJSON and, with it, to the package defaults.
+// atTypeOf reads the JSON-LD spelling of the type keyword. The SPDX context
+// aliases type to @type, so a document may use either; what this library
+// writes is always the plain one the serialization asks for.
+func atTypeOf(data []byte) string {
+	var probe struct {
+		AtType string `json:"@type"`
+	}
+	if err := json.Unmarshal(data, &probe); err != nil {
+		return ""
+	}
+	return probe.AtType
+}
+
+// identityKeys name a node rather than describing it, so a node carrying
+// only these is complete, not unreadable.
+var identityKeys = map[string]bool{"type": true, "@type": true, "spdxId": true, "@id": true}
+
+// checkBoundProperties reports a node that describes itself entirely in
+// terms this library does not know. Properties it does not recognize are
+// otherwise ignored, so that a document written against a later version of
+// the specification still reads; but when not one of them binds, reading the
+// node would silently yield an empty element, and saying so is more useful.
+func checkBoundProperties(raw map[string]json.RawMessage, bound map[string]bool) error {
+	unbound := []string{}
+	for key := range raw {
+		if identityKeys[key] || bound[key] {
+			continue
+		}
+		unbound = append(unbound, key)
+	}
+	if len(unbound) == 0 {
+		return nil
+	}
+	for key := range bound {
+		if !identityKeys[key] {
+			return nil
+		}
+	}
+	slices.Sort(unbound)
+	return fmt.Errorf("%w: %s", types.ErrNoKnownProperties, strings.Join(unbound, ", "))
+}
+
+// aliasJSONLDKeys makes the JSON-LD spelling of a keyword readable under the
+// name the struct tags use.
+func aliasJSONLDKeys(raw map[string]json.RawMessage) {
+	if _, ok := raw["type"]; ok {
+		return
+	}
+	if atType, ok := raw["@type"]; ok {
+		raw["type"] = atType
+	}
+}
+
 func (nu *NodeUnmarshaler) unmarshalValue(rawData json.RawMessage, target any) error {
 	// target is a pointer to the field; a node-valued field is a pointer to
 	// a pointer, which has to be allocated before its PreNode can be reached.

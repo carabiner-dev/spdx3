@@ -15,6 +15,13 @@ var (
 	// its class is not valid in the field holding it, such as a non-Element
 	// inlined in a collection's element or rootElement property.
 	ErrIncompatibleNodeType = errors.New("incompatible node type for field")
+
+	// ErrNoKnownProperties is returned when a node carries properties but
+	// none of them is one this library knows. Reading it would yield an
+	// element with nothing in it, so it is reported instead. Documents
+	// written with expanded JSON-LD IRIs rather than the names the SPDX
+	// context defines look like this.
+	ErrNoKnownProperties = errors.New("node has no property this library recognizes")
 )
 
 type ID string
