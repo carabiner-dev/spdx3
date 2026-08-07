@@ -1,0 +1,60 @@
+# SPDX-FileCopyrightText: Copyright 2025 Carabiner Systems, Inc
+# SPDX-License-Identifier: Apache-2.0
+
+name: go-tests
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      go-versions: ${{ steps.matrix.outputs.go-versions }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+
+    - name: Resolve Go versions
+      id: go-versions
+      uses: carabiner-dev/actions/go/versions@36a39ef667efe7112df8b1a534a4e37f35fad6fd # v1.2.6
+
+    - name: Build version matrix
+      id: matrix
+      run: |
+        echo "go-versions=[\"${{ steps.go-versions.outputs.GO_VERSION_STABLE }}\",\"${{ steps.go-versions.outputs.GO_VERSION_PREVIOUS }}\"]" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: resolve-versions
+    # This library reads and writes JSON, with nothing platform specific in
+    # it, so the matrix covers the two Go versions on Linux only.
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ${{ fromJSON(needs.resolve-versions.outputs.go-versions) }}
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+
+    - name: Set up Go ${{ matrix.go-version }}
+      uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      with:
+        go-version: ${{ matrix.go-version }}
+        cache: false
+
+    - name: Build
+      run: go build ./...
+
+    # Includes the round-trip suite, which checks that every vendored
+    # document survives being parsed and written back unchanged.
+    - name: Test
+      run: go test -race -v ./...
