@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: Copyright 2025 Carabiner Systems, Inc
+# SPDX-License-Identifier: Apache-2.0
+---
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions: {}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # needed to write releases
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+          check-latest: true
+
+      - name: Set tag output
+        id: tag
+        run: echo "tag_name=${GITHUB_REF#refs/*/}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish Release
+        uses: kubernetes-sigs/release-actions/publish-release@c130b4494862d330a1aa4de320076c666d0708da # v0.4.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          sbom: false
+
+      - name: Generate SBOM
+        id: sbom
+        uses: carabiner-dev/actions/unpack/sbom@36a39ef667efe7112df8b1a534a4e37f35fad6fd # v1.2.6
+        with:
+          push-to-release: ${{ steps.tag.outputs.tag_name }}
+        env:
+          GH_TOKEN: ${{ github.token }}
