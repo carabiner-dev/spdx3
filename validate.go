@@ -67,7 +67,7 @@ var vocabularyValueType = reflect.TypeOf((*types.VocabularyValue)(nil)).Elem()
 // structs embedded in it, and reports every vocabulary value it does not
 // recognize.
 func validateNode(v reflect.Value, id, nodeType string) []Finding {
-	if v.Kind() == reflect.Ptr {
+	if v.Kind() == reflect.Pointer {
 		if v.IsNil() {
 			return nil
 		}

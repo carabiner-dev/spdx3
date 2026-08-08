@@ -55,7 +55,7 @@ func (nm *NodeMarshaler) marshalToMap(source any) (map[string]any, error) {
 	result := make(map[string]any)
 
 	v := reflect.ValueOf(source)
-	if v.Kind() == reflect.Ptr {
+	if v.Kind() == reflect.Pointer {
 		if v.IsNil() {
 			return result, nil
 		}
@@ -80,7 +80,7 @@ func (nm *NodeMarshaler) marshalToMap(source any) (map[string]any, error) {
 
 		// Handle embedded structs - recursively merge their fields
 		if field.Anonymous {
-			if fieldValue.Kind() == reflect.Ptr {
+			if fieldValue.Kind() == reflect.Pointer {
 				if !fieldValue.IsNil() {
 					embedded, err := nm.marshalToMap(fieldValue.Interface())
 					if err != nil {
@@ -142,10 +142,10 @@ func (nm *NodeMarshaler) marshalToMap(source any) (map[string]any, error) {
 				result[tagName] = marshaled
 				continue
 			}
-		} else if fieldValue.Kind() == reflect.Interface || fieldValue.Kind() == reflect.Ptr {
+		} else if fieldValue.Kind() == reflect.Interface || fieldValue.Kind() == reflect.Pointer {
 			// Check if it implements Node
 			if fieldValue.Type().Implements(typeOfNode) ||
-				(fieldValue.Kind() == reflect.Ptr && fieldValue.Type().Elem().Implements(typeOfNode)) {
+				(fieldValue.Kind() == reflect.Pointer && fieldValue.Type().Elem().Implements(typeOfNode)) {
 				if !fieldValue.IsNil() {
 					marshaled, err := nm.marshalSingleNode(fieldValue)
 					if err != nil {
@@ -262,7 +262,7 @@ func isZeroValue(v reflect.Value) bool {
 		return v.Len() == 0
 	case reflect.Slice, reflect.Array, reflect.Map:
 		return v.Len() == 0
-	case reflect.Ptr, reflect.Interface:
+	case reflect.Pointer, reflect.Interface:
 		return v.IsNil()
 	case reflect.Bool:
 		return !v.Bool()
