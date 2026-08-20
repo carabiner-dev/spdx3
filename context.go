@@ -30,8 +30,6 @@ var contextVersionPatterns = []*regexp.Regexp{
 // pointer, while the accessors take values so they work on the Context field
 // of an Envelope value, which is not addressable when the envelope is
 // rendered.
-//
-//nolint:recvcheck // mixing receivers is required, see above
 type Context struct {
 	url string
 	raw json.RawMessage

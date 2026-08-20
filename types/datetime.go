@@ -22,8 +22,6 @@ const dateTimeLayout = "2006-01-02T15:04:05Z"
 // The receivers are deliberately mixed, as they are on Decimal:
 // json.Unmarshaler has to take a pointer, while the accessors take values so
 // they work on a DateTime that is not addressable.
-//
-//nolint:recvcheck // mixing receivers is required, see above
 type DateTime struct {
 	Value time.Time
 }
